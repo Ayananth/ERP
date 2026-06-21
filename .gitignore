@@ -1,0 +1,80 @@
+# Python
+
+**pycache**/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+
+.venv/
+venv/
+env/
+
+# Django
+
+*.log
+db.sqlite3
+media/
+staticfiles/
+
+# Environment Variables
+
+.env
+.env.*
+!.env.example
+
+# Migrations (optional)
+
+# */migrations/*
+
+# !*/migrations/**init**.py
+
+# IDE
+
+.vscode/
+.idea/
+
+# OS
+
+.DS_Store
+Thumbs.db
+
+# Testing
+
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Type Checking
+
+.mypy_cache/
+
+# Ruff
+
+.ruff_cache/
+
+# Build
+
+dist/
+build/
+*.egg-info/
+
+# uv
+
+.python-version
+uv.lock
+
+# Node (if React frontend exists in same repo)
+
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Uploaded files
+
+media/uploads/
+
+# Misc
+
+*.swp
+*.swo

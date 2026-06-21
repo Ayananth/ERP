@@ -12,6 +12,10 @@ class Item(models.Model):
         ACTIVE = "active", "Active"
         INACTIVE = "inactive", "Inactive"
 
+    class TaxableStatus(models.TextChoices):
+        TAXABLE = "taxable", "Taxable"
+        NON_TAXABLE = "non_taxable", "Non-Taxable"
+
     item_code = models.CharField(max_length=50, unique=True)
 
     name_1 = models.CharField(max_length=255)
@@ -32,7 +36,11 @@ class Item(models.Model):
         default=Status.ACTIVE
     )
 
-    taxable = models.BooleanField(default=True)
+    taxable_status = models.CharField(
+        max_length=20,
+        choices=TaxableStatus.choices,
+        default=TaxableStatus.NON_TAXABLE
+    )
 
     group = models.ForeignKey(
         "ItemGroup",
@@ -48,10 +56,34 @@ class Item(models.Model):
         blank=True
     )
 
-    shelf_code = models.CharField(max_length=50, blank=True)
+    shelf = models.ForeignKey(
+        "Shelf",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+
+        super().save(*args, **kwargs)
+
+        if is_new and not self.item_code:
+            self.item_code = f"ITM-{self.pk:05d}"
+            Item.objects.filter(pk=self.pk).update(
+                item_code=self.item_code
+            )
+
+
+class Shelf(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 
