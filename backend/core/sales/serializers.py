@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Customer, SalesQuotationLine, SalesQuotation
+from .models import Customer, SalesOrder, SalesOrderLine, SalesQuotationLine, SalesOrder
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -69,3 +69,130 @@ class SalesQuotationCreateSerializer(serializers.Serializer):
     lines = SalesQuotationLineSerializer(
         many=True
     )
+
+
+
+class SalesOrderLineInputSerializer(serializers.Serializer):
+
+    item = serializers.IntegerField()
+
+    unit = serializers.IntegerField()
+
+    quantity = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    rate = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    discount_percent = serializers.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0
+    )
+
+    vat_percent = serializers.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0
+    )
+
+class SalesOrderCreateSerializer(serializers.Serializer):
+
+    quotation = serializers.IntegerField(
+        required=False,
+        allow_null=True
+    )
+
+    customer = serializers.IntegerField()
+
+    order_date = serializers.DateField()
+
+    notes = serializers.CharField(
+        required=False,
+        allow_blank=True
+    )
+
+    lines = SalesOrderLineInputSerializer(
+        many=True
+    )
+
+
+
+class SalesOrderListSerializer(serializers.ModelSerializer):
+
+    customer_name = serializers.CharField(
+        source="customer.name",
+        read_only=True
+    )
+
+    class Meta:
+        model = SalesOrder
+
+        fields = [
+            "id",
+            "order_no",
+            "customer_name",
+            "order_date",
+            "status"
+        ]
+
+
+
+class SalesOrderLineDetailSerializer(serializers.ModelSerializer):
+
+    item_name = serializers.CharField(
+        source="item.name_1",
+        read_only=True
+    )
+
+    unit_name = serializers.CharField(
+        source="unit.name",
+        read_only=True
+    )
+
+    class Meta:
+        model = SalesOrderLine
+
+        fields = [
+            "id",
+            "item",
+            "item_name",
+            "unit",
+            "unit_name",
+            "quantity",
+            "rate",
+            "discount_percent",
+            "vat_percent"
+        ]
+
+
+class SalesOrderDetailSerializer(serializers.ModelSerializer):
+
+    customer_name = serializers.CharField(
+        source="customer.name",
+        read_only=True
+    )
+
+    lines = SalesOrderLineDetailSerializer(
+        many=True,
+        read_only=True
+    )
+
+    class Meta:
+        model = SalesOrder
+
+        fields = [
+            "id",
+            "order_no",
+            "quotation",
+            "customer",
+            "customer_name",
+            "order_date",
+            "notes",
+            "status",
+            "lines"
+        ]

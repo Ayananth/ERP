@@ -110,3 +110,111 @@ class SalesQuotationLine(models.Model):
 
     def __str__(self):
         return f"{self.quotation.quotation_no}"
+    
+
+
+
+class SalesOrder(models.Model):
+
+    class Status(models.TextChoices):
+        DRAFT = "draft", "Draft"
+        CONFIRMED = "confirmed", "Confirmed"
+        CANCELLED = "cancelled", "Cancelled"
+
+    order_no = models.CharField(
+        max_length=50,
+        unique=True,
+        blank=True
+    )
+
+    quotation = models.ForeignKey(
+        "SalesQuotation",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="orders"
+    )
+
+    customer = models.ForeignKey(
+        "Customer",
+        on_delete=models.PROTECT,
+        related_name="orders"
+    )
+
+    order_date = models.DateField()
+
+    notes = models.TextField(
+        blank=True
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.DRAFT
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    def save(self, *args, **kwargs):
+
+        is_new = self.pk is None
+
+        super().save(*args, **kwargs)
+
+        if is_new and not self.order_no:
+            self.order_no = f"SO-{self.pk:05d}"
+            super().save(update_fields=["order_no"])
+
+    def __str__(self):
+        return self.order_no
+    
+
+
+class SalesOrderLine(models.Model):
+
+    order = models.ForeignKey(
+        SalesOrder,
+        on_delete=models.CASCADE,
+        related_name="lines"
+    )
+
+    item = models.ForeignKey(
+        Item,
+        on_delete=models.PROTECT
+    )
+
+    unit = models.ForeignKey(
+        Unit,
+        on_delete=models.PROTECT
+    )
+
+    quantity = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    rate = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    discount_percent = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0
+    )
+
+    vat_percent = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0
+    )
+
+    def __str__(self):
+        return f"{self.order.order_no}"

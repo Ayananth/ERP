@@ -1,9 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 
-from .serializers import SalesQuotationCreateSerializer, CustomerSerializer
 
-from .models import Customer, SalesQuotation, SalesQuotationLine
+from .serializers import SalesQuotationCreateSerializer, CustomerSerializer, SalesOrderListSerializer, SalesOrderCreateSerializer, SalesOrderDetailSerializer
+
+from .models import Customer, SalesOrder, SalesQuotation, SalesQuotationLine, SalesOrderLine, SalesOrder
 
 from django.shortcuts import get_object_or_404
 
@@ -137,3 +139,115 @@ class SalesQuotationUpdateView(APIView):
         return Response(
             {"message": "Updated"}
         )
+    
+
+
+
+class SalesOrderAPIView(APIView):
+
+    def get(self, request):
+
+        queryset = (
+            SalesOrder.objects
+            .select_related("customer")
+            .order_by("-id")
+        )
+
+        serializer = SalesOrderListSerializer(
+            queryset,
+            many=True
+        )
+
+        return Response(serializer.data)
+    
+    def post(self, request):
+
+        serializer = SalesOrderCreateSerializer(
+            data=request.data
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        data = serializer.validated_data
+
+        order = SalesOrder.objects.create(
+            quotation_id=data.get("quotation"),
+            customer_id=data["customer"],
+            order_date=data["order_date"],
+            notes=data.get("notes", "")
+        )
+
+        for line in data["lines"]:
+
+            SalesOrderLine.objects.create(
+                order=order,
+                item_id=line["item"],
+                unit_id=line["unit"],
+                quantity=line["quantity"],
+                rate=line["rate"],
+                discount_percent=line["discount_percent"],
+                vat_percent=line["vat_percent"]
+            )
+
+        return Response(
+            {
+                "id": order.id,
+                "order_no": order.order_no
+            },
+            status=status.HTTP_201_CREATED
+        )
+    
+
+class SalesOrderDetailAPIView(APIView):
+
+    def get_object(self, pk):
+
+        return get_object_or_404(
+            SalesOrder,
+            pk=pk
+        )
+    
+    def get(self, request, pk):
+
+        order = self.get_object(pk)
+
+        serializer = SalesOrderDetailSerializer(
+            order
+        )
+
+        return Response(serializer.data)
+    
+    def put(self, request, pk):
+
+        order = self.get_object(pk)
+
+        serializer = SalesOrderCreateSerializer(
+            data=request.data
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        data = serializer.validated_data
+
+        order.quotation_id = data.get(
+            "quotation"
+        )
+
+        order.customer_id = data[
+            "customer"
+        ]
+
+        order.order_date = data[
+            "order_date"
+        ]
+
+        order.notes = data.get(
+            "notes",
+            ""
+        )
+
+        order.save()

@@ -1,7 +1,7 @@
 
 from django.urls import path
 
-from .views import CustomerListView, SalesQuotationCreateView, SalesQuotationListView
+from .views import CustomerListView, SalesOrderAPIView, SalesOrderDetailAPIView, SalesQuotationCreateView, SalesQuotationListView
 
 urlpatterns = [
 
@@ -29,4 +29,14 @@ urlpatterns = [
     #     "quotations/<int:pk>/update/",
     #     SalesQuotationUpdateView.as_view()
     # ),
+
+    path(
+        "orders/",
+        SalesOrderAPIView.as_view()
+    ),
+
+    path(
+        "orders/<int:pk>/",
+        SalesOrderDetailAPIView.as_view()
+    ),
 ]
