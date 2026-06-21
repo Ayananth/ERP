@@ -6,8 +6,8 @@ from rest_framework import status
 
 
 
-from .models import Item, ItemGroup, ItemUnit, Shelf, Manufacturer, Unit
-from .serializers import ItemCreateSerializer, ItemUnitSerializer, ItemUnitCreateSerializer, ItemUnitSettingsSerializer
+from .models import Item, ItemGroup, ItemPhoto, ItemUnit, Shelf, Manufacturer, Unit
+from .serializers import ItemCreateSerializer, ItemPhotoSerializer, ItemUnitSerializer, ItemUnitCreateSerializer, ItemUnitSettingsSerializer
 
 
 class ItemDropdownView(APIView):
@@ -258,3 +258,65 @@ class ItemUnitSettingsView(APIView):
         return Response({
             "message": "Settings saved"
         })
+    
+
+class ItemPhotoAPIView(APIView):
+
+    def get(self, request, item_id):
+        item = get_object_or_404(Item, pk=item_id)
+
+        if not hasattr(item, "photo"):
+            return Response({"image_url": None})
+
+        serializer = ItemPhotoSerializer(
+            item.photo,
+            context={"request": request}
+        )
+
+        return Response(serializer.data)
+
+    def post(self, request, item_id):
+        item = get_object_or_404(Item, pk=item_id)
+
+        image = request.FILES.get("image")
+
+        if not image:
+            return Response(
+                {"detail": "Image is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        photo, _ = ItemPhoto.objects.get_or_create(
+            item=item
+        )
+
+        photo.image = image
+        photo.save()
+
+        serializer = ItemPhotoSerializer(
+            photo,
+            context={"request": request}
+        )
+
+        return Response(serializer.data)
+
+    def delete(self, request, item_id):
+        item = get_object_or_404(Item, pk=item_id)
+
+        if hasattr(item, "photo"):
+            item.photo.delete()
+
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
+        )
+
+    def delete(self, request, item_id):
+
+        item = get_object_or_404(Item, pk=item_id)
+
+        if hasattr(item, "photo"):
+            item.photo.delete()
+
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
+        )

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Item, ItemUnit, Shelf, ItemGroup, Manufacturer, Unit
+from .models import Item, ItemPhoto, ItemUnit, Shelf, ItemGroup, Manufacturer, Unit
 
 
 class ItemCreateSerializer(serializers.ModelSerializer):
@@ -71,3 +71,26 @@ class ItemUnitSettingsSerializer(serializers.Serializer):
 
     stock_unit = serializers.IntegerField()
     sales_unit = serializers.IntegerField()
+
+
+class ItemPhotoSerializer(serializers.ModelSerializer):
+
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ItemPhoto
+        fields = [
+            "id",
+            "item",
+            "image",
+            "image_url"
+        ]
+        read_only_fields = ["item"]
+
+    def get_image_url(self, obj):
+        request = self.context.get("request")
+
+        if obj.image and request:
+            return request.build_absolute_uri(obj.image.url)
+
+        return None
