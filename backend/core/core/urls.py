@@ -23,7 +23,8 @@ from . import settings
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    # path("api/auth/", include("accounts.urls")),
+    #Todo: Need more validations for usernames and passwords.
+    path("api/auth/", include("accounts.urls")),
     path("api/inventory/", include("inventory.urls")),
     path("api/sales/", include("sales.urls")),
 
