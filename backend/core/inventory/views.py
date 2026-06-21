@@ -6,8 +6,8 @@ from rest_framework import status
 
 
 
-from .models import Item, ItemGroup, Shelf, Manufacturer
-from .serializers import ItemCreateSerializer
+from .models import Item, ItemGroup, ItemUnit, Shelf, Manufacturer, Unit
+from .serializers import ItemCreateSerializer, ItemUnitSerializer, ItemUnitCreateSerializer, ItemUnitSettingsSerializer
 
 
 class ItemDropdownView(APIView):
@@ -137,3 +137,124 @@ class ItemDetailAPIView(APIView):
         return Response(
             status=status.HTTP_204_NO_CONTENT
         )
+
+
+class UnitDropdownView(APIView):
+
+    def get(self, request):
+
+        units = Unit.objects.all()
+
+        data = [
+            {
+                "id": unit.id,
+                "code": unit.code,
+                "name": unit.name,
+            }
+            for unit in units
+        ]
+
+        return Response(data)
+    
+
+
+class ItemUnitListView(APIView):
+
+    def get(self, request, item_id):
+
+        item = get_object_or_404(
+            Item,
+            pk=item_id
+        )
+
+        serializer = ItemUnitSerializer(
+            item.units.all(),
+            many=True
+        )
+
+        return Response({
+            "stock_unit": item.stock_unit_id,
+            "sales_unit": item.sales_unit_id,
+            "units": serializer.data,
+        })
+    
+
+class ItemUnitCreateView(APIView):
+
+    def post(self, request, item_id):
+
+        item = get_object_or_404(
+            Item,
+            pk=item_id
+        )
+
+        serializer = ItemUnitCreateSerializer(
+            data=request.data,
+            context={"item": item}
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        item_unit = ItemUnit.objects.create(
+            item=item,
+            **serializer.validated_data
+        )
+
+        return Response(
+            ItemUnitSerializer(item_unit).data,
+            status=status.HTTP_201_CREATED
+        )
+    
+
+class ItemUnitDeleteView(APIView):
+
+    def delete(self, request, pk):
+
+        item_unit = get_object_or_404(
+            ItemUnit,
+            pk=pk
+        )
+
+        item_unit.delete()
+
+        return Response(
+            {"message": "Unit deleted"}
+        )
+    
+
+class ItemUnitSettingsView(APIView):
+
+    def put(self, request, item_id):
+
+        item = get_object_or_404(
+            Item,
+            pk=item_id
+        )
+
+        serializer = ItemUnitSettingsSerializer(
+            data=request.data
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        stock_unit = get_object_or_404(
+            Unit,
+            pk=serializer.validated_data["stock_unit"]
+        )
+
+        sales_unit = get_object_or_404(
+            Unit,
+            pk=serializer.validated_data["sales_unit"]
+        )
+
+        item.stock_unit = stock_unit
+        item.sales_unit = sales_unit
+        item.save()
+
+        return Response({
+            "message": "Settings saved"
+        })
