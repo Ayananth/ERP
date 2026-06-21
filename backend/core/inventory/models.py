@@ -44,14 +44,14 @@ class Item(models.Model):
 
     group = models.ForeignKey(
         "ItemGroup",
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True
     )
 
     manufacturer = models.ForeignKey(
         "Manufacturer",
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True
     )
@@ -74,9 +74,10 @@ class Item(models.Model):
 
         if is_new and not self.item_code:
             self.item_code = f"ITM-{self.pk:05d}"
-            Item.objects.filter(pk=self.pk).update(
-                item_code=self.item_code
-            )
+            super().save(update_fields=["item_code"])
+
+    def __str__(self):
+        return f"{self.item_code} - {self.name_1}"
 
 
 class Shelf(models.Model):
@@ -88,12 +89,23 @@ class Shelf(models.Model):
 
 
 class ItemGroup(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+
+    def __str__(self):
+        return self.name
 
 
 class Manufacturer(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(
+        max_length=255,
+        unique=True
+    )
 
+    def __str__(self):
+        return self.name
 
 
 class Unit(models.Model):
@@ -102,7 +114,12 @@ class Unit(models.Model):
         unique=True
     )
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(
+        max_length=100
+    )
+
+    def __str__(self):
+        return f"{self.code} - {self.name}"
 
 
 class ItemUnit(models.Model):
@@ -115,12 +132,12 @@ class ItemUnit(models.Model):
 
     unit = models.ForeignKey(
         Unit,
-        on_delete=models.CASCADE
+        on_delete=models.PROTECT
     )
 
     conversion_factor = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
+        max_digits=12,
+        decimal_places=4,
         default=1
     )
 
@@ -137,6 +154,18 @@ class ItemUnit(models.Model):
         default=False
     )
 
+    is_purchase_unit = models.BooleanField(
+        default=False
+    )
+
+    class Meta:
+        unique_together = [
+            ("item", "unit")
+        ]
+
+    def __str__(self):
+        return f"{self.item.name_1} - {self.unit.code}"
+
 
 class ItemPrice(models.Model):
 
@@ -148,7 +177,7 @@ class ItemPrice(models.Model):
 
     unit = models.ForeignKey(
         Unit,
-        on_delete=models.CASCADE
+        on_delete=models.PROTECT
     )
 
     sale_price = models.DecimalField(
@@ -158,8 +187,17 @@ class ItemPrice(models.Model):
 
     minimum_price = models.DecimalField(
         max_digits=12,
-        decimal_places=2
+        decimal_places=2,
+        default=0
     )
+
+    class Meta:
+        unique_together = [
+            ("item", "unit")
+        ]
+
+    def __str__(self):
+        return f"{self.item.name_1} - {self.unit.code}"
 
 
 class ItemPhoto(models.Model):
@@ -173,3 +211,6 @@ class ItemPhoto(models.Model):
     image = models.ImageField(
         upload_to="items/"
     )
+
+    def __str__(self):
+        return self.item.name_1
