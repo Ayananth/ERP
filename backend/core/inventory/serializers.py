@@ -14,3 +14,10 @@ class ItemCreateSerializer(serializers.ModelSerializer):
                 "Name 1 is required."
             )
         return value
+    
+    def validate_item_code(self, value):
+        if value and Item.objects.filter(item_code=value).exists():
+            raise serializers.ValidationError(
+                "Item code already exists."
+            )
+        return value

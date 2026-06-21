@@ -16,7 +16,7 @@ class Item(models.Model):
         TAXABLE = "taxable", "Taxable"
         NON_TAXABLE = "non_taxable", "Non-Taxable"
 
-    item_code = models.CharField(max_length=50, unique=True)
+    item_code = models.CharField(max_length=50, unique=True, blank=True)
 
     name_1 = models.CharField(max_length=255)
     name_2 = models.CharField(max_length=255, blank=True)
