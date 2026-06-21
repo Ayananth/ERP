@@ -1,22 +1,12 @@
-from rest_framework.routers import DefaultRouter
-from .views import ItemDropdownView, ItemViewSet
+from .views import ItemDetailAPIView, ItemDropdownView, ItemListCreateAPIView
 from django.urls import path
 
-router = DefaultRouter()
-
-router.register(
-    "items",
-    ItemViewSet,
-    basename="items"
-)
-
-urlpatterns = router.urls
+from .views import ItemListCreateAPIView, ItemDetailAPIView
 
 
-urlpatterns += [
-    path(
-        "item-dropdowns/",
-        ItemDropdownView.as_view(),
-        name="item-dropdowns",
-    )
+urlpatterns = [
+    path("items/", ItemListCreateAPIView.as_view(),name="item-list-create"),
+    path("items/<int:pk>/",ItemDetailAPIView.as_view(),name="item-detail"),
+    path("item-dropdowns/",ItemDropdownView.as_view(),name="item-dropdowns")
+
 ]
