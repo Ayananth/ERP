@@ -17,3 +17,9 @@ export const createItem = async (data) => {
 
   return response.data;
 };
+
+
+export const getItem = async (id) => {
+  const response = await api.get(`/inventory/items/${id}`);
+  return response.data;
+};
