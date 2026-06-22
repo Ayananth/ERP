@@ -154,9 +154,9 @@ class ItemUnit(models.Model):
         default=False
     )
 
-    is_purchase_unit = models.BooleanField(
-        default=False
-    )
+    # is_purchase_unit = models.BooleanField(
+    #     default=False
+    # )
 
     class Meta:
         unique_together = [

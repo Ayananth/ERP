@@ -167,17 +167,31 @@ class ItemUnitListView(APIView):
             pk=item_id
         )
 
+        units = item.units.select_related("unit")
+
         serializer = ItemUnitSerializer(
-            item.units.all(),
+            units,
             many=True
         )
 
+        stock_unit = units.filter(
+            is_stock_unit=True
+        ).first()
+
+        sales_unit = units.filter(
+            is_sales_unit=True
+        ).first()
+
+        # purchase_unit = units.filter(
+        #     is_purchase_unit=True
+        # ).first()
+
         return Response({
-            "stock_unit": item.stock_unit_id,
-            "sales_unit": item.sales_unit_id,
+            "stock_unit": stock_unit.unit_id if stock_unit else None,
+            "sales_unit": sales_unit.unit_id if sales_unit else None,
+            # "purchase_unit": purchase_unit.unit_id if purchase_unit else None,
             "units": serializer.data,
         })
-    
 
 class ItemUnitCreateView(APIView):
 
