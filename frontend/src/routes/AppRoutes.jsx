@@ -6,6 +6,7 @@ import DashboardPage from "../pages/Dashboard/DashboardPage";
 import ItemGeneralPage from "../pages/Inventory/ItemGeneralPage";
 import ItemUnitsPage from "../pages/Inventory/ItemUnitsPage";
 import PriceListPage from "../pages/Inventory/PriceListPage";
+import ItemPhotoPage from "../pages/Inventory/ItemPhotoPage";
 
 import MainLayout from "../layouts/MainLayout";
 import ProtectedRoute from "./ProtectedRoute";
@@ -49,6 +50,10 @@ function AppRoutes() {
           element={<PriceListPage />}
         />
 
+        <Route
+          path="inventory/items/:itemId/photo"
+          element={<ItemPhotoPage />}
+        />
 
 
 

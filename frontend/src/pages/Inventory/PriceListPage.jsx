@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getItemPrices, saveItemPrices } from "../../api/inventoryApi";
 import { DollarSign, Settings } from "lucide-react";
+import ItemPageLayout from "../../components/layout/ItemPageLayout";
 
 export default function PriceListPage() {
 const { itemId } = useParams();
@@ -83,6 +84,11 @@ if (loading) {
 }
 
   return (
+        <ItemPageLayout
+      title="Item File"
+      description="Pricing information"
+    >
+
     <div className="flex flex-col h-full bg-white border rounded-lg">
       {/* Header */}
       <div className="border-b px-4 py-3">
@@ -240,5 +246,7 @@ if (loading) {
         </button>
       </div>
     </div>
+    </ItemPageLayout>
+
   );
 }

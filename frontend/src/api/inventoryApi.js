@@ -85,3 +85,42 @@ export const saveItemPrices = async (
 
     return response.data;
 };
+
+export const getItemPhoto = async (itemId) => {
+  const response = await api.get(
+    `/inventory/items/${itemId}/photo/`
+  );
+
+  return response.data;
+};
+
+export const uploadItemPhoto = async (
+  itemId,
+  file
+) => {
+  const formData = new FormData();
+
+  formData.append("image", file);
+
+  const response = await api.post(
+    `/inventory/items/${itemId}/photo/`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return response.data;
+};
+
+export const deleteItemPhoto = async (
+  itemId
+) => {
+  const response = await api.delete(
+    `/inventory/items/${itemId}/photo/`
+  );
+
+  return response.data;
+};
