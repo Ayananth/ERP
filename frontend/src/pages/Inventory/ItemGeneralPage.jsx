@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { getItemDropdowns } from "../../api/inventoryApi";
+import { getItemDropdowns, createItem } from "../../api/inventoryApi";
 
 
 const initialForm = {
@@ -71,15 +71,26 @@ export default function ItemGeneralPage() {
     setFormData(initialForm);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    console.log(formData);
+  try {
+    console.log(formData)
+    const item = await createItem(formData);
 
-    // API Call
+    console.log(item);
 
     setIsEditing(false);
-  };
+
+    setFormData(initialForm);
+  } catch (error) {
+    if (error.response?.data) {
+      console.log(error.response.data);
+    }
+
+    console.error(error);
+  }
+};
 
   return (
     <div className="p-6 bg-slate-100 min-h-screen">
