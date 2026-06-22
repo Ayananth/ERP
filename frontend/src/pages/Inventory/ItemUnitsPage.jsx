@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getAvailableUnits, getItemUnits, addItemUnit, deleteItemUnit } from "../../api/inventoryApi";
+import { getAvailableUnits, getItemUnits, addItemUnit, deleteItemUnit, saveItemUnitSettings } from "../../api/inventoryApi";
 import ItemPageLayout from "../../components/layout/ItemPageLayout";
 
 
@@ -78,6 +78,50 @@ const loadData = async () => {
     console.error(error);
   } finally {
     setLoading(false);
+  }
+};
+
+
+const saveSettings = async () => {
+
+
+  try {
+
+    if (!settings.stock_unit || !settings.sales_unit) {
+      alert(
+        "Please select both stock and sales units"
+      );
+      return;
+    }
+
+
+
+
+    setSaving(true);
+
+    await saveItemUnitSettings(
+      itemId,
+      {
+        stock_unit: Number(
+          settings.stock_unit
+        ),
+        sales_unit: Number(
+          settings.sales_unit
+        ),
+      }
+    );
+
+    alert(
+      "Settings saved successfully"
+    );
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      "Failed to save settings"
+    );
+  } finally {
+    setSaving(false);
   }
 };
 
@@ -167,14 +211,6 @@ const handleDeleteUnit = async (
 
 
 
-  const saveSettings = () => {
-    console.log(settings);
-
-    /*
-    PUT
-    /api/inventory/items/{id}/unit-settings/
-    */
-  };
 
 
   if (loading) {
@@ -350,9 +386,11 @@ const handleDeleteUnit = async (
                   onChange={(e) =>
                     setSettings({
                       ...settings,
-                      sales_unit: Number(e.target.value),
+                      sales_unit: e.target.value
+                        ? Number(e.target.value)
+                        : "",
                     })
-}
+                  }
                   className="w-full border rounded px-3 py-2"
                 >
                   <option value="">
@@ -379,21 +417,19 @@ const handleDeleteUnit = async (
 
                 <select
                   value={settings.stock_unit}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      stock_unit: Number(e.target.value),
-                    })
-                  }
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        stock_unit: e.target.value
+                          ? Number(e.target.value)
+                          : "",
+                      })
+                    }
                   className="w-full border rounded px-3 py-2"
                 >
                   <option value="">
                     Select Stock Unit
                   </option>
-
-                  {console.log(settings)}
-                  {console.log(units)}
-
 
                   {units.map((unit) => (
                     <option
@@ -410,9 +446,12 @@ const handleDeleteUnit = async (
                 <button
                   type="button"
                   onClick={saveSettings}
-                  className="bg-blue-600 text-white rounded px-4 py-2"
+                  disabled={saving}
+                  className="bg-blue-600 text-white rounded px-4 py-2 disabled:opacity-50"
                 >
-                  Save Settings
+                  {saving
+                    ? "Saving..."
+                    : "Save Settings"}
                 </button>
               </div>
             </div>

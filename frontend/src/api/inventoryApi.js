@@ -48,3 +48,13 @@ export const deleteItemUnit = (
   api.delete(
     `/inventory/item-units/${itemUnitId}/`
   );
+
+  export const saveItemUnitSettings = (
+  itemId,
+  data
+) => {
+  return api.put(
+    `/inventory/items/${itemId}/unit-settings/`,
+    data
+  );
+};
