@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 
-import { login } from "../../services/authService";
+import { register as registerUser } from "../../services/authService";
 
-function LoginForm() {
+function RegisterForm() {
   const navigate = useNavigate();
 
   const [apiError, setApiError] = useState("");
@@ -13,21 +13,37 @@ function LoginForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm();
+
+  const password = watch("password");
 
   const onSubmit = async (data) => {
     try {
       setLoading(true);
       setApiError("");
 
-      await login(data);
+      await registerUser({
+        username: data.username,
+        password: data.password,
+      });
 
-      navigate("/");
+      navigate("/login", {
+        state: {
+          message:
+            "Registration successful. Please sign in.",
+        },
+      });
     } catch (error) {
+      const responseData = error.response?.data;
+
       const message =
-        error.response?.data?.detail ||
-        "Invalid username or password";
+        responseData?.detail ||
+        responseData?.message ||
+        responseData?.username?.[0] ||
+        responseData?.password?.[0] ||
+        "Failed to register user";
 
       setApiError(message);
     } finally {
@@ -38,15 +54,13 @@ function LoginForm() {
   return (
     <div className="bg-white rounded-xl border shadow-sm p-6">
       <h2 className="text-xl font-semibold mb-6">
-        Login
+        Create Account
       </h2>
 
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-4"
       >
-        {/* Username */}
-
         <div>
           <label className="block text-sm mb-1">
             Username
@@ -72,8 +86,6 @@ function LoginForm() {
             </p>
           )}
         </div>
-
-        {/* Password */}
 
         <div>
           <label className="block text-sm mb-1">
@@ -101,7 +113,30 @@ function LoginForm() {
           )}
         </div>
 
-        {/* API Error */}
+        <div>
+          <label className="block text-sm mb-1">
+            Confirm Password
+          </label>
+
+          <input
+            type="password"
+            className="w-full rounded-lg border px-3 py-2"
+            placeholder="Confirm password"
+            {...register("confirmPassword", {
+              required:
+                "Please confirm your password",
+              validate: (value) =>
+                value === password ||
+                "Passwords do not match",
+            })}
+          />
+
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.confirmPassword.message}
+            </p>
+          )}
+        </div>
 
         {apiError && (
           <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
@@ -109,28 +144,26 @@ function LoginForm() {
           </div>
         )}
 
-        {/* Submit */}
-
-      <button
+        <button
           type="submit"
           disabled={loading}
           className="w-full rounded-lg bg-slate-900 text-white py-2 disabled:opacity-50"
         >
-          {loading ? "Signing In..." : "Sign In"}
+          {loading ? "Creating Account..." : "Register"}
         </button>
       </form>
 
       <p className="mt-4 text-sm text-slate-600">
-        New here?{" "}
+        Already have an account?{" "}
         <Link
-          to="/register"
+          to="/login"
           className="text-slate-900 font-medium hover:underline"
         >
-          Create an account
+          Sign in
         </Link>
       </p>
     </div>
   );
 }
 
-export default LoginForm;
+export default RegisterForm;

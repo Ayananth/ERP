@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 
 import LoginPage from "../pages/Login/LoginPage";
+import RegisterPage from "../pages/Register/RegisterPage";
 import DashboardPage from "../pages/Dashboard/DashboardPage";
 import ItemGeneralPage from "../pages/Inventory/ItemGeneralPage";
 import ItemUnitsPage from "../pages/Inventory/ItemUnitsPage";
@@ -17,6 +18,11 @@ function AppRoutes() {
       <Route
         path="/login"
         element={<LoginPage />}
+      />
+
+      <Route
+        path="/register"
+        element={<RegisterPage />}
       />
 
       <Route
