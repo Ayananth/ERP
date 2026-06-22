@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { getItemDropdowns } from "../../api/inventoryApi";
+
 
 const initialForm = {
   item_code: "",
@@ -14,9 +16,18 @@ const initialForm = {
   manufacturer: "",
 };
 
+
 export default function ItemGeneralPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(initialForm);
+  const [dropdowns, setDropdowns] = useState({
+  behaviours: [],
+  statuses: [],
+  taxable_statuses: [],
+  groups: [],
+  shelves: [],
+  manufacturers: [],
+});
 
   const firstInputRef = useRef(null);
 
@@ -25,6 +36,22 @@ export default function ItemGeneralPage() {
       firstInputRef.current.focus();
     }
   }, [isEditing]);
+
+    useEffect(() => {
+    loadDropdowns();
+    }, []);
+
+    const loadDropdowns = async () => {
+    try {
+        const data = await getItemDropdowns();
+
+        setDropdowns(data);
+    } catch (error) {
+        console.error(error);
+    }
+    };
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -220,18 +247,14 @@ export default function ItemGeneralPage() {
                     onChange={handleChange}
                     className="w-full border rounded px-3 py-2"
                   >
-                    <option value="purchase">
-                      Purchase Item
-                    </option>
-                    <option value="sales">
-                      Sales Item
-                    </option>
-                    <option value="both">
-                      Purchase & Sales
-                    </option>
-                    <option value="service">
-                      Service
-                    </option>
+                    {dropdowns.behaviours.map((option) => (
+                        <option
+                        key={option.value}
+                        value={option.value}
+                        >
+                        {option.label}
+                        </option>
+                    ))}
                   </select>
                 </div>
 
@@ -249,6 +272,14 @@ export default function ItemGeneralPage() {
                     <option value="">
                       Select Group
                     </option>
+                    {dropdowns.groups.map((group) => (
+                        <option
+                        key={group.id}
+                        value={group.id}
+                        >
+                        {group.name}
+                        </option>
+                    ))}
                   </select>
                 </div>
 
@@ -263,12 +294,14 @@ export default function ItemGeneralPage() {
                     onChange={handleChange}
                     className="w-full border rounded px-3 py-2"
                   >
-                    <option value="active">
-                      Active
-                    </option>
-                    <option value="inactive">
-                      Inactive
-                    </option>
+                    {dropdowns.statuses.map((status) => (
+                        <option
+                        key={status.value}
+                        value={status.value}
+                        >
+                        {status.label}
+                        </option>
+                    ))}
                   </select>
                 </div>
 
@@ -283,12 +316,14 @@ export default function ItemGeneralPage() {
                     onChange={handleChange}
                     className="w-full border rounded px-3 py-2"
                   >
-                    <option value="taxable">
-                      Taxable
-                    </option>
-                    <option value="non_taxable">
-                      Non Taxable
-                    </option>
+                    {dropdowns.taxable_statuses.map((status) => (
+                        <option
+                        key={status.value}
+                        value={status.value}
+                        >
+                        {status.label}
+                        </option>
+                    ))}
                   </select>
                 </div>
 
@@ -303,9 +338,14 @@ export default function ItemGeneralPage() {
                     onChange={handleChange}
                     className="w-full border rounded px-3 py-2"
                   >
-                    <option value="">
-                      Select Shelf
-                    </option>
+                    {dropdowns.shelves.map((shelf) => (
+                        <option
+                        key={shelf.id}
+                        value={shelf.id}
+                        >
+                        {shelf.name}
+                        </option>
+                    ))}
                   </select>
                 </div>
 
@@ -323,6 +363,16 @@ export default function ItemGeneralPage() {
                     <option value="">
                       Select Manufacturer
                     </option>
+                        {dropdowns.manufacturers.map(
+                            (manufacturer) => (
+                            <option
+                                key={manufacturer.id}
+                                value={manufacturer.id}
+                            >
+                                {manufacturer.name}
+                            </option>
+                            )
+                        )}
                   </select>
                 </div>
               </div>
