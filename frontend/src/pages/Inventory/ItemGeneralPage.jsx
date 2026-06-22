@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getItemDropdowns, createItem } from "../../api/inventoryApi";
 import Alert from "../../components/common/Alert";
+import ItemPageLayout from "../../components/layout/ItemPageLayout";
 
 
 const initialForm = {
@@ -167,38 +168,12 @@ const handleSubmit = async (e) => {
 };
 
   return (
-    <div className="p-6 bg-slate-100 min-h-screen">
-      {/* Header */}
-      <div className="bg-white rounded-lg border p-4 mb-4">
-        <h1 className="text-xl font-semibold">
-          Item File
-        </h1>
 
-        <p className="text-sm text-slate-500">
-          Basic Item Information
-        </p>
-      </div>
+    <ItemPageLayout
+      title="Item File"
+      description="Basic item information"
+    >
 
-      {/* Tabs */}
-      <div className="bg-white rounded-lg border p-2 mb-4">
-        <div className="flex gap-2">
-          <button className="px-4 py-2 rounded bg-blue-50 border text-blue-600 font-medium">
-            General
-          </button>
-
-          <button className="px-4 py-2 text-slate-500">
-            Unit & Barcode
-          </button>
-
-          <button className="px-4 py-2 text-slate-500">
-            Price List
-          </button>
-
-          <button className="px-4 py-2 text-slate-500">
-            Photo
-          </button>
-        </div>
-      </div>
 
         <Alert
         type={message.type}
@@ -545,6 +520,8 @@ const handleSubmit = async (e) => {
           </div>
         </div>
       </form>
-    </div>
+    {/* </div> */}
+    </ItemPageLayout>
+
   );
 }

@@ -81,7 +81,7 @@ function Sidebar() {
 
             <div className="ml-6 border-l border-slate-700 pl-6 space-y-3">
               <NavLink
-                to="/inventory/items"
+                to="/inventory/items/general"
                 className={({ isActive }) =>
                   `flex items-center gap-3 py-2 ${
                     isActive
