@@ -8,10 +8,10 @@ const initialForm = {
   name_2: "",
   generic_name: "",
   description: "",
-  behaviour: "purchase",
+  behaviour: "",
   group: "",
   status: "active",
-  taxable_status: "non_taxable",
+  taxable_status: "",
   shelf: "",
   manufacturer: "",
 };
@@ -247,6 +247,9 @@ export default function ItemGeneralPage() {
                     onChange={handleChange}
                     className="w-full border rounded px-3 py-2"
                   >
+                    <option value="">
+                        Select behaviour
+                    </option>
                     {dropdowns.behaviours.map((option) => (
                         <option
                         key={option.value}
@@ -316,6 +319,9 @@ export default function ItemGeneralPage() {
                     onChange={handleChange}
                     className="w-full border rounded px-3 py-2"
                   >
+                    <option value="">
+                        Select Taxable Status
+                    </option>
                     {dropdowns.taxable_statuses.map((status) => (
                         <option
                         key={status.value}
@@ -338,6 +344,10 @@ export default function ItemGeneralPage() {
                     onChange={handleChange}
                     className="w-full border rounded px-3 py-2"
                   >
+
+                    <option value="">
+                        Select Shelf
+                    </option>
                     {dropdowns.shelves.map((shelf) => (
                         <option
                         key={shelf.id}
