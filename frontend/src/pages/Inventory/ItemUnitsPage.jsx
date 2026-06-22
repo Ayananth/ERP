@@ -405,16 +405,13 @@ const handleDeleteUnit = async (
               </div>
 
               <div className="border-t pt-4 flex justify-end">
-              <button
-                type="button"
-                disabled={saving}
-                onClick={handleAddUnit}
-                className="w-full rounded bg-slate-200 hover:bg-slate-300 px-4 py-2 disabled:opacity-50"
-              >
-                {saving
-                  ? "Adding..."
-                  : "+ Add Unit"}
-              </button>
+                <button
+                  type="button"
+                  onClick={saveSettings}
+                  className="bg-blue-600 text-white rounded px-4 py-2"
+                >
+                  Save Settings
+                </button>
               </div>
             </div>
           </div>
