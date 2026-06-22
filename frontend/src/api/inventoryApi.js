@@ -30,3 +30,13 @@ export const getAvailableUnits = () =>
 
 export const getItemUnits = (itemId) =>
   api.get(`/inventory/items/${itemId}/units/`);
+
+
+export const addItemUnit = (
+  itemId,
+  data
+) =>
+  api.post(
+    `/inventory/items/${itemId}/units/add/`,
+    data
+  );

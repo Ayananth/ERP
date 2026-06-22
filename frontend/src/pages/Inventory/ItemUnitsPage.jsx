@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getAvailableUnits, getItemUnits } from "../../api/inventoryApi";
+import { getAvailableUnits, getItemUnits, addItemUnit } from "../../api/inventoryApi";
 import ItemPageLayout from "../../components/layout/ItemPageLayout";
 
 
@@ -80,36 +80,38 @@ const loadData = async () => {
 };
 
 
-  const handleAddUnit = () => {
-    if (!unitForm.unit) return;
+const handleAddUnit = async () => {
+  if (!unitForm.unit) {
+    return;
+  }
 
-    const selectedUnit = availableUnits.find(
-      (u) => String(u.id) === unitForm.unit
-    );
-
-    const exists = units.some(
-      (u) => u.id === selectedUnit.id
-    );
-
-    if (exists) {
-      return;
-    }
-
-    setUnits([
-      ...units,
-      {
-        id: selectedUnit.id,
-        unit_name: selectedUnit.name,
+  try {
+    const response =
+      await addItemUnit(itemId, {
+        unit: Number(unitForm.unit),
         conversion_factor:
-          unitForm.conversion_factor,
-      },
+          Number(
+            unitForm.conversion_factor
+          ),
+      });
+
+    setUnits((prev) => [
+      ...prev,
+      response.data,
     ]);
 
     setUnitForm({
       unit: "",
       conversion_factor: 1,
     });
-  };
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      "Failed to add unit"
+    );
+  }
+};
 
   const removeUnit = (id) => {
     setUnits(
@@ -177,16 +179,23 @@ const loadData = async () => {
                       Select Unit
                     </option>
 
-                    {availableUnits.map(
-                      (unit) => (
-                        <option
-                          key={unit.id}
-                          value={unit.id}
-                        >
-                          {unit.name}
-                        </option>
-                      )
-                    )}
+                  {availableUnits
+                    .filter(
+                      (availableUnit) =>
+                        !units.some(
+                          (itemUnit) =>
+                            itemUnit.unit ===
+                            availableUnit.id
+                        )
+                    )
+                    .map((unit) => (
+                      <option
+                        key={unit.id}
+                        value={unit.id}
+                      >
+                        {unit.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
