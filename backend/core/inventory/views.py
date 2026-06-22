@@ -271,25 +271,40 @@ class ItemUnitSettingsView(APIView):
             raise_exception=True
         )
 
-        stock_unit = get_object_or_404(
-            Unit,
-            pk=serializer.validated_data["stock_unit"]
+        stock_unit_id = serializer.validated_data["stock_unit"]
+        sales_unit_id = serializer.validated_data["sales_unit"]
+
+        stock_item_unit = get_object_or_404(
+            ItemUnit,
+            item=item,
+            unit_id=stock_unit_id
         )
 
-        sales_unit = get_object_or_404(
-            Unit,
-            pk=serializer.validated_data["sales_unit"]
+        sales_item_unit = get_object_or_404(
+            ItemUnit,
+            item=item,
+            unit_id=sales_unit_id
         )
 
-        item.stock_unit = stock_unit
-        item.sales_unit = sales_unit
-        item.save()
+        # reset existing flags
+        item.units.update(
+            is_stock_unit=False,
+            is_sales_unit=False
+        )
+
+        stock_item_unit.is_stock_unit = True
+        stock_item_unit.save(
+            update_fields=["is_stock_unit"]
+        )
+
+        sales_item_unit.is_sales_unit = True
+        sales_item_unit.save(
+            update_fields=["is_sales_unit"]
+        )
 
         return Response({
             "message": "Settings saved"
         })
-    
-
 class ItemPhotoAPIView(APIView):
 
     def get(self, request, item_id):
