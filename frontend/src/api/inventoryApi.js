@@ -7,3 +7,13 @@ export const getItemDropdowns = async () => {
 
   return response.data;
 };
+
+
+export const createItem = async (data) => {
+  const response = await api.post(
+    "/inventory/items/",
+    data
+  );
+
+  return response.data;
+};
