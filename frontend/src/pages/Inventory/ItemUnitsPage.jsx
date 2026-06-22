@@ -363,7 +363,7 @@ const handleDeleteUnit = async (
                   {units.map((unit) => (
                     <option
                       key={unit.id}
-                      value={unit.id}
+                      value={unit.unit}
                     >
                       {unit.unit_name}
                     </option>
@@ -393,10 +393,14 @@ const handleDeleteUnit = async (
                     Select Stock Unit
                   </option>
 
+                  {console.log(settings)}
+                  {console.log(units)}
+
+
                   {units.map((unit) => (
                     <option
                       key={unit.id}
-                      value={unit.id}
+                      value={unit.unit}
                     >
                       {unit.unit_name}
                     </option>
