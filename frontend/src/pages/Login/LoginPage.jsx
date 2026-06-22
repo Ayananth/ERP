@@ -1,6 +1,16 @@
+import { Navigate } from "react-router-dom";
 import LoginForm from "../../components/auth/LoginForm";
 
 function LoginPage() {
+
+    const token = localStorage.getItem(
+      "access_token"
+    );
+
+    if (token) {
+      return <Navigate to="/" replace />;
+    }
+
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
