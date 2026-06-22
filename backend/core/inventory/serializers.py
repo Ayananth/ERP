@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Item, ItemPhoto, ItemUnit, Shelf, ItemGroup, Manufacturer, Unit
+from .models import Item, ItemPhoto, ItemUnit, Shelf, ItemGroup, Manufacturer, Unit, ItemPrice
 
 
 class ItemCreateSerializer(serializers.ModelSerializer):
@@ -94,3 +94,69 @@ class ItemPhotoSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.image.url)
 
         return None
+    
+
+
+class ItemPriceRowSerializer(serializers.Serializer):
+    unit_id = serializers.IntegerField()
+    unit_code = serializers.CharField()
+
+    sale_price = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        allow_null=True
+    )
+
+    minimum_price = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        allow_null=True
+    )
+
+
+class ItemPriceListSerializer(serializers.Serializer):
+    item_id = serializers.IntegerField()
+    item_code = serializers.CharField()
+    item_name = serializers.CharField()
+
+    prices = ItemPriceRowSerializer(
+        many=True
+    )
+
+
+class ItemPriceSaveRowSerializer(serializers.Serializer):
+    unit_id = serializers.IntegerField()
+
+    sale_price = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        min_value=0.01
+    )
+
+    minimum_price = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        min_value=0.01
+    )
+
+    def validate(self, attrs):
+
+        sale_price = attrs["sale_price"]
+        minimum_price = attrs["minimum_price"]
+
+        if minimum_price > sale_price:
+            raise serializers.ValidationError(
+                "Minimum selling price cannot be greater than sale price."
+            )
+        if minimum_price < sale_price:
+            raise serializers.ValidationError(
+                "Minimum selling price cannot be greater than sale price."
+            )
+
+        return attrs
+
+
+class ItemPriceSaveSerializer(serializers.Serializer):
+    prices = ItemPriceSaveRowSerializer(
+        many=True
+    )

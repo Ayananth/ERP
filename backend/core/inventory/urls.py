@@ -1,4 +1,9 @@
-from .views import ItemDetailAPIView, ItemDropdownView, ItemListCreateAPIView, ItemPhotoAPIView
+from .views import (
+    ItemDetailAPIView,
+    ItemDropdownView,
+    ItemListCreateAPIView,
+    ItemPhotoAPIView,
+)
 from django.urls import path
 
 from .views import (
@@ -10,6 +15,7 @@ from .views import (
     ItemUnitCreateView,
     ItemUnitDeleteView,
     ItemUnitSettingsView,
+    ItemPriceView
 )
 
 urlpatterns = [
@@ -21,10 +27,6 @@ urlpatterns = [
     path("items/<int:item_id>/units/add/", ItemUnitCreateView.as_view()),
     path("item-units/<int:pk>/", ItemUnitDeleteView.as_view()),
     path("items/<int:item_id>/unit-settings/", ItemUnitSettingsView.as_view()),
-
-    path(
-        "items/<int:item_id>/photo/",
-        ItemPhotoAPIView.as_view(),
-        name="item-photo"
-    ),
+    path("items/<int:item_id>/photo/", ItemPhotoAPIView.as_view(), name="item-photo"),
+    path("items/<int:item_id>/prices/", ItemPriceView.as_view()),
 ]

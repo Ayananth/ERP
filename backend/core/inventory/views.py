@@ -3,11 +3,20 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 
 
 
-from .models import Item, ItemGroup, ItemPhoto, ItemUnit, Shelf, Manufacturer, Unit
-from .serializers import ItemCreateSerializer, ItemPhotoSerializer, ItemUnitSerializer, ItemUnitCreateSerializer, ItemUnitSettingsSerializer
+
+from .models import Item, ItemGroup, ItemPhoto, ItemUnit, Shelf, Manufacturer, Unit, ItemPrice
+from .serializers import (
+    ItemCreateSerializer, 
+    ItemPhotoSerializer, 
+    ItemUnitSerializer, 
+    ItemUnitCreateSerializer, 
+    ItemUnitSettingsSerializer,     
+    ItemPriceListSerializer, 
+    ItemPriceSaveSerializer)
 
 
 class ItemDropdownView(APIView):
@@ -365,3 +374,92 @@ class ItemPhotoAPIView(APIView):
         return Response(
             status=status.HTTP_204_NO_CONTENT
         )
+    
+
+
+
+class ItemPriceView(APIView):
+
+    def get(self, request, item_id):
+
+        item = get_object_or_404(
+            Item,
+            pk=item_id
+        )
+
+        prices = []
+
+        for item_unit in item.units.select_related("unit"):
+
+            item_price = ItemPrice.objects.filter(
+                item=item,
+                unit=item_unit.unit
+            ).first()
+
+            prices.append({
+                "unit_id": item_unit.unit.id,
+                "unit_code": item_unit.unit.code,
+                "sale_price": (
+                    item_price.sale_price
+                    if item_price else None
+                ),
+                "minimum_price": (
+                    item_price.minimum_price
+                    if item_price else None
+                ),
+            })
+
+        serializer = ItemPriceListSerializer({
+            "item_id": item.id,
+            "item_code": item.item_code,
+            "item_name": item.name_1,
+            "prices": prices,
+        })
+
+        return Response(serializer.data)
+    
+    def put(self, request, item_id):
+
+        item = get_object_or_404(
+            Item,
+            pk=item_id
+        )
+
+        serializer = ItemPriceSaveSerializer(
+            data=request.data
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        for row in serializer.validated_data["prices"]:
+
+            unit_exists = ItemUnit.objects.filter(
+                item=item,
+                unit_id=row["unit_id"]
+            ).exists()
+
+            if not unit_exists:
+                raise ValidationError({
+                    "unit_id": (
+                        f"Unit {row['unit_id']} "
+                        "does not belong to this item."
+                    )
+                })
+
+            ItemPrice.objects.update_or_create(
+                item=item,
+                unit_id=row["unit_id"],
+                defaults={
+                    "sale_price": row["sale_price"],
+                    "minimum_price": row["minimum_price"],
+                }
+            )
+
+        return Response({
+            "message": "Prices saved"
+        })
+    
+
+
