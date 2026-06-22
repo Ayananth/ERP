@@ -23,3 +23,10 @@ export const getItem = async (id) => {
   const response = await api.get(`/inventory/items/${id}`);
   return response.data;
 };
+
+
+export const getAvailableUnits = () =>
+  api.get("/inventory/units/");
+
+export const getItemUnits = (itemId) =>
+  api.get(`/inventory/items/${itemId}/units/`);

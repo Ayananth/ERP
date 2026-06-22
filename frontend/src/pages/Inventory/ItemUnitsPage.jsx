@@ -1,39 +1,84 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { getAvailableUnits, getItemUnits } from "../../api/inventoryApi";
 import ItemPageLayout from "../../components/layout/ItemPageLayout";
 
 
 
 
 function ItemUnitsPage() {
+
+
+  const [availableUnits, setAvailableUnits] =
+    useState([]);
+
+  const [units, setUnits] = useState([]);
+
+  const [settings, setSettings] = useState({
+    sales_unit: "",
+    stock_unit: "",
+  });
+
+  const [loading, setLoading] =
+    useState(true);
+
+    const { itemId } = useParams();
+
+
     const [unitForm, setUnitForm] = useState({
       unit: "",
       conversion_factor: 1,
     });
 
-    const [units, setUnits] = useState([
-      {
-        id: 1,
-        unit_name: "Pcs",
-        conversion_factor: 1,
-      },
-      {
-        id: 2,
-        unit_name: "Nos",
-        conversion_factor: 5,
-      },
+
+useEffect(() => {
+  if (!itemId) return;
+
+  loadData();
+}, [itemId]);
+
+const loadData = async () => {
+  try {
+    setLoading(true);
+
+    const [
+      unitsResponse,
+      itemUnitsResponse,
+    ] = await Promise.all([
+      getAvailableUnits(),
+      getItemUnits(itemId),
     ]);
 
-    const [settings, setSettings] = useState({
-      sales_unit: "1",
-      stock_unit: "1",
-    });
+    // Available units dropdown
 
-    const availableUnits = [
-      { id: 1, name: "Pcs" },
-      { id: 2, name: "Nos" },
-      { id: 3, name: "Box" },
-      { id: 4, name: "Kg" },
-    ];
+    setAvailableUnits(
+      unitsResponse.data
+    );
+
+    // Existing item units
+
+    setUnits(
+      itemUnitsResponse.data.units
+    );
+
+    // Unit settings
+
+    setSettings({
+      sales_unit:
+        itemUnitsResponse.data
+          .sales_unit || "",
+
+      stock_unit:
+        itemUnitsResponse.data
+          .stock_unit || "",
+    });
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleAddUnit = () => {
     if (!unitForm.unit) return;
@@ -80,6 +125,20 @@ function ItemUnitsPage() {
     /api/inventory/items/{id}/unit-settings/
     */
   };
+
+
+  if (loading) {
+  return (
+    <ItemPageLayout
+      title="Item File"
+      description="Units and barcode management"
+    >
+      <div className="p-6">
+        Loading...
+      </div>
+    </ItemPageLayout>
+  );
+}
 
 
   return (
