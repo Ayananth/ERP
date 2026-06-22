@@ -1,0 +1,369 @@
+import { useEffect, useRef, useState } from "react";
+
+const initialForm = {
+  item_code: "",
+  name_1: "",
+  name_2: "",
+  generic_name: "",
+  description: "",
+  behaviour: "purchase",
+  group: "",
+  status: "active",
+  taxable_status: "non_taxable",
+  shelf: "",
+  manufacturer: "",
+};
+
+export default function ItemGeneralPage() {
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState(initialForm);
+
+  const firstInputRef = useRef(null);
+
+  useEffect(() => {
+    if (isEditing && firstInputRef.current) {
+      firstInputRef.current.focus();
+    }
+  }, [isEditing]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleNew = () => {
+    setFormData(initialForm);
+    setIsEditing(true);
+  };
+
+  const handleClear = () => {
+    setFormData(initialForm);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    console.log(formData);
+
+    // API Call
+
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="p-6 bg-slate-100 min-h-screen">
+      {/* Header */}
+      <div className="bg-white rounded-lg border p-4 mb-4">
+        <h1 className="text-xl font-semibold">
+          Item File
+        </h1>
+
+        <p className="text-sm text-slate-500">
+          Basic Item Information
+        </p>
+      </div>
+
+      {/* Tabs */}
+      <div className="bg-white rounded-lg border p-2 mb-4">
+        <div className="flex gap-2">
+          <button className="px-4 py-2 rounded bg-blue-50 border text-blue-600 font-medium">
+            General
+          </button>
+
+          <button className="px-4 py-2 text-slate-500">
+            Unit & Barcode
+          </button>
+
+          <button className="px-4 py-2 text-slate-500">
+            Price List
+          </button>
+
+          <button className="px-4 py-2 text-slate-500">
+            Photo
+          </button>
+        </div>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit}>
+        <div className="bg-white rounded-lg border">
+          <div className="border-b px-6 py-4">
+            <h2 className="font-semibold">
+              Create Inventory Item
+            </h2>
+          </div>
+
+          <fieldset
+            disabled={!isEditing}
+            className="p-6 space-y-6"
+          >
+            {/* Basic Information */}
+            <section className="border rounded-lg">
+              <div className="border-b bg-slate-50 px-4 py-3 font-medium">
+                Basic Information
+              </div>
+
+              <div className="p-4 grid grid-cols-12 gap-4">
+                <div className="col-span-12 md:col-span-2">
+                  <label className="block text-sm mb-1">
+                    Item Code
+                  </label>
+
+                  <input
+                    ref={firstInputRef}
+                    type="text"
+                    name="item_code"
+                    value={formData.item_code}
+                    onChange={handleChange}
+                    placeholder="Enter item code"
+                    className="w-full border rounded px-3 py-2"
+                  />
+                </div>
+
+                <div className="col-span-12 md:col-span-4">
+                  <label className="block text-sm mb-1">
+                    Name 1 *
+                  </label>
+
+                  <input
+                    type="text"
+                    name="name_1"
+                    value={formData.name_1}
+                    onChange={handleChange}
+                    placeholder="Enter name 1"
+                    className="w-full border rounded px-3 py-2"
+                  />
+                </div>
+
+                <div className="col-span-12 md:col-span-4">
+                  <label className="block text-sm mb-1">
+                    Name 2
+                  </label>
+
+                  <input
+                    type="text"
+                    name="name_2"
+                    value={formData.name_2}
+                    onChange={handleChange}
+                    placeholder="Enter name 2"
+                    className="w-full border rounded px-3 py-2"
+                  />
+                </div>
+
+                <div className="col-span-12 md:col-span-2 flex items-end">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input type="checkbox" />
+                    Edit Name
+                  </label>
+                </div>
+              </div>
+            </section>
+
+            {/* Additional Information */}
+            <section className="border rounded-lg">
+              <div className="border-b bg-slate-50 px-4 py-3 font-medium">
+                Additional Information
+              </div>
+
+              <div className="p-4 grid grid-cols-12 gap-4">
+                <div className="col-span-12 md:col-span-3">
+                  <label className="block text-sm mb-1">
+                    Generic Name
+                  </label>
+
+                  <input
+                    type="text"
+                    name="generic_name"
+                    value={formData.generic_name}
+                    onChange={handleChange}
+                    placeholder="Enter generic name"
+                    className="w-full border rounded px-3 py-2"
+                  />
+                </div>
+
+                <div className="col-span-12 md:col-span-4">
+                  <label className="block text-sm mb-1">
+                    Description
+                  </label>
+
+                  <input
+                    type="text"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Enter description"
+                    className="w-full border rounded px-3 py-2"
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* Configuration */}
+            <section className="border rounded-lg">
+              <div className="border-b bg-slate-50 px-4 py-3 font-medium">
+                Configuration
+              </div>
+
+              <div className="p-4 grid grid-cols-12 gap-4">
+                <div className="col-span-12 md:col-span-2">
+                  <label className="block text-sm mb-1">
+                    Behaviour *
+                  </label>
+
+                  <select
+                    name="behaviour"
+                    value={formData.behaviour}
+                    onChange={handleChange}
+                    className="w-full border rounded px-3 py-2"
+                  >
+                    <option value="purchase">
+                      Purchase Item
+                    </option>
+                    <option value="sales">
+                      Sales Item
+                    </option>
+                    <option value="both">
+                      Purchase & Sales
+                    </option>
+                    <option value="service">
+                      Service
+                    </option>
+                  </select>
+                </div>
+
+                <div className="col-span-12 md:col-span-4">
+                  <label className="block text-sm mb-1">
+                    Group Code *
+                  </label>
+
+                  <select
+                    name="group"
+                    value={formData.group}
+                    onChange={handleChange}
+                    className="w-full border rounded px-3 py-2"
+                  >
+                    <option value="">
+                      Select Group
+                    </option>
+                  </select>
+                </div>
+
+                <div className="col-span-12 md:col-span-4">
+                  <label className="block text-sm mb-1">
+                    Status *
+                  </label>
+
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleChange}
+                    className="w-full border rounded px-3 py-2"
+                  >
+                    <option value="active">
+                      Active
+                    </option>
+                    <option value="inactive">
+                      Inactive
+                    </option>
+                  </select>
+                </div>
+
+                <div className="col-span-12 md:col-span-2">
+                  <label className="block text-sm mb-1">
+                    Taxable Status *
+                  </label>
+
+                  <select
+                    name="taxable_status"
+                    value={formData.taxable_status}
+                    onChange={handleChange}
+                    className="w-full border rounded px-3 py-2"
+                  >
+                    <option value="taxable">
+                      Taxable
+                    </option>
+                    <option value="non_taxable">
+                      Non Taxable
+                    </option>
+                  </select>
+                </div>
+
+                <div className="col-span-12 md:col-span-2">
+                  <label className="block text-sm mb-1">
+                    Shelf Code
+                  </label>
+
+                  <select
+                    name="shelf"
+                    value={formData.shelf}
+                    onChange={handleChange}
+                    className="w-full border rounded px-3 py-2"
+                  >
+                    <option value="">
+                      Select Shelf
+                    </option>
+                  </select>
+                </div>
+
+                <div className="col-span-12 md:col-span-4">
+                  <label className="block text-sm mb-1">
+                    Manufacturer
+                  </label>
+
+                  <select
+                    name="manufacturer"
+                    value={formData.manufacturer}
+                    onChange={handleChange}
+                    className="w-full border rounded px-3 py-2"
+                  >
+                    <option value="">
+                      Select Manufacturer
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </section>
+          </fieldset>
+
+          {/* Footer Buttons */}
+          <div className="flex justify-end gap-3 border-t bg-slate-50 p-4">
+            <button
+              type="button"
+              onClick={handleNew}
+              className="px-6 py-2 rounded bg-emerald-500 text-white"
+            >
+              New
+            </button>
+
+            <button
+              type="button"
+              className="px-6 py-2 rounded bg-violet-500 text-white"
+            >
+              List
+            </button>
+
+            <button
+              type="button"
+              onClick={handleClear}
+              className="px-6 py-2 rounded bg-slate-500 text-white"
+            >
+              Clear
+            </button>
+
+            <button
+              type="submit"
+              disabled={!isEditing}
+              className="px-6 py-2 rounded bg-blue-600 text-white disabled:opacity-50"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}

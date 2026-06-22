@@ -1,7 +1,9 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
+
 import LoginPage from "../pages/Login/LoginPage";
 import DashboardPage from "../pages/Dashboard/DashboardPage";
+import ItemGeneralPage from "../pages/Inventory/ItemGeneralPage";
 
 import MainLayout from "../layouts/MainLayout";
 import ProtectedRoute from "./ProtectedRoute";
@@ -15,15 +17,22 @@ function AppRoutes() {
       />
 
       <Route
-        path="/"
         element={
           <ProtectedRoute>
-            <MainLayout>
-              <DashboardPage />
-            </MainLayout>
+            <MainLayout />
           </ProtectedRoute>
         }
-      />
+      >
+        <Route
+          index
+          element={<DashboardPage />}
+        />
+
+        <Route
+          path="inventory/items"
+          element={<ItemGeneralPage />}
+        />
+      </Route>
 
       <Route
         path="*"
