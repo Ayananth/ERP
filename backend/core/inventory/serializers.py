@@ -148,7 +148,7 @@ class ItemPriceSaveRowSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 "Minimum selling price cannot be greater than sale price."
             )
-        if minimum_price < sale_price:
+        if minimum_price < 0:
             raise serializers.ValidationError(
                 "Minimum selling price cannot be greater than sale price."
             )

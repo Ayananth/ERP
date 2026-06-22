@@ -1,55 +1,86 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { getItemPrices, saveItemPrices } from "../../api/inventoryApi";
 import { DollarSign, Settings } from "lucide-react";
 
 export default function PriceListPage() {
-  const [prices, setPrices] = useState([
-    {
-      id: 1,
-      unit: "Pcs",
-      sale_price: 100,
-      minimum_price: 90,
-    },
-    {
-      id: 2,
-      unit: "Nos",
-      sale_price: 150,
-      minimum_price: 140,
-    },
-  ]);
+const { itemId } = useParams();
+
+const [prices, setPrices] = useState([]);
+const [item, setItem] = useState(null);
+const [loading, setLoading] = useState(true);
 
   const [editing, setEditing] = useState(false);
 
-  const handlePriceChange = (id, field, value) => {
-    setPrices((prev) =>
-      prev.map((row) =>
-        row.id === id
-          ? {
-              ...row,
-              [field]: value,
-            }
-          : row
-      )
+
+useEffect(() => {
+  loadPrices();
+}, [itemId]);
+
+const loadPrices = async () => {
+  try {
+    const data = await getItemPrices(itemId);
+
+
+    setItem({
+      item_code: data.item_code,
+      item_name: data.item_name,
+    });
+
+    setPrices(data.prices);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+const handlePriceChange = (
+  unitId,
+  field,
+  value
+) => {
+  setPrices((prev) =>
+    prev.map((row) =>
+      row.unit_id === unitId
+        ? {
+            ...row,
+            [field]: value,
+          }
+        : row
+    )
+  );
+};
+
+const handleSave = async () => {
+  try {
+
+    await saveItemPrices(
+    itemId,
+    prices.map((row) => ({
+        unit_id: row.unit_id,
+        sale_price: Number(row.sale_price),
+        minimum_price: Number(row.minimum_price),
+    }))
     );
-  };
 
-  const handleSave = async () => {
-    try {
-      // API CALL HERE
 
-      /*
-      await axios.put(
-        `/api/inventory/items/${itemId}/prices/`,
-        {
-          prices
-        }
-      );
-      */
+    await loadPrices();
 
-      setEditing(false);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    setEditing(false);
+
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+if (loading) {
+  return (
+    <div className="p-4">
+      Loading...
+    </div>
+  );
+}
 
   return (
     <div className="flex flex-col h-full bg-white border rounded-lg">
@@ -68,13 +99,17 @@ export default function PriceListPage() {
               </h2>
 
               <div className="flex gap-2 mt-1">
-                {/* <span className="px-2 py-0.5 text-xs rounded bg-blue-600 text-white">
-                  10000594
-                </span>
+                    {item && (
+                    <>
+                        <span className="px-2 py-0.5 text-xs rounded bg-blue-600 text-white">
+                        {item.item_code}
+                        </span>
 
-                <span className="text-sm text-slate-500">
-                  Bus
-                </span> */}
+                        <span className="text-sm text-slate-500">
+                        {item.item_name}
+                        </span>
+                    </>
+                    )}
               </div>
             </div>
           </div>
@@ -82,7 +117,7 @@ export default function PriceListPage() {
           <div className="flex gap-2">
             <button className="border rounded px-3 py-1 text-xs flex items-center gap-1">
               <Settings size={12} />
-              2 Units
+              {prices.length} Units
             </button>
 
             <button className="border rounded px-3 py-1 text-xs flex items-center gap-1">
@@ -120,7 +155,7 @@ export default function PriceListPage() {
             <tbody>
               {prices.map((row, index) => (
                 <tr
-                  key={row.id}
+                  key={row.unit_id}
                   className="border-b last:border-0"
                 >
                   {index === 0 && (
@@ -136,7 +171,7 @@ export default function PriceListPage() {
 
                   <td className="px-4 py-4">
                     <span className="inline-block px-2 py-1 text-xs border rounded bg-slate-50">
-                      {row.unit}
+                      {row.unit_code}
                     </span>
                   </td>
 
@@ -144,10 +179,10 @@ export default function PriceListPage() {
                     <input
                       type="number"
                       disabled={!editing}
-                      value={row.sale_price}
+                      value={row.sale_price ?? ""}
                       onChange={(e) =>
                         handlePriceChange(
-                          row.id,
+                          row.unit_id,
                           "sale_price",
                           e.target.value
                         )
@@ -160,10 +195,10 @@ export default function PriceListPage() {
                     <input
                       type="number"
                       disabled={!editing}
-                      value={row.minimum_price}
+                      value={row.minimum_price ?? ""}
                       onChange={(e) =>
                         handlePriceChange(
-                          row.id,
+                          row.unit_id,
                           "minimum_price",
                           e.target.value
                         )

@@ -58,3 +58,30 @@ export const deleteItemUnit = (
     data
   );
 };
+
+
+// Prices
+
+export const getItemPrices = async (itemId) => {
+    const response = await api.get(
+        `/inventory/items/${itemId}/prices/`
+    );
+
+    return response.data;
+};
+
+export const saveItemPrices = async (
+    itemId,
+    prices
+) => {
+  console.log(prices)
+  console.log(itemId)
+    const response = await api.put(
+        `/inventory/items/${itemId}/prices/`,
+        {
+            prices,
+        }
+    );
+
+    return response.data;
+};
