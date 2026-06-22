@@ -1,39 +1,49 @@
 import { NavLink } from "react-router-dom";
 
-const tabs = [
-  {
-    label: "General",
-    path: "/inventory/items/general",
-    description: "Basic item information",
-  },
-  {
-    label: "Unit & Barcode",
-    path: "/inventory/items/units",
-    description: "Units and barcode management",
-  },
-  {
-    label: "Price List",
-    path: "/inventory/items/prices",
-    description: "Pricing information",
-  },
-  {
-    label: "Photo",
-    path: "/inventory/items/photo",
-    description: "Item image",
-  },
-];
+function ItemTabs({ itemId }) {
+  const tabs = [
+    {
+      label: "General",
+      path: itemId
+        ? `/inventory/items/${itemId}/general`
+        : "#",
+      description: "Basic item information",
+    },
+    {
+      label: "Unit & Barcode",
+      path: itemId
+        ? `/inventory/items/${itemId}/units`
+        : "#",
+      description: "Units and barcode management",
+    },
+    {
+      label: "Price List",
+      path: itemId
+        ? `/inventory/items/${itemId}/prices`
+        : "#",
+      description: "Pricing information",
+    },
+    {
+      label: "Photo",
+      path: itemId
+        ? `/inventory/items/${itemId}/photo`
+        : "#",
+      description: "Item image",
+    },
+  ];
 
-function ItemTabs() {
   return (
     <div className="bg-white border rounded-lg p-2">
       <div className="flex gap-2">
         {tabs.map((tab) => (
           <NavLink
-            key={tab.path}
+            key={tab.label}
             to={tab.path}
             className={({ isActive }) =>
               `px-4 py-3 rounded-lg border text-sm ${
-                isActive
+                !itemId
+                  ? "opacity-50 cursor-not-allowed pointer-events-none"
+                  : isActive
                   ? "bg-blue-50 border-blue-300 text-blue-600"
                   : "border-transparent hover:bg-slate-50"
               }`

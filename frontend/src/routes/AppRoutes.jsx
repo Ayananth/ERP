@@ -33,9 +33,13 @@ function AppRoutes() {
           path="inventory/items/general"
           element={<ItemGeneralPage />}
         />
+        <Route
+          path="inventory/items/:itemId/general"
+          element={<ItemGeneralPage />}
+        />
 
         <Route
-          path="inventory/items/units"
+          path="inventory/items/:itemId/units"
           element={<ItemUnitsPage />}
         />
       </Route>

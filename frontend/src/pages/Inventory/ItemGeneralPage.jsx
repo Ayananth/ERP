@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { getItemDropdowns, createItem } from "../../api/inventoryApi";
+import { useNavigate, useParams } from "react-router-dom";
+import { getItemDropdowns, createItem, getItem } from "../../api/inventoryApi";
 import Alert from "../../components/common/Alert";
 import ItemPageLayout from "../../components/layout/ItemPageLayout";
 
@@ -20,6 +21,9 @@ const initialForm = {
 
 
 export default function ItemGeneralPage() {
+    const navigate = useNavigate()
+  const { itemId } = useParams();
+
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(initialForm);
   const [dropdowns, setDropdowns] = useState({
@@ -35,7 +39,26 @@ export default function ItemGeneralPage() {
     type: "",
     text: "",
     });
+
   const firstInputRef = useRef(null);
+
+  useEffect(() => {
+    if (!itemId) return;
+
+    loadItem();
+  }, [itemId]);
+
+  const loadItem = async () => {
+    try {
+      const item = await getItem(itemId);
+
+      setFormData(item);
+
+      setIsEditing(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     if (isEditing && firstInputRef.current) {
@@ -147,7 +170,14 @@ const handleSubmit = async (e) => {
   }
 
   try {
-    const response = await createItem(formData);
+    const createdItem = await createItem(formData);
+
+    console.log(createdItem)
+
+    navigate(
+      `/inventory/items/${createdItem.id}/general`
+    );
+
 
     setMessage({
       type: "success",

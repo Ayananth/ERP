@@ -1,10 +1,12 @@
 import ItemTabs from "./ItemTabs";
+import { useParams } from "react-router-dom";
 
 function ItemPageLayout({
   title,
   description,
   children,
 }) {
+  const { itemId } = useParams();
   return (
     <div className="p-6 bg-slate-100 min-h-screen">
       {/* Header */}
@@ -20,7 +22,7 @@ function ItemPageLayout({
 
       {/* Tabs */}
       <div className="mb-4">
-        <ItemTabs />
+        <ItemTabs itemId={itemId}/>
       </div>
 
       {/* Page Content */}
