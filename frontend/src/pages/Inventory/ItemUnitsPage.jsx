@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getAvailableUnits, getItemUnits, addItemUnit, deleteItemUnit, saveItemUnitSettings } from "../../api/inventoryApi";
+import Alert from "../../components/common/Alert";
 import ItemPageLayout from "../../components/layout/ItemPageLayout";
 
 
@@ -24,6 +25,18 @@ function ItemUnitsPage() {
   const [loading, setLoading] =
     useState(true);
 
+  const [message, setMessage] = useState({
+    type: "",
+    text: "",
+  });
+
+  const [errors, setErrors] = useState({
+    unit: "",
+    conversion_factor: "",
+    sales_unit: "",
+    stock_unit: "",
+  });
+
     const { itemId } = useParams();
 
 
@@ -38,6 +51,19 @@ useEffect(() => {
 
   loadData();
 }, [itemId]);
+
+useEffect(() => {
+  if (!message.text) return;
+
+  const timer = setTimeout(() => {
+    setMessage({
+      type: "",
+      text: "",
+    });
+  }, 5000);
+
+  return () => clearTimeout(timer);
+}, [message]);
 
 const loadData = async () => {
   try {
@@ -81,21 +107,69 @@ const loadData = async () => {
   }
 };
 
+const clearFieldError = (name) => {
+  setErrors((prev) => ({
+    ...prev,
+    [name]: "",
+  }));
+};
+
+const validateUnitForm = () => {
+  const newErrors = {};
+
+  if (!unitForm.unit) {
+    newErrors.unit = "Unit is required";
+  }
+
+  if (
+    unitForm.conversion_factor === "" ||
+    unitForm.conversion_factor === null ||
+    Number(unitForm.conversion_factor) <= 0
+  ) {
+    newErrors.conversion_factor =
+      "Factor must be greater than 0";
+  }
+
+  setErrors((prev) => ({
+    ...prev,
+    ...newErrors,
+  }));
+
+  return Object.keys(newErrors).length === 0;
+};
+
+const validateSettings = () => {
+  const newErrors = {};
+
+  if (!settings.sales_unit) {
+    newErrors.sales_unit = "Sales unit is required";
+  }
+
+  if (!settings.stock_unit) {
+    newErrors.stock_unit = "Stock unit is required";
+  }
+
+  setErrors((prev) => ({
+    ...prev,
+    ...newErrors,
+  }));
+
+  return Object.keys(newErrors).length === 0;
+};
+
 
 const saveSettings = async () => {
 
 
   try {
+    if (!validateSettings()) {
+      setMessage({
+        type: "error",
+        text: "Please correct the highlighted fields.",
+      });
 
-    if (!settings.stock_unit || !settings.sales_unit) {
-      alert(
-        "Please select both stock and sales units"
-      );
       return;
     }
-
-
-
 
     setSaving(true);
 
@@ -111,15 +185,17 @@ const saveSettings = async () => {
       }
     );
 
-    alert(
-      "Settings saved successfully"
-    );
+    setMessage({
+      type: "success",
+      text: "Settings saved successfully.",
+    });
   } catch (error) {
     console.error(error);
 
-    alert(
-      "Failed to save settings"
-    );
+    setMessage({
+      type: "error",
+      text: "Failed to save settings.",
+    });
   } finally {
     setSaving(false);
   }
@@ -127,9 +203,16 @@ const saveSettings = async () => {
 
 
 const handleAddUnit = async () => {
-  if (!unitForm.unit) return;
-
   try {
+    if (!validateUnitForm()) {
+      setMessage({
+        type: "error",
+        text: "Please correct the highlighted fields.",
+      });
+
+      return;
+    }
+
     setSaving(true);
 
     const response =
@@ -150,12 +233,24 @@ const handleAddUnit = async () => {
       unit: "",
       conversion_factor: 1,
     });
+
+    setErrors((prev) => ({
+      ...prev,
+      unit: "",
+      conversion_factor: "",
+    }));
+
+    setMessage({
+      type: "success",
+      text: "Unit added successfully.",
+    });
   } catch (error) {
             console.error(error);
 
-    alert(
-      "Failed to add unit"
-    );
+    setMessage({
+      type: "error",
+      text: "Failed to add unit.",
+    });
   }finally {
     setSaving(false);
   }
@@ -232,6 +327,16 @@ const handleDeleteUnit = async (
       title="Item File"
       description="Units and barcode management"
     >
+      <Alert
+        type={message.type}
+        message={message.text}
+        onClose={() =>
+          setMessage({
+            type: "",
+            text: "",
+          })
+        }
+      />
       <div className="grid grid-cols-12 gap-4">
         {/* LEFT PANEL */}
         <div className="col-span-12 lg:col-span-7">
@@ -251,12 +356,13 @@ const handleDeleteUnit = async (
 
                   <select
                     value={unitForm.unit}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setUnitForm({
                         ...unitForm,
                         unit: e.target.value,
-                      })
-                    }
+                      });
+                      clearFieldError("unit");
+                    }}
                     className="w-full border rounded px-3 py-2"
                   >
                     <option value="">
@@ -281,6 +387,11 @@ const handleDeleteUnit = async (
                       </option>
                     ))}
                   </select>
+                  {errors.unit && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.unit}
+                    </p>
+                  )}
                 </div>
 
                 <div className="col-span-4">
@@ -294,15 +405,21 @@ const handleDeleteUnit = async (
                     value={
                       unitForm.conversion_factor
                     }
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setUnitForm({
                         ...unitForm,
                         conversion_factor:
                           e.target.value,
-                      })
-                    }
+                      });
+                      clearFieldError("conversion_factor");
+                    }}
                     className="w-full border rounded px-3 py-2"
                   />
+                  {errors.conversion_factor && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.conversion_factor}
+                    </p>
+                  )}
                 </div>
 
                 <div className="col-span-3 flex items-end">
@@ -381,16 +498,17 @@ const handleDeleteUnit = async (
                   Sales Unit
                 </label>
 
-                <select
-                  value={settings.sales_unit}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      sales_unit: e.target.value
-                        ? Number(e.target.value)
-                        : "",
-                    })
-                  }
+                  <select
+                    value={settings.sales_unit}
+                    onChange={(e) => {
+                      setSettings({
+                        ...settings,
+                        sales_unit: e.target.value
+                          ? Number(e.target.value)
+                          : "",
+                      });
+                      clearFieldError("sales_unit");
+                    }}
                   className="w-full border rounded px-3 py-2"
                 >
                   <option value="">
@@ -404,8 +522,13 @@ const handleDeleteUnit = async (
                     >
                       {unit.unit_name}
                     </option>
-                  ))}
+                    ))}
                 </select>
+                {errors.sales_unit && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.sales_unit}
+                  </p>
+                )}
               </div>
 
               {/* Stock Unit */}
@@ -417,14 +540,15 @@ const handleDeleteUnit = async (
 
                 <select
                   value={settings.stock_unit}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setSettings({
                         ...settings,
                         stock_unit: e.target.value
                           ? Number(e.target.value)
                           : "",
-                      })
-                    }
+                      });
+                      clearFieldError("stock_unit");
+                    }}
                   className="w-full border rounded px-3 py-2"
                 >
                   <option value="">
@@ -438,8 +562,13 @@ const handleDeleteUnit = async (
                     >
                       {unit.unit_name}
                     </option>
-                  ))}
+                    ))}
                 </select>
+                {errors.stock_unit && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.stock_unit}
+                  </p>
+                )}
               </div>
 
               <div className="border-t pt-4 flex justify-end">

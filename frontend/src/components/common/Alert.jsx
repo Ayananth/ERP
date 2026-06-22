@@ -20,7 +20,7 @@ export default function Alert({
         onClick={onClose}
         className="ml-4 text-lg font-bold"
       >
-        ×
+        &times;
       </button>
     </div>
   );

@@ -12,6 +12,7 @@ import {
   uploadItemPhoto,
   deleteItemPhoto,
 } from "../../api/inventoryApi"
+import Alert from "../../components/common/Alert";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import ItemPageLayout from "../../components/layout/ItemPageLayout";
 
@@ -23,8 +24,10 @@ function ItemPhotoPage() {
   const [loading, setLoading] =
     useState(false);
 
-  const [error, setError] =
-    useState("");
+  const [message, setMessage] = useState({
+    type: "",
+    text: "",
+  });
 
 const [showDeleteModal, setShowDeleteModal] =
   useState(false);
@@ -37,12 +40,24 @@ const [showDeleteModal, setShowDeleteModal] =
     loadPhoto();
   }, [itemId]);
 
+  useEffect(() => {
+    if (!message.text) return;
+
+    const timer = setTimeout(() => {
+      setMessage({
+        type: "",
+        text: "",
+      });
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [message]);
+
 
 
   const loadPhoto = async () => {
     try {
       setLoading(true);
-      setError("");
 
       const data =
         await getItemPhoto(itemId);
@@ -72,7 +87,6 @@ const [showDeleteModal, setShowDeleteModal] =
 
     try {
       setLoading(true);
-      setError("");
 
       const data =
         await uploadItemPhoto(
@@ -81,12 +95,17 @@ const [showDeleteModal, setShowDeleteModal] =
         );
 
       setImageUrl(data.image);
+      setMessage({
+        type: "success",
+        text: "Image uploaded successfully.",
+      });
     } catch (err) {
       console.error(err);
 
-      setError(
-        "Failed to upload image"
-      );
+      setMessage({
+        type: "error",
+        text: "Failed to upload image.",
+      });
     } finally {
       setLoading(false);
     }
@@ -95,19 +114,23 @@ const [showDeleteModal, setShowDeleteModal] =
 const handleDelete = async () => {
   try {
     setLoading(true);
-    setError("");
 
     await deleteItemPhoto(itemId);
 
     setImageUrl(null);
+    setMessage({
+      type: "success",
+      text: "Image deleted successfully.",
+    });
 
     setShowDeleteModal(false);
   } catch (err) {
     console.error(err);
 
-    setError(
-      "Failed to delete image"
-    );
+    setMessage({
+      type: "error",
+      text: "Failed to delete image.",
+    });
   } finally {
     setLoading(false);
   }
@@ -133,10 +156,16 @@ const handleDelete = async () => {
       title="Item File"
       description="Item Image"
     >
-
-
-
-
+      <Alert
+        type={message.type}
+        message={message.text}
+        onClose={() =>
+          setMessage({
+            type: "",
+            text: "",
+          })
+        }
+      />
 
 
     <div className="flex flex-col h-full bg-white border rounded">
@@ -180,15 +209,6 @@ const handleDelete = async () => {
           </div>
         )}
       </div>
-
-      {/* Error */}
-      {error && (
-        <div className="px-4 pb-2">
-          <div className="text-red-600 text-sm">
-            {error}
-          </div>
-        </div>
-      )}
 
       {/* Footer */}
       <div className="border-t bg-slate-100 p-3 flex justify-end gap-2">

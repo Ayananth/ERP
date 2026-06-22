@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getItemPrices, saveItemPrices } from "../../api/inventoryApi";
 import { DollarSign, Settings } from "lucide-react";
+import Alert from "../../components/common/Alert";
 import ItemPageLayout from "../../components/layout/ItemPageLayout";
 
 export default function PriceListPage() {
@@ -12,14 +13,34 @@ const [item, setItem] = useState(null);
 const [loading, setLoading] = useState(true);
 
   const [editing, setEditing] = useState(false);
+  const [message, setMessage] = useState({
+    type: "",
+    text: "",
+  });
+  const [errors, setErrors] = useState({});
 
 
 useEffect(() => {
   loadPrices();
 }, [itemId]);
 
+useEffect(() => {
+  if (!message.text) return;
+
+  const timer = setTimeout(() => {
+    setMessage({
+      type: "",
+      text: "",
+    });
+  }, 5000);
+
+  return () => clearTimeout(timer);
+}, [message]);
+
 const loadPrices = async () => {
   try {
+    setLoading(true);
+
     const data = await getItemPrices(itemId);
 
 
@@ -34,6 +55,50 @@ const loadPrices = async () => {
   } finally {
     setLoading(false);
   }
+};
+
+const validatePrices = () => {
+  const newErrors = {};
+
+  prices.forEach((row) => {
+    const rowErrors = {};
+
+    if (
+      row.sale_price === "" ||
+      row.sale_price === null ||
+      row.sale_price === undefined
+    ) {
+      rowErrors.sale_price = "Sale price is required";
+    } else if (
+      Number.isNaN(Number(row.sale_price)) ||
+      Number(row.sale_price) < 0
+    ) {
+      rowErrors.sale_price =
+        "Sale price must be a valid non-negative number";
+    }
+
+    if (
+      row.minimum_price === "" ||
+      row.minimum_price === null ||
+      row.minimum_price === undefined
+    ) {
+      rowErrors.minimum_price = "Minimum price is required";
+    } else if (
+      Number.isNaN(Number(row.minimum_price)) ||
+      Number(row.minimum_price) < 0
+    ) {
+      rowErrors.minimum_price =
+        "Minimum price must be a valid non-negative number";
+    }
+
+    if (Object.keys(rowErrors).length > 0) {
+      newErrors[row.unit_id] = rowErrors;
+    }
+  });
+
+  setErrors(newErrors);
+
+  return Object.keys(newErrors).length === 0;
 };
 
 const handlePriceChange = (
@@ -51,10 +116,41 @@ const handlePriceChange = (
         : row
     )
   );
+
+  setErrors((prev) => {
+    const rowErrors = prev[unitId];
+
+    if (!rowErrors) return prev;
+
+    const nextRowErrors = {
+      ...rowErrors,
+    };
+
+    delete nextRowErrors[field];
+
+    const nextErrors = {
+      ...prev,
+      [unitId]: nextRowErrors,
+    };
+
+    if (Object.keys(nextRowErrors).length === 0) {
+      delete nextErrors[unitId];
+    }
+
+    return nextErrors;
+  });
 };
 
 const handleSave = async () => {
   try {
+    if (!validatePrices()) {
+      setMessage({
+        type: "error",
+        text: "Please correct the highlighted fields.",
+      });
+
+      return;
+    }
 
     await saveItemPrices(
     itemId,
@@ -69,9 +165,17 @@ const handleSave = async () => {
     await loadPrices();
 
     setEditing(false);
+    setMessage({
+      type: "success",
+      text: "Prices saved successfully.",
+    });
 
   } catch (error) {
     console.error(error);
+    setMessage({
+      type: "error",
+      text: "Failed to save prices.",
+    });
   }
 };
 
@@ -88,6 +192,16 @@ if (loading) {
       title="Item File"
       description="Pricing information"
     >
+      <Alert
+        type={message.type}
+        message={message.text}
+        onClose={() =>
+          setMessage({
+            type: "",
+            text: "",
+          })
+        }
+      />
 
     <div className="flex flex-col h-full bg-white border rounded-lg">
       {/* Header */}
@@ -195,6 +309,11 @@ if (loading) {
                       }
                       className="w-32 border rounded px-3 py-2 text-right disabled:bg-slate-50"
                     />
+                    {errors[row.unit_id]?.sale_price && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors[row.unit_id].sale_price}
+                      </p>
+                    )}
                   </td>
 
                   <td className="px-4 py-4">
@@ -209,8 +328,13 @@ if (loading) {
                           e.target.value
                         )
                       }
-                      className="w-32 border rounded px-3 py-2 text-right disabled:bg-slate-50"
+                    className="w-32 border rounded px-3 py-2 text-right disabled:bg-slate-50"
                     />
+                    {errors[row.unit_id]?.minimum_price && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors[row.unit_id].minimum_price}
+                      </p>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -395,9 +395,9 @@ const handleSubmit = async (e) => {
                         </option>
                     ))}
                   </select>
-                    {errors.behaviour && (
+                    {errors.group && (
                     <p className="mt-1 text-sm text-red-600">
-                        {errors.behaviour}
+                        {errors.group}
                     </p>
                     )}
                 </div>
