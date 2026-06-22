@@ -114,6 +114,28 @@ const clearFieldError = (name) => {
   }));
 };
 
+const getApiErrorMessage = (error, fallback) => {
+  const data = error?.response?.data;
+
+  if (typeof data === "string") {
+    return data;
+  }
+
+  if (data?.detail) {
+    return data.detail;
+  }
+
+  if (data?.message) {
+    return data.message;
+  }
+
+  if (data?.error) {
+    return data.error;
+  }
+
+  return fallback;
+};
+
 const validateUnitForm = () => {
   const newErrors = {};
 
@@ -303,6 +325,14 @@ const handleDeleteUnit = async (
   } catch (error) {
 
     console.error(error);
+
+    setMessage({
+      type: "error",
+      text: getApiErrorMessage(
+        error,
+        "Failed to delete item unit."
+      ),
+    });
   }
 };
 
