@@ -12,7 +12,7 @@ import {
   uploadItemPhoto,
   deleteItemPhoto,
 } from "../../api/inventoryApi"
-
+import ConfirmModal from "../../components/common/ConfirmModal";
 import ItemPageLayout from "../../components/layout/ItemPageLayout";
 
 function ItemPhotoPage() {
@@ -25,6 +25,9 @@ function ItemPhotoPage() {
 
   const [error, setError] =
     useState("");
+
+const [showDeleteModal, setShowDeleteModal] =
+  useState(false);
 
   const fileInputRef = useRef(null);
 
@@ -89,26 +92,42 @@ function ItemPhotoPage() {
     }
   };
 
-  const handleDelete = async () => {
-    try {
-      setLoading(true);
-      setError("");
+const handleDelete = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      await deleteItemPhoto(itemId);
+    await deleteItemPhoto(itemId);
 
-      setImageUrl(null);
-    } catch (err) {
-      console.error(err);
+    setImageUrl(null);
 
-      setError(
-        "Failed to delete image"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    setShowDeleteModal(false);
+  } catch (err) {
+    console.error(err);
 
+    setError(
+      "Failed to delete image"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
   return (
+
+<>
+
+<ConfirmModal
+  open={showDeleteModal}
+  title="Delete Image"
+  message="Are you sure you want to delete this image?"
+  confirmText="Delete"
+  cancelText="Cancel"
+  loading={loading}
+  onConfirm={handleDelete}
+  onCancel={() => setShowDeleteModal(false)}
+/>
+
+
 
         <ItemPageLayout
       title="Item File"
@@ -188,17 +207,17 @@ function ItemPhotoPage() {
         </button>
 
         <button
-          onClick={handleDelete}
-          disabled={!imageUrl || loading}
-          className="
+        onClick={() => setShowDeleteModal(true)}
+        disabled={!imageUrl || loading}
+        className="
             px-6 py-2
             bg-slate-500
             text-white
             rounded
             hover:bg-slate-600
-          "
+        "
         >
-          Clear
+        Clear
         </button>
       </div>
 
@@ -212,6 +231,8 @@ function ItemPhotoPage() {
     </div>
 
         </ItemPageLayout>
+
+        </>
 
   );
 }
