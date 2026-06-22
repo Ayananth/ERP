@@ -16,6 +16,10 @@ import Alert from "../../components/common/Alert";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import ItemPageLayout from "../../components/layout/ItemPageLayout";
 
+const MAX_IMAGE_SIZE_MB = 5;
+const MAX_IMAGE_SIZE_BYTES =
+  MAX_IMAGE_SIZE_MB * 1024 * 1024;
+
 function ItemPhotoPage() {
     const { itemId } = useParams();
   const [imageUrl, setImageUrl] =
@@ -85,6 +89,24 @@ const [showDeleteModal, setShowDeleteModal] =
 
     if (!file) return;
 
+    if (!file.type?.startsWith("image/")) {
+      setMessage({
+        type: "error",
+        text: "Only image files are allowed.",
+      });
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      setMessage({
+        type: "error",
+        text: `Image must be smaller than ${MAX_IMAGE_SIZE_MB} MB.`,
+      });
+      event.target.value = "";
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -108,6 +130,7 @@ const [showDeleteModal, setShowDeleteModal] =
       });
     } finally {
       setLoading(false);
+      event.target.value = "";
     }
   };
 
