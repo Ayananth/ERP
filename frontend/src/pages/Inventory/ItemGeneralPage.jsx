@@ -21,14 +21,18 @@ export default function ItemGeneralPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(initialForm);
   const [dropdowns, setDropdowns] = useState({
-  behaviours: [],
-  statuses: [],
-  taxable_statuses: [],
-  groups: [],
-  shelves: [],
-  manufacturers: [],
-});
-
+      behaviours: [],
+      statuses: [],
+      taxable_statuses: [],
+      groups: [],
+      shelves: [],
+      manufacturers: [],
+    });
+    const [errors, setErrors] = useState({});
+    const [message, setMessage] = useState({
+    type: "",
+    text: "",
+    });
   const firstInputRef = useRef(null);
 
   useEffect(() => {
@@ -51,16 +55,55 @@ export default function ItemGeneralPage() {
     }
     };
 
+    const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name_1?.trim()) {
+    newErrors.name_1 = "Name 1 is required";
+    } else if (formData.name_1.trim().length < 2) {
+    newErrors.name_1 =
+        "Name 1 must contain at least 2 characters";
+    }
+
+    if (!formData.behaviour) {
+        newErrors.behaviour = "Behaviour is required";
+    }
+
+    if (!formData.group) {
+        newErrors.group = "Group Code is required";
+    }
+
+    if (!formData.status) {
+        newErrors.status = "Status is required";
+    }
+
+    if (!formData.taxable_status) {
+        newErrors.taxable_status =
+        "Taxable Status is required";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+    };
 
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
 
-    setFormData((prev) => ({
+const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  setFormData((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+
+  if (errors[name]) {
+    setErrors((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: "",
     }));
-  };
+  }
+};
 
   const handleNew = () => {
     setFormData(initialForm);
@@ -74,19 +117,36 @@ export default function ItemGeneralPage() {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
+  setMessage({
+    type: "",
+    text: "",
+  });
+
+  if (!validateForm()) {
+    setMessage({
+      type: "error",
+      text: "Please correct the highlighted fields.",
+    });
+
+    return;
+  }
+
   try {
-    console.log(formData)
-    const item = await createItem(formData);
+    const response = await createItem(formData);
 
-    console.log(item);
+    setMessage({
+      type: "success",
+      text: "Item created successfully.",
+    });
 
+    setErrors({});
     setIsEditing(false);
 
-    setFormData(initialForm);
   } catch (error) {
-    if (error.response?.data) {
-      console.log(error.response.data);
-    }
+    setMessage({
+      type: "error",
+      text: "Failed to create item.",
+    });
 
     console.error(error);
   }
@@ -125,6 +185,18 @@ const handleSubmit = async (e) => {
           </button>
         </div>
       </div>
+
+        {message.text && (
+        <div
+            className={`mb-4 rounded border px-4 py-3 ${
+            message.type === "success"
+                ? "border-green-300 bg-green-50 text-green-700"
+                : "border-red-300 bg-red-50 text-red-700"
+            }`}
+        >
+            {message.text}
+        </div>
+        )}
 
       {/* Form */}
       <form onSubmit={handleSubmit}>
@@ -175,6 +247,11 @@ const handleSubmit = async (e) => {
                     placeholder="Enter name 1"
                     className="w-full border rounded px-3 py-2"
                   />
+                {errors.name_1 && (
+                <p className="mt-1 text-sm text-red-600">
+                    {errors.name_1}
+                </p>
+                )}
                 </div>
 
                 <div className="col-span-12 md:col-span-4">
@@ -270,6 +347,11 @@ const handleSubmit = async (e) => {
                         </option>
                     ))}
                   </select>
+                    {errors.behaviour && (
+                    <p className="mt-1 text-sm text-red-600">
+                        {errors.behaviour}
+                    </p>
+                    )}
                 </div>
 
                 <div className="col-span-12 md:col-span-4">
@@ -295,6 +377,11 @@ const handleSubmit = async (e) => {
                         </option>
                     ))}
                   </select>
+                    {errors.behaviour && (
+                    <p className="mt-1 text-sm text-red-600">
+                        {errors.behaviour}
+                    </p>
+                    )}
                 </div>
 
                 <div className="col-span-12 md:col-span-4">
@@ -317,6 +404,11 @@ const handleSubmit = async (e) => {
                         </option>
                     ))}
                   </select>
+                    {errors.status && (
+                    <p className="mt-1 text-sm text-red-600">
+                        {errors.status}
+                    </p>
+                    )}
                 </div>
 
                 <div className="col-span-12 md:col-span-2">
@@ -342,6 +434,11 @@ const handleSubmit = async (e) => {
                         </option>
                     ))}
                   </select>
+                    {errors.taxable_status && (
+                    <p className="mt-1 text-sm text-red-600">
+                        {errors.taxable_status}
+                    </p>
+                    )}
                 </div>
 
                 <div className="col-span-12 md:col-span-2">
