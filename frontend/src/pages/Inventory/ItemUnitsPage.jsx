@@ -350,10 +350,9 @@ const handleDeleteUnit = async (
                   onChange={(e) =>
                     setSettings({
                       ...settings,
-                      sales_unit:
-                        e.target.value,
+                      sales_unit: Number(e.target.value),
                     })
-                  }
+}
                   className="w-full border rounded px-3 py-2"
                 >
                   <option value="">
@@ -383,8 +382,7 @@ const handleDeleteUnit = async (
                   onChange={(e) =>
                     setSettings({
                       ...settings,
-                      stock_unit:
-                        e.target.value,
+                      stock_unit: Number(e.target.value),
                     })
                   }
                   className="w-full border rounded px-3 py-2"
