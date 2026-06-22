@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getAvailableUnits, getItemUnits, addItemUnit } from "../../api/inventoryApi";
+import { getAvailableUnits, getItemUnits, addItemUnit, deleteItemUnit } from "../../api/inventoryApi";
 import ItemPageLayout from "../../components/layout/ItemPageLayout";
 
 
@@ -107,7 +107,7 @@ const handleAddUnit = async () => {
       conversion_factor: 1,
     });
   } catch (error) {
-    console.error(error);
+            console.error(error);
 
     alert(
       "Failed to add unit"
@@ -117,11 +117,55 @@ const handleAddUnit = async () => {
   }
 };
 
-  const removeUnit = (id) => {
-    setUnits(
-      units.filter((unit) => unit.id !== id)
+const handleDeleteUnit = async (
+  itemUnitId
+) => {
+  const deletedUnit =
+    units.find(
+      (u) =>
+        u.id === itemUnitId
     );
-  };
+
+  try {
+    await deleteItemUnit(
+      itemUnitId
+    );
+
+    setUnits((prev) =>
+      prev.filter(
+        (unit) =>
+          unit.id !== itemUnitId
+      )
+    );
+
+    if (
+      Number(
+        settings.stock_unit
+      ) === deletedUnit.unit
+    ) {
+      setSettings((prev) => ({
+        ...prev,
+        stock_unit: "",
+      }));
+    }
+
+    if (
+      Number(
+        settings.sales_unit
+      ) === deletedUnit.unit
+    ) {
+      setSettings((prev) => ({
+        ...prev,
+        sales_unit: "",
+      }));
+    }
+  } catch (error) {
+
+    console.error(error);
+  }
+};
+
+
 
   const saveSettings = () => {
     console.log(settings);
@@ -271,7 +315,7 @@ const handleAddUnit = async () => {
                       <button
                         type="button"
                         onClick={() =>
-                          removeUnit(unit.id)
+                          handleDeleteUnit(unit.id)
                         }
                         className="text-red-500 hover:text-red-700"
                       >

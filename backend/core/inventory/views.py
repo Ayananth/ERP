@@ -231,10 +231,26 @@ class ItemUnitDeleteView(APIView):
             pk=pk
         )
 
+        protected_units = {
+            "stock": item_unit.is_stock_unit,
+            "sales": item_unit.is_sales_unit,
+        }
+
+        for unit_type, is_selected in protected_units.items():
+            if is_selected:
+                return Response(
+                    {
+                        "detail": f"Cannot delete {unit_type} unit."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
         item_unit.delete()
 
         return Response(
-            {"message": "Unit deleted"}
+            {
+                "message": "Unit deleted"
+            }
         )
     
 

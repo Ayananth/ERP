@@ -40,3 +40,11 @@ export const addItemUnit = (
     `/inventory/items/${itemId}/units/add/`,
     data
   );
+
+
+export const deleteItemUnit = (
+  itemUnitId
+) =>
+  api.delete(
+    `/inventory/item-units/${itemUnitId}/`
+  );
