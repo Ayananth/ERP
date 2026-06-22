@@ -322,6 +322,11 @@ const handleDeleteUnit = async (
         sales_unit: "",
       }));
     }
+
+    setMessage({
+      type: "success",
+      text: "Item unit deleted successfully.",
+    });
   } catch (error) {
 
     console.error(error);
