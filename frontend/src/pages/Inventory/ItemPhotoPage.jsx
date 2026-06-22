@@ -4,6 +4,9 @@ import {
   useState,
 } from "react";
 
+import { useParams } from "react-router-dom";
+
+
 import {
   getItemPhoto,
   uploadItemPhoto,
@@ -12,7 +15,8 @@ import {
 
 import ItemPageLayout from "../../components/layout/ItemPageLayout";
 
-function ItemPhotoPage({ itemId }) {
+function ItemPhotoPage() {
+    const { itemId } = useParams();
   const [imageUrl, setImageUrl] =
     useState(null);
 
@@ -29,6 +33,8 @@ function ItemPhotoPage({ itemId }) {
 
     loadPhoto();
   }, [itemId]);
+
+
 
   const loadPhoto = async () => {
     try {
