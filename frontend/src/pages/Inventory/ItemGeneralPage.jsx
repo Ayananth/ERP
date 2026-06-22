@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { getItemDropdowns, createItem } from "../../api/inventoryApi";
+import Alert from "../../components/common/Alert";
 
 
 const initialForm = {
@@ -54,6 +55,19 @@ export default function ItemGeneralPage() {
         console.error(error);
     }
     };
+
+    useEffect(() => {
+    if (!message.text) return;
+
+    const timer = setTimeout(() => {
+        setMessage({
+        type: "",
+        text: "",
+        });
+    }, 5000);
+
+    return () => clearTimeout(timer);
+    }, [message]);
 
     const validateForm = () => {
     const newErrors = {};
@@ -186,17 +200,16 @@ const handleSubmit = async (e) => {
         </div>
       </div>
 
-        {message.text && (
-        <div
-            className={`mb-4 rounded border px-4 py-3 ${
-            message.type === "success"
-                ? "border-green-300 bg-green-50 text-green-700"
-                : "border-red-300 bg-red-50 text-red-700"
-            }`}
-        >
-            {message.text}
-        </div>
-        )}
+        <Alert
+        type={message.type}
+        message={message.text}
+        onClose={() =>
+            setMessage({
+            type: "",
+            text: "",
+            })
+        }
+        />
 
       {/* Form */}
       <form onSubmit={handleSubmit}>
