@@ -132,7 +132,8 @@ const validateUnitForm = () => {
 
   setErrors((prev) => ({
     ...prev,
-    ...newErrors,
+    unit: newErrors.unit || "",
+    conversion_factor: newErrors.conversion_factor || "",
   }));
 
   return Object.keys(newErrors).length === 0;
@@ -151,7 +152,8 @@ const validateSettings = () => {
 
   setErrors((prev) => ({
     ...prev,
-    ...newErrors,
+    sales_unit: newErrors.sales_unit || "",
+    stock_unit: newErrors.stock_unit || "",
   }));
 
   return Object.keys(newErrors).length === 0;
@@ -346,6 +348,12 @@ const handleDeleteUnit = async (
             </div>
 
             <div className="p-4">
+              {(errors.unit || errors.conversion_factor) && (
+                <div className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                  Please correct the highlighted unit fields.
+                </div>
+              )}
+
               {/* Add Unit Row */}
 
               <div className="grid grid-cols-12 gap-3">
@@ -491,6 +499,12 @@ const handleDeleteUnit = async (
             </div>
 
             <div className="p-4 space-y-6">
+              {(errors.sales_unit || errors.stock_unit) && (
+                <div className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                  Please correct the highlighted settings.
+                </div>
+              )}
+
               {/* Sales Unit */}
 
               <div>
