@@ -12,6 +12,8 @@ function ItemUnitsPage() {
   const [availableUnits, setAvailableUnits] =
     useState([]);
 
+    const [saving, setSaving] = useState(false);
+
   const [units, setUnits] = useState([]);
 
   const [settings, setSettings] = useState({
@@ -81,11 +83,11 @@ const loadData = async () => {
 
 
 const handleAddUnit = async () => {
-  if (!unitForm.unit) {
-    return;
-  }
+  if (!unitForm.unit) return;
 
   try {
+    setSaving(true);
+
     const response =
       await addItemUnit(itemId, {
         unit: Number(unitForm.unit),
@@ -110,6 +112,8 @@ const handleAddUnit = async () => {
     alert(
       "Failed to add unit"
     );
+  }finally {
+    setSaving(false);
   }
 };
 
@@ -357,13 +361,16 @@ const handleAddUnit = async () => {
               </div>
 
               <div className="border-t pt-4 flex justify-end">
-                <button
-                  type="button"
-                  onClick={saveSettings}
-                  className="bg-blue-600 text-white rounded px-4 py-2"
-                >
-                  Save Settings
-                </button>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={handleAddUnit}
+                className="w-full rounded bg-slate-200 hover:bg-slate-300 px-4 py-2 disabled:opacity-50"
+              >
+                {saving
+                  ? "Adding..."
+                  : "+ Add Unit"}
+              </button>
               </div>
             </div>
           </div>
