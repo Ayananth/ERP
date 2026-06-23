@@ -55,6 +55,11 @@ const initialLines = [
   },
 ];
 
+const createEmptyLine = (id) => ({
+  ...initialLines[0],
+  id,
+});
+
 const toNumber = (value) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -171,6 +176,7 @@ function SalesQuotationPage() {
   const [loadingQuotation, setLoadingQuotation] = useState(false);
 
   const [lines, setLines] = useState(initialLines);
+  const [nextLineId, setNextLineId] = useState(2);
   const newEditButtonRef = useRef(null);
   const firstFieldRef = useRef(null);
 
@@ -241,6 +247,7 @@ function SalesQuotationPage() {
         );
 
         setLines(hydratedLines.length ? hydratedLines : initialLines);
+        setNextLineId((hydratedLines.length ? hydratedLines : initialLines).length + 1);
 
         setIsEditing(false);
       } catch (error) {
@@ -345,6 +352,11 @@ function SalesQuotationPage() {
     );
   };
 
+  const handleAddLine = () => {
+    setLines((prevLines) => [...prevLines, createEmptyLine(nextLineId)]);
+    setNextLineId((prev) => prev + 1);
+  };
+
   const loadQuotationById = async (id) => {
     const quotation = await getQuotation(id);
 
@@ -386,6 +398,7 @@ function SalesQuotationPage() {
       date: getTodayDate(),
     });
     setLines(initialLines);
+    setNextLineId(2);
     setIsEditing(false);
   };
 
@@ -470,6 +483,7 @@ function SalesQuotationPage() {
         onChange={handleLineChange}
         onItemSearch={handleItemSearch}
         onItemSelect={handleItemSelect}
+        onAddLine={handleAddLine}
       />
 
       <SalesQuotationFooter

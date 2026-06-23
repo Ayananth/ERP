@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 
 function CellInput({
   value,
@@ -49,6 +49,7 @@ function SalesQuotationLines({
   onChange,
   onItemSearch,
   onItemSelect,
+  onAddLine,
 }) {
   const [searchResults, setSearchResults] = useState({});
   const searchTimeoutRef = useRef(null);
@@ -78,8 +79,18 @@ function SalesQuotationLines({
 
   return (
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="bg-amber-100 px-4 py-3 text-sm font-medium text-amber-950">
-        Click 'New/Edit' to enable the form
+      <div className="flex items-center justify-between gap-3 bg-amber-100 px-4 py-3 text-sm font-medium text-amber-950">
+        <span>Click 'New/Edit' to enable the form</span>
+        {isEditing ? (
+          <button
+            type="button"
+            onClick={onAddLine}
+            className="inline-flex items-center gap-1 rounded-md bg-amber-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-amber-950"
+          >
+            <Plus size={14} />
+            Add Row
+          </button>
+        ) : null}
       </div>
 
       <div className="overflow-x-auto">
