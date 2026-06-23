@@ -187,6 +187,13 @@ export default function useItemGeneralPage() {
 
   const handleClear = () => {
     setFormData(normalizeItemForm());
+
+    if (itemId) {
+      navigate("/inventory/items/general", {
+        replace: true,
+      });
+      setIsEditing(false);
+    }
   };
 
   const handleSubmit = async (e) => {
