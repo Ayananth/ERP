@@ -166,8 +166,12 @@ function Sidebar() {
               </NavLink>
 
               <NavLink
-                to="/sales/orders"
-                className="flex items-center gap-3 py-2"
+                to="/sales/transactions/order"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 py-2 ${
+                    isActive ? "text-violet-400" : "text-slate-300"
+                  }`
+                }
               >
                 <div className="h-3 w-3 rounded-full bg-slate-500" />
                 Sales Order
