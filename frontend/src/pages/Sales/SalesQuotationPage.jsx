@@ -137,6 +137,7 @@ const hydrateQuotationLine = async (line, index = 0) => {
   });
 };
 
+
 const calculateTotals = (quotationLines = []) => {
   const totals = quotationLines.reduce(
     (acc, line) => {
@@ -442,7 +443,8 @@ function SalesQuotationPage() {
       return response;
     } catch (error) {
       setErrorMessage(
-        error?.response?.data?.message ??
+        error?.response?.data?.error ??
+          error?.response?.data?.message ??
           "Failed to save quotation. Please try again."
       );
       return null;

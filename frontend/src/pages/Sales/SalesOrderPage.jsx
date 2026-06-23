@@ -171,6 +171,7 @@ const calculateTotals = (orderLines = []) => {
   };
 };
 
+
 function SalesOrderPage() {
   const navigate = useNavigate();
   const { orderId } = useParams();
@@ -524,7 +525,8 @@ function SalesOrderPage() {
       return response;
     } catch (error) {
       setErrorMessage(
-        error?.response?.data?.message ??
+        error?.response?.data?.error ??
+          error?.response?.data?.message ??
           "Failed to save sales order. Please try again."
       );
       return null;
