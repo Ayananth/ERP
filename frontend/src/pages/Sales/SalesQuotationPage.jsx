@@ -401,6 +401,13 @@ function SalesQuotationPage() {
     setLines(initialLines);
     setNextLineId(2);
     setIsEditing(false);
+
+    if (quotationId) {
+      navigate("/sales/transactions/quotation", {
+        replace: true,
+      });
+      setActiveQuotationId(null);
+    }
   };
 
   const handleSaveQuotation = async () => {
