@@ -35,7 +35,7 @@ ALLOWED_HOSTS = ["*"]
 
 
 CORS_ALLOWED_ORIGINS = [
-    os.getenv("FRONTEND_URL")
+    os.getenv("FRONTEND_URL", "http://localhost:5173")
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -145,9 +145,9 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    # "DEFAULT_PERMISSION_CLASSES": (
-    #     "rest_framework.permissions.IsAuthenticated",
-    # ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
+    ),
 }
 
 
