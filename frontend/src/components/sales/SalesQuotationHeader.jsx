@@ -7,6 +7,8 @@ function FieldShell({
   rightIcon,
   accent = false,
   helper,
+  readOnly = true,
+  onChange,
 }) {
   const baseClass = `w-full rounded-lg border px-3 pb-3 pt-5 text-sm outline-none transition ${
     accent
@@ -25,7 +27,8 @@ function FieldShell({
           type="text"
           value={value}
           placeholder={placeholder}
-          readOnly
+          readOnly={readOnly}
+          onChange={onChange}
         />
         <div className="pointer-events-none absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2 text-slate-400">
           {rightIcon}
@@ -43,6 +46,8 @@ function SearchField({
   value,
   placeholder,
   helper,
+  readOnly = true,
+  onChange,
 }) {
   return (
     <div className="space-y-1">
@@ -55,7 +60,8 @@ function SearchField({
           type="text"
           value={value}
           placeholder={placeholder}
-          readOnly
+          readOnly={readOnly}
+          onChange={onChange}
         />
         <Search className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
       </div>
@@ -66,7 +72,7 @@ function SearchField({
   );
 }
 
-function SalesQuotationHeader({ data }) {
+function SalesQuotationHeader({ data, isEditing, onChange }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
       <div className="grid gap-3 xl:grid-cols-6">
@@ -75,6 +81,8 @@ function SalesQuotationHeader({ data }) {
           value={data.quotation_no}
           placeholder=""
           accent
+          readOnly={!isEditing}
+          onChange={(event) => onChange("quotation_no", event.target.value)}
         />
 
         <FieldShell
@@ -83,6 +91,8 @@ function SalesQuotationHeader({ data }) {
           placeholder="Select quotation type"
           rightIcon={<ChevronDown size={16} />}
           accent
+          readOnly={!isEditing}
+          onChange={(event) => onChange("quotation_type", event.target.value)}
         />
 
         <FieldShell
@@ -91,12 +101,16 @@ function SalesQuotationHeader({ data }) {
           placeholder="18-06-2026"
           rightIcon={<CalendarDays size={16} />}
           accent
+          readOnly={!isEditing}
+          onChange={(event) => onChange("date", event.target.value)}
         />
 
         <SearchField
           label="Customer Search"
           value={data.customer}
           placeholder=""
+          readOnly={!isEditing}
+          onChange={(event) => onChange("customer", event.target.value)}
         />
 
         <FieldShell
@@ -105,6 +119,8 @@ function SalesQuotationHeader({ data }) {
           placeholder=""
           helper="0/50"
           accent
+          readOnly={!isEditing}
+          onChange={(event) => onChange("customer_ref_no", event.target.value)}
         />
 
         <FieldShell
@@ -113,6 +129,8 @@ function SalesQuotationHeader({ data }) {
           placeholder="Select Sales Executive"
           rightIcon={<ChevronDown size={16} />}
           accent
+          readOnly={!isEditing}
+          onChange={(event) => onChange("sales_executive", event.target.value)}
         />
 
         <FieldShell
@@ -120,6 +138,8 @@ function SalesQuotationHeader({ data }) {
           value={data.attention}
           placeholder=""
           helper="0/200"
+          readOnly={!isEditing}
+          onChange={(event) => onChange("attention", event.target.value)}
         />
 
         <FieldShell
@@ -127,6 +147,8 @@ function SalesQuotationHeader({ data }) {
           value={data.pay_terms}
           placeholder=""
           helper="0/100"
+          readOnly={!isEditing}
+          onChange={(event) => onChange("pay_terms", event.target.value)}
         />
 
         <FieldShell
@@ -134,6 +156,8 @@ function SalesQuotationHeader({ data }) {
           value={data.delivery_place}
           placeholder=""
           helper="0/150"
+          readOnly={!isEditing}
+          onChange={(event) => onChange("delivery_place", event.target.value)}
         />
 
         <FieldShell
@@ -142,6 +166,8 @@ function SalesQuotationHeader({ data }) {
           placeholder="1 - SAUDI RIYAL"
           rightIcon={<ChevronDown size={16} />}
           accent
+          readOnly={!isEditing}
+          onChange={(event) => onChange("currency", event.target.value)}
         />
 
         <FieldShell
@@ -149,6 +175,8 @@ function SalesQuotationHeader({ data }) {
           value={data.exchange_rate}
           placeholder="1"
           accent
+          readOnly={!isEditing}
+          onChange={(event) => onChange("exchange_rate", event.target.value)}
         />
 
         <FieldShell
@@ -156,6 +184,8 @@ function SalesQuotationHeader({ data }) {
           value={data.notes}
           placeholder=""
           helper="0/500"
+          readOnly={!isEditing}
+          onChange={(event) => onChange("notes", event.target.value)}
         />
       </div>
     </section>

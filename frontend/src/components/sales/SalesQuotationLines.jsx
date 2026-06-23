@@ -1,12 +1,20 @@
 import { Search } from "lucide-react";
 
-function CellInput({ value, placeholder, align = "left", icon }) {
+function CellInput({
+  value,
+  placeholder,
+  align = "left",
+  icon,
+  readOnly = true,
+  onChange,
+}) {
   return (
     <div className="relative">
       <input
         value={value}
         placeholder={placeholder}
-        readOnly
+        readOnly={readOnly}
+        onChange={onChange}
         className={`h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-300 focus:border-slate-300 ${
           align === "right" ? "text-right" : "text-left"
         } ${icon ? "pr-10" : ""}`}
@@ -20,7 +28,7 @@ function CellInput({ value, placeholder, align = "left", icon }) {
   );
 }
 
-function SalesQuotationLines({ lines }) {
+function SalesQuotationLines({ lines, isEditing, onChange }) {
   return (
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="bg-amber-100 px-4 py-3 text-sm font-medium text-amber-950">
@@ -96,6 +104,8 @@ function SalesQuotationLines({ lines }) {
                       value={line.item_code}
                       placeholder=""
                       icon={<Search size={14} />}
+                      readOnly={!isEditing}
+                      onChange={(event) => onChange(line.id, "item_code", event.target.value)}
                     />
                   </td>
                   <td className="px-2 py-2">
@@ -103,12 +113,16 @@ function SalesQuotationLines({ lines }) {
                       value={line.description}
                       placeholder=""
                       icon={<Search size={14} />}
+                      readOnly={!isEditing}
+                      onChange={(event) => onChange(line.id, "description", event.target.value)}
                     />
                   </td>
                   <td className="px-2 py-2">
                     <CellInput
                       value={line.unit}
                       placeholder=""
+                      readOnly={!isEditing}
+                      onChange={(event) => onChange(line.id, "unit", event.target.value)}
                     />
                   </td>
                   <td className="px-2 py-2">
@@ -116,6 +130,8 @@ function SalesQuotationLines({ lines }) {
                       value={line.qty}
                       placeholder=""
                       align="right"
+                      readOnly={!isEditing}
+                      onChange={(event) => onChange(line.id, "qty", event.target.value)}
                     />
                   </td>
                   <td className="px-2 py-2">
@@ -123,6 +139,8 @@ function SalesQuotationLines({ lines }) {
                       value={line.rate}
                       placeholder=""
                       align="right"
+                      readOnly={!isEditing}
+                      onChange={(event) => onChange(line.id, "rate", event.target.value)}
                     />
                   </td>
                   <td className="px-2 py-2">
@@ -130,6 +148,8 @@ function SalesQuotationLines({ lines }) {
                       value={line.discount_percent}
                       placeholder=""
                       align="right"
+                      readOnly={!isEditing}
+                      onChange={(event) => onChange(line.id, "discount_percent", event.target.value)}
                     />
                   </td>
                   <td className="px-2 py-2">
@@ -137,6 +157,8 @@ function SalesQuotationLines({ lines }) {
                       value={line.discount_amount}
                       placeholder=""
                       align="right"
+                      readOnly={!isEditing}
+                      onChange={(event) => onChange(line.id, "discount_amount", event.target.value)}
                     />
                   </td>
                   <td className="px-2 py-2">
@@ -144,6 +166,8 @@ function SalesQuotationLines({ lines }) {
                       value={line.net}
                       placeholder=""
                       align="right"
+                      readOnly={!isEditing}
+                      onChange={(event) => onChange(line.id, "net", event.target.value)}
                     />
                   </td>
                   <td className="px-2 py-2">
@@ -151,6 +175,8 @@ function SalesQuotationLines({ lines }) {
                       value={line.vat}
                       placeholder=""
                       align="right"
+                      readOnly={!isEditing}
+                      onChange={(event) => onChange(line.id, "vat", event.target.value)}
                     />
                   </td>
                   <td className="px-2 py-2">
@@ -158,6 +184,8 @@ function SalesQuotationLines({ lines }) {
                       value={line.net_after_vat}
                       placeholder=""
                       align="right"
+                      readOnly={!isEditing}
+                      onChange={(event) => onChange(line.id, "net_after_vat", event.target.value)}
                     />
                   </td>
                 </tr>
