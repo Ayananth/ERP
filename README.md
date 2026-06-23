@@ -87,5 +87,5 @@ Protected application routes are grouped under the main layout after authenticat
 - The backend container runs database migrations before starting the Django server.
 - I have included the db.sqlite file
 - Demo User
-    - username: admin
-    - password: admin123
+    - username: demo
+    - password: demo@123
