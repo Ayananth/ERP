@@ -81,10 +81,15 @@ class ItemDropdownView(APIView):
 class ItemListCreateAPIView(APIView):
 
     def get(self, request):
-        queryset = Item.objects.select_related(
-            "group",
-            "shelf",
-            "manufacturer"
+        queryset = (
+            Item.objects
+            .select_related(
+                "group",
+                "shelf",
+                "manufacturer"
+            )
+            .filter(prices__isnull=False)
+            .distinct()
         )
 
         search = request.query_params.get("search")
