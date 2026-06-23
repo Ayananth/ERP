@@ -1,5 +1,37 @@
+from decimal import Decimal
+
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
+from inventory.models import ItemPrice
 from .models import Customer, SalesOrder, SalesOrderLine, SalesQuotation, SalesQuotationLine
+
+
+def validate_minimum_price(
+    quantity,
+    rate,
+    discount_percent,
+    minimum_selling_price,
+):
+    quantity = Decimal(quantity)
+    rate = Decimal(rate)
+    discount_percent = Decimal(discount_percent)
+    minimum_selling_price = Decimal(minimum_selling_price)
+
+    if quantity <= 0:
+        raise ValidationError({
+            "error": "Quantity must be greater than zero."
+        })
+
+    gross_amount = quantity * rate
+    discount_amount = gross_amount * (discount_percent / Decimal("100"))
+    net_amount = gross_amount - discount_amount
+    effective_unit_price = net_amount / quantity
+
+    if effective_unit_price < minimum_selling_price:
+        raise ValidationError({
+            "error": "Selling price cannot be less than the minimum selling price."
+        })
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -68,6 +100,13 @@ class SalesQuotationCreateSerializer(serializers.Serializer):
     lines = SalesQuotationLineSerializer(
         many=True
     )
+
+    def validate_lines(self, value):
+        if not value:
+            raise ValidationError({
+                "error": "At least one quotation line is required."
+            })
+        return value
 
 
 class SalesQuotationLineDetailSerializer(serializers.ModelSerializer):
@@ -178,7 +217,9 @@ class SalesOrderCreateSerializer(serializers.Serializer):
 
     def validate_lines(self, value):
         if not value:
-            raise serializers.ValidationError("At least one order line is required.")
+            raise ValidationError({
+                "error": "At least one order line is required."
+            })
         return value
 
 
