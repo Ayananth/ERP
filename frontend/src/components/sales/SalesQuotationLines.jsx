@@ -220,8 +220,7 @@ function SalesQuotationLines({
                       value={line.rate}
                       placeholder=""
                       align="right"
-                      readOnly={!isEditing}
-                      onChange={(event) => onChange(line.id, "rate", event.target.value)}
+                      readOnly
                     />
                   </td>
                   <td className="px-2 py-2">
