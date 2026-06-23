@@ -17,7 +17,7 @@ import { NavLink } from "react-router-dom";
 
 function Sidebar() {
   return (
-    <aside className="w-80 h-screen bg-gradient-to-b from-[#020817] via-[#02144a] to-[#020817] text-white flex flex-col">
+    <aside className="w-64 h-screen bg-gradient-to-b from-[#020817] via-[#02144a] to-[#020817] text-white flex flex-col">
       {/* Header */}
       <div className="p-6">
         <div className="flex items-center gap-3 mb-8">
@@ -25,7 +25,7 @@ function Sidebar() {
             E
           </div>
 
-          <h1 className="text-3xl font-bold">Exalore</h1>
+          <h1 className="text-xl font-bold">Exalore</h1>
         </div>
 
         {/* Search */}
@@ -48,10 +48,10 @@ function Sidebar() {
         {/* Dashboard */}
         <NavLink
           to="/"
-          className="flex items-center gap-4 rounded-2xl bg-indigo-900/40 px-5 py-4 mb-4"
+          className="flex items-center gap-2 rounded-2xl bg-indigo-900/40 px-5 py-4 mb-4"
         >
-          <LayoutDashboard size={22} />
-          <span className="text-xl font-medium">
+          <LayoutDashboard size={16} />
+          <span className="text-sm font-medium">
             Dashboard
           </span>
         </NavLink>
@@ -59,9 +59,9 @@ function Sidebar() {
         {/* Inventory */}
         <div className="mb-6">
           <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <Package size={22} />
-              <span className="text-xl">
+              <span className="text-sm">
                 Inventory
               </span>
             </div>
@@ -69,7 +69,7 @@ function Sidebar() {
             <ChevronDown size={18} />
           </div>
 
-          <div className="ml-6 border-l border-slate-700 pl-6">
+          <div className="ml-1 border-l border-slate-700 pl-6">
             <div className="flex items-center justify-between py-3">
               <div className="flex items-center gap-3">
                 <FileText size={18} />
@@ -79,7 +79,7 @@ function Sidebar() {
               <ChevronDown size={16} />
             </div>
 
-            <div className="ml-6 border-l border-slate-700 pl-6 space-y-3">
+            <div className="ml-1 border-l border-slate-700 pl-6 space-y-3">
               <NavLink
                 to="/inventory/items/general"
                 className={({ isActive }) =>
@@ -94,38 +94,38 @@ function Sidebar() {
                 Item File
               </NavLink>
 
-              <div className="flex items-center gap-3 py-2 text-slate-300">
+              {/* <div className="flex items-center gap-3 py-2 text-slate-300">
                 <div className="h-3 w-3 rounded-full bg-slate-500" />
                 Item Group
-              </div>
+              </div> */}
             </div>
 
-            <div className="flex items-center justify-between py-4">
+            {/* <div className="flex items-center justify-between py-4">
               <div className="flex items-center gap-3">
                 <FileText size={18} />
                 Transactions
               </div>
 
               <ChevronRight size={16} />
-            </div>
+            </div> */}
 
-            <div className="flex items-center justify-between py-4">
+            {/* <div className="flex items-center justify-between py-4">
               <div className="flex items-center gap-3">
                 <BarChart3 size={18} />
                 Reports
               </div>
 
               <ChevronRight size={16} />
-            </div>
+            </div> */}
           </div>
         </div>
 
         {/* Sales */}
         <div>
           <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <ShoppingCart size={22} />
-              <span className="text-xl">
+              <span className="text-sm">
                 Sales
               </span>
             </div>
@@ -133,15 +133,15 @@ function Sidebar() {
             <ChevronDown size={18} />
           </div>
 
-          <div className="ml-6 border-l border-slate-700 pl-6">
-            <div className="flex items-center justify-between py-4">
+          <div className="ml-1 border-l border-slate-700 pl-6">
+            {/* <div className="flex items-center justify-between py-4">
               <div className="flex items-center gap-3">
                 <FileText size={18} />
                 Definitions
               </div>
 
               <ChevronRight size={16} />
-            </div>
+            </div> */}
 
             <div className="flex items-center justify-between py-3">
               <div className="flex items-center gap-3">
@@ -152,7 +152,7 @@ function Sidebar() {
               <ChevronDown size={16} />
             </div>
 
-            <div className="ml-6 border-l border-slate-700 pl-6 space-y-3">
+            <div className="ml-1 border-l border-slate-700 pl-6 space-y-3">
               <NavLink
                 to="/sales/transactions/quotation"
                 className={({ isActive }) =>
@@ -178,14 +178,14 @@ function Sidebar() {
               </NavLink>
             </div>
 
-            <div className="flex items-center justify-between py-4">
+            {/* <div className="flex items-center justify-between py-4">
               <div className="flex items-center gap-3">
                 <BarChart3 size={18} />
                 Reports
               </div>
 
               <ChevronRight size={16} />
-            </div>
+            </div> */}
           </div>
         </div>
       </nav>
