@@ -174,6 +174,7 @@ function SalesQuotationPage() {
   const [header, setHeader] = useState(initialHeader);
   const [activeQuotationId, setActiveQuotationId] = useState(quotationId ?? null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [loadingQuotation, setLoadingQuotation] = useState(false);
 
   const [lines, setLines] = useState(initialLines);
@@ -266,6 +267,7 @@ function SalesQuotationPage() {
 
   const handleHeaderChange = (field, value) => {
     setErrorMessage("");
+    setSuccessMessage("");
     setHeader((prev) => ({
       ...prev,
       [field]: value,
@@ -274,6 +276,7 @@ function SalesQuotationPage() {
 
   const handleLineChange = (lineId, field, value) => {
     setErrorMessage("");
+    setSuccessMessage("");
     setLines((prevLines) =>
       prevLines.map((line) => {
         if (line.id !== lineId) {
@@ -389,11 +392,13 @@ function SalesQuotationPage() {
 
   const handleFooterAction = () => {
     setErrorMessage("");
+    setSuccessMessage("");
     setIsEditing(true);
   };
 
   const handleCancel = () => {
     setErrorMessage("");
+    setSuccessMessage("");
     setHeader({
       ...initialHeader,
       date: getTodayDate(),
@@ -412,6 +417,7 @@ function SalesQuotationPage() {
 
   const handleSaveQuotation = async () => {
     setErrorMessage("");
+    setSuccessMessage("");
 
     if (!header.customer) {
       setErrorMessage("Please select a customer before saving.");
@@ -447,6 +453,7 @@ function SalesQuotationPage() {
       }
 
       setIsEditing(false);
+      setSuccessMessage("Quotation saved successfully.");
       return response;
     } catch (error) {
       setErrorMessage(
@@ -469,6 +476,12 @@ function SalesQuotationPage() {
       {errorMessage ? (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {errorMessage}
+        </div>
+      ) : null}
+
+      {successMessage ? (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          {successMessage}
         </div>
       ) : null}
 

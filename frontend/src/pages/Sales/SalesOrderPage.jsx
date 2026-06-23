@@ -184,6 +184,7 @@ function SalesOrderPage() {
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [isQuotationModalLoading, setIsQuotationModalLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [nextLineId, setNextLineId] = useState(2);
 
@@ -310,6 +311,7 @@ function SalesOrderPage() {
   const handleQuotationSelect = async (quotationSummary) => {
     setIsQuotationModalLoading(true);
     setErrorMessage("");
+    setSuccessMessage("");
 
     try {
       const quotation = await getQuotation(quotationSummary.id);
@@ -352,6 +354,7 @@ function SalesOrderPage() {
 
   const handleHeaderChange = (field, value) => {
     setErrorMessage("");
+    setSuccessMessage("");
     setHeader((prev) => ({
       ...prev,
       [field]: value,
@@ -360,6 +363,7 @@ function SalesOrderPage() {
 
   const handleLineChange = (lineId, field, value) => {
     setErrorMessage("");
+    setSuccessMessage("");
     setLines((prevLines) =>
       prevLines.map((line) => {
         if (line.id !== lineId) {
@@ -452,11 +456,13 @@ function SalesOrderPage() {
 
   const handleFooterAction = () => {
     setErrorMessage("");
+    setSuccessMessage("");
     setIsEditing(true);
   };
 
   const handleCancel = () => {
     setErrorMessage("");
+    setSuccessMessage("");
 
     if (activeOrderId) {
       loadOrderById(activeOrderId).catch((error) => {
@@ -497,6 +503,7 @@ function SalesOrderPage() {
 
   const handleSaveOrder = async () => {
     setErrorMessage("");
+    setSuccessMessage("");
 
     if (!header.customer) {
       setErrorMessage("Please select a customer before saving.");
@@ -522,6 +529,7 @@ function SalesOrderPage() {
       }
 
       setIsEditing(false);
+      setSuccessMessage("Sales order saved successfully.");
       return response;
     } catch (error) {
       setErrorMessage(
@@ -544,6 +552,12 @@ function SalesOrderPage() {
       {errorMessage ? (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {errorMessage}
+        </div>
+      ) : null}
+
+      {successMessage ? (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          {successMessage}
         </div>
       ) : null}
 
