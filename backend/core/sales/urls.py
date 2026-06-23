@@ -3,8 +3,9 @@ from django.urls import path
 
 from .views import (
     CustomerListView,
-    SalesOrderAPIView,
+    SalesOrderCreateView,
     SalesOrderDetailAPIView,
+    SalesOrderListView,
     SalesQuotationCreateView,
     SalesQuotationDetailView,
     SalesQuotationListView,
@@ -34,7 +35,12 @@ urlpatterns = [
 
     path(
         "orders/",
-        SalesOrderAPIView.as_view()
+        SalesOrderListView.as_view()
+    ),
+
+    path(
+        "orders/create/",
+        SalesOrderCreateView.as_view()
     ),
 
     path(

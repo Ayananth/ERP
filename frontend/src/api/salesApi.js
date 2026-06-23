@@ -42,3 +42,28 @@ export const deleteQuotation = async (id) => {
   const response = await api.delete(`/sales/quotations/${id}/`);
   return response.data;
 };
+
+export const createSalesOrder = async (body) => {
+  const response = await api.post("/sales/orders/create/", body);
+  return response.data;
+};
+
+export const getSalesOrderList = async () => {
+  const response = await api.get("/sales/orders/");
+  return response.data;
+};
+
+export const getSalesOrder = async (id) => {
+  const response = await api.get(`/sales/orders/${id}/`);
+  return response.data;
+};
+
+export const updateSalesOrder = async (id, body) => {
+  const response = await api.put(`/sales/orders/${id}/`, body);
+  return response.data;
+};
+
+export const deleteSalesOrder = async (id) => {
+  const response = await api.delete(`/sales/orders/${id}/`);
+  return response.data;
+};

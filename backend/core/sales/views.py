@@ -12,9 +12,28 @@ from .serializers import (
     SalesOrderDetailSerializer,
 )
 
-from .models import Customer, SalesOrder, SalesQuotation, SalesQuotationLine, SalesOrderLine, SalesOrder
+from .models import (
+    Customer,
+    SalesOrder,
+    SalesOrderLine,
+    SalesQuotation,
+    SalesQuotationLine,
+)
 
 from django.shortcuts import get_object_or_404
+
+
+def save_order_lines(order, lines):
+    for line in lines:
+        SalesOrderLine.objects.create(
+            order=order,
+            item_id=line["item"],
+            unit_id=line["unit"],
+            quantity=line["quantity"],
+            rate=line["rate"],
+            discount_percent=line["discount_percent"],
+            vat_percent=line["vat_percent"],
+        )
 
 
 class CustomerListView(APIView):
@@ -140,7 +159,7 @@ class SalesQuotationDetailView(APIView):
 
 
 
-class SalesOrderAPIView(APIView):
+class SalesOrderListView(APIView):
 
     def get(self, request):
 
@@ -156,16 +175,17 @@ class SalesOrderAPIView(APIView):
         )
 
         return Response(serializer.data)
-    
+
+
+class SalesOrderCreateView(APIView):
+
     def post(self, request):
 
         serializer = SalesOrderCreateSerializer(
             data=request.data
         )
 
-        serializer.is_valid(
-            raise_exception=True
-        )
+        serializer.is_valid(raise_exception=True)
 
         data = serializer.validated_data
 
@@ -176,17 +196,7 @@ class SalesOrderAPIView(APIView):
             notes=data.get("notes", "")
         )
 
-        for line in data["lines"]:
-
-            SalesOrderLine.objects.create(
-                order=order,
-                item_id=line["item"],
-                unit_id=line["unit"],
-                quantity=line["quantity"],
-                rate=line["rate"],
-                discount_percent=line["discount_percent"],
-                vat_percent=line["vat_percent"]
-            )
+        save_order_lines(order, data["lines"])
 
         return Response(
             {
@@ -195,56 +205,58 @@ class SalesOrderAPIView(APIView):
             },
             status=status.HTTP_201_CREATED
         )
-    
+
 
 class SalesOrderDetailAPIView(APIView):
 
     def get_object(self, pk):
 
         return get_object_or_404(
-            SalesOrder,
+            SalesOrder.objects.select_related(
+                "customer",
+                "quotation"
+            ).prefetch_related(
+                "lines__item",
+                "lines__unit",
+            ),
             pk=pk
         )
-    
+
     def get(self, request, pk):
 
         order = self.get_object(pk)
 
-        serializer = SalesOrderDetailSerializer(
-            order
-        )
+        serializer = SalesOrderDetailSerializer(order)
 
         return Response(serializer.data)
-    
+
     def put(self, request, pk):
 
         order = self.get_object(pk)
 
-        serializer = SalesOrderCreateSerializer(
-            data=request.data
-        )
-
-        serializer.is_valid(
-            raise_exception=True
-        )
-
+        serializer = SalesOrderCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-        order.quotation_id = data.get(
-            "quotation"
-        )
-
-        order.customer_id = data[
-            "customer"
-        ]
-
-        order.order_date = data[
-            "order_date"
-        ]
-
-        order.notes = data.get(
-            "notes",
-            ""
-        )
-
+        order.quotation_id = data.get("quotation")
+        order.customer_id = data["customer"]
+        order.order_date = data["order_date"]
+        order.notes = data.get("notes", "")
         order.save()
+
+        order.lines.all().delete()
+        save_order_lines(order, data["lines"])
+
+        return Response(
+            {
+                "id": order.id,
+                "order_no": order.order_no
+            }
+        )
+
+    def delete(self, request, pk):
+
+        order = self.get_object(pk)
+        order.delete()
+
+        return Response({"message": "Sales order deleted"})

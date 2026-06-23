@@ -3,15 +3,13 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import {
   createSalesOrder,
-  getSalesOrder,
-  getSalesOrderList,
-} from "../../api/mockSalesOrderApi";
-import {
   getCustomerDropdown,
   getItemDetails,
   getItemSearch,
   getQuotation,
   getQuotationList,
+  getSalesOrder,
+  getSalesOrderList,
 } from "../../api/salesApi";
 import SalesQuotationLayout from "../../components/sales/SalesQuotationLayout";
 import SalesQuotationFooter from "../../components/sales/SalesQuotationFooter";
@@ -479,42 +477,22 @@ function SalesOrderPage() {
     setIsEditing(false);
   };
 
-  const buildPayload = () => {
-    const selectedCustomer = customers.find(
-      (customer) => String(customer.id) === String(header.customer)
-    );
-
-    return {
-      quotation: header.quotation_id ? Number(header.quotation_id) : null,
-      quotation_no:
-        header.linked_quotation === "No quotation linked"
-          ? ""
-          : header.linked_quotation,
-      customer: Number(header.customer),
-      customer_name: selectedCustomer?.name ?? header.customer_display ?? "",
-      order_date: header.issue_date,
-      valid_date: header.valid_date,
-      order_type: header.order_type,
-      customer_po: header.customer_po,
-      sales_executive: header.sales_executive,
-      currency: header.currency,
-      exchange_rate: header.exchange_rate,
-      delivery_place: header.delivery_place,
-      notes: header.notes,
-      lines: lines
-        .filter((line) => line.item_id)
-        .map((line) => ({
-          item: Number(line.item_id),
-          item_name: line.description,
-          unit: Number(line.unit),
-          unit_name: line.unit_name,
-          quantity: Number(line.qty || 0),
-          rate: Number(line.rate || 0),
-          discount_percent: Number(line.discount_percent || 0),
-          vat_percent: Number(line.vat_percent || 0),
-        })),
-    };
-  };
+  const buildPayload = () => ({
+    quotation: header.quotation_id ? Number(header.quotation_id) : null,
+    customer: Number(header.customer),
+    order_date: header.issue_date,
+    notes: header.notes,
+    lines: lines
+      .filter((line) => line.item_id)
+      .map((line) => ({
+        item: Number(line.item_id),
+        unit: Number(line.unit),
+        quantity: Number(line.qty || 0),
+        rate: Number(line.rate || 0),
+        discount_percent: Number(line.discount_percent || 0),
+        vat_percent: Number(line.vat_percent || 0),
+      })),
+  });
 
   const handleSaveOrder = async () => {
     setErrorMessage("");
