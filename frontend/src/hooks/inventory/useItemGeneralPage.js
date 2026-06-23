@@ -29,6 +29,22 @@ const initialDropdowns = {
   manufacturers: [],
 };
 
+const normalizeItemForm = (item = {}) => ({
+  ...initialItemGeneralForm,
+  ...item,
+  item_code: item.item_code ?? "",
+  name_1: item.name_1 ?? "",
+  name_2: item.name_2 ?? "",
+  generic_name: item.generic_name ?? "",
+  description: item.description ?? "",
+  behaviour: item.behaviour ?? "",
+  group: item.group ?? item.group_id ?? "",
+  status: item.status ?? "active",
+  taxable_status: item.taxable_status ?? "",
+  shelf: item.shelf ?? item.shelf_id ?? "",
+  manufacturer: item.manufacturer ?? item.manufacturer_id ?? "",
+});
+
 export default function useItemGeneralPage() {
   const navigate = useNavigate();
   const { itemId } = useParams();
@@ -78,7 +94,7 @@ export default function useItemGeneralPage() {
     try {
       const item = await getItem(itemId);
 
-      setFormData(item);
+      setFormData(normalizeItemForm(item));
       setIsEditing(false);
     } catch (error) {
       console.error(error);
@@ -144,12 +160,12 @@ export default function useItemGeneralPage() {
   };
 
   const handleNew = () => {
-    setFormData(initialItemGeneralForm);
+    setFormData(normalizeItemForm());
     setIsEditing(true);
   };
 
   const handleClear = () => {
-    setFormData(initialItemGeneralForm);
+    setFormData(normalizeItemForm());
   };
 
   const handleSubmit = async (e) => {
