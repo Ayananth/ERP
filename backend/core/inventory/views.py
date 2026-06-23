@@ -88,7 +88,6 @@ class ItemListCreateAPIView(APIView):
                 "shelf",
                 "manufacturer"
             ).filter(status=Item.Status.ACTIVE)
-            .filter(prices__isnull=False)
             .distinct()
         )
 
