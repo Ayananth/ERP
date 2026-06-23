@@ -1,21 +1,23 @@
 import { useState } from "react";
 
-import SalesQuotationHeader from "../../components/sales/SalesQuotationHeader"
-import SalesQuotationLines from "../../components/sales/SalesQuotationLines"
+import SalesQuotationLayout from "../../components/sales/SalesQuotationLayout";
+import SalesQuotationHeader from "../../components/sales/SalesQuotationHeader";
+import SalesQuotationLines from "../../components/sales/SalesQuotationLines";
+import SalesQuotationFooter from "../../components/sales/SalesQuotationFooter";
 
 function SalesQuotationPage() {
   const [header, setHeader] = useState({
     quotation_no: "",
     quotation_type: "",
-    date: new Date().toISOString().split("T")[0],
+    date: "18-06-2026",
     customer: "",
     customer_ref_no: "",
     sales_executive: "",
     attention: "",
     pay_terms: "",
     delivery_place: "",
-    currency: "",
-    exchange_rate: 1,
+    currency: "1 - SAUDI RIYAL",
+    exchange_rate: "1",
     notes: "",
   });
 
@@ -25,20 +27,18 @@ function SalesQuotationPage() {
       item_code: "",
       description: "",
       unit: "",
-      qty: 0,
-      rate: 0,
-      discount_percent: 0,
-      discount_amount: 0,
-      net: 0,
-      vat: 0,
-      net_after_vat: 0,
+      qty: "",
+      rate: "",
+      discount_percent: "",
+      discount_amount: "",
+      net: "",
+      vat: "",
+      net_after_vat: "",
     },
   ]);
 
   return (
-    <div className="container-fluid">
-      <h4 className="mb-3">Sales Quotation</h4>
-
+    <SalesQuotationLayout>
       <SalesQuotationHeader
         data={header}
         onChange={setHeader}
@@ -48,7 +48,9 @@ function SalesQuotationPage() {
         lines={lines}
         setLines={setLines}
       />
-    </div>
+
+      <SalesQuotationFooter />
+    </SalesQuotationLayout>
   );
 }
 
