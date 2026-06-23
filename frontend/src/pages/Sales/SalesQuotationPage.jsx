@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 
 import {
   createQuotation,
+  getItemDetails,
   getCustomerDropdown,
+  getItemSearch,
   getQuotationList,
 } from "../../api/salesApi";
 import SalesQuotationLayout from "../../components/sales/SalesQuotationLayout";
@@ -28,9 +30,11 @@ const initialHeader = {
 const initialLines = [
   {
     id: 1,
+    item_id: "",
     item_code: "",
     description: "",
     unit: "",
+    unit_name: "",
     qty: "",
     rate: "",
     discount_percent: "",
@@ -38,6 +42,8 @@ const initialLines = [
     net: "",
     vat: "",
     net_after_vat: "",
+    unit_options: [],
+    item_options: [],
   },
 ];
 
@@ -83,9 +89,55 @@ function SalesQuotationPage() {
 
   const handleLineChange = (lineId, field, value) => {
     setLines((prevLines) =>
-      prevLines.map((line) =>
-        line.id === lineId ? { ...line, [field]: value } : line
-      )
+      prevLines.map((line) => {
+        if (line.id !== lineId) {
+          return line;
+        }
+
+        if (field === "unit") {
+          const selectedUnit = (line.unit_options ?? []).find(
+            (unit) => String(unit.unit_id) === String(value)
+          );
+
+          return {
+            ...line,
+            unit: value,
+            unit_name: selectedUnit?.unit_name ?? "",
+          };
+        }
+
+        return { ...line, [field]: value };
+      })
+    );
+  };
+
+  const handleItemSearch = async (search) => {
+    const response = await getItemSearch(search);
+    return response.data ?? [];
+  };
+
+  const handleItemSelect = async (lineId, item) => {
+    const response = await getItemDetails(item.id);
+    const itemDetails = response.data;
+
+    setLines((prevLines) =>
+      prevLines.map((line) => {
+        if (line.id !== lineId) {
+          return line;
+        }
+
+        return {
+          ...line,
+          item_id: itemDetails?.id ?? item.id,
+          item_code: itemDetails?.item_code ?? item.item_code,
+          description: itemDetails?.name ?? item.name,
+          unit: "",
+          unit_name: "",
+          rate: "",
+          unit_options: itemDetails?.units ?? [],
+          item_options: [],
+        };
+      })
     );
   };
 
@@ -101,12 +153,12 @@ function SalesQuotationPage() {
 
   const handleSaveQuotation = async () => {
     const payload = {
-      customer: 1,
+      customer: Number(header.customer || 1),
       quotation_date: "2026-06-23",
       notes: header.notes,
       lines: lines.map((line) => ({
-        item: 1,
-        unit: 1,
+        item: Number(line.item_id || 1),
+        unit: Number(line.unit || 1),
         quantity: Number(line.qty || 0),
         rate: Number(line.rate || 0),
         discount_percent: Number(line.discount_percent || 0),
@@ -137,6 +189,8 @@ function SalesQuotationPage() {
         lines={lines}
         isEditing={isEditing}
         onChange={handleLineChange}
+        onItemSearch={handleItemSearch}
+        onItemSelect={handleItemSelect}
       />
 
       <SalesQuotationFooter

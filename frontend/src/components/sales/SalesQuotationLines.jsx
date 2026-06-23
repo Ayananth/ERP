@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+
 import { Search } from "lucide-react";
 
 function CellInput({
@@ -28,7 +30,39 @@ function CellInput({
   );
 }
 
-function SalesQuotationLines({ lines, isEditing, onChange }) {
+function SalesQuotationLines({
+  lines,
+  isEditing,
+  onChange,
+  onItemSearch,
+  onItemSelect,
+}) {
+  const [searchResults, setSearchResults] = useState({});
+  const searchTimeoutRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(searchTimeoutRef.current), []);
+
+  const handleSearchChange = (lineId, value) => {
+    onChange(lineId, "item_code", value);
+
+    clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(async () => {
+      const results = await onItemSearch(value);
+      setSearchResults((prev) => ({
+        ...prev,
+        [lineId]: results,
+      }));
+    }, 250);
+  };
+
+  const handleItemPick = (lineId, item) => {
+    setSearchResults((prev) => ({
+      ...prev,
+      [lineId]: [],
+    }));
+    onItemSelect(lineId, item);
+  };
+
   return (
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="bg-amber-100 px-4 py-3 text-sm font-medium text-amber-950">
@@ -100,30 +134,68 @@ function SalesQuotationLines({ lines, isEditing, onChange }) {
                     </div>
                   </td>
                   <td className="px-2 py-2">
-                    <CellInput
-                      value={line.item_code}
-                      placeholder=""
-                      icon={<Search size={14} />}
-                      readOnly={!isEditing}
-                      onChange={(event) => onChange(line.id, "item_code", event.target.value)}
-                    />
+                    <div className="relative">
+                      <CellInput
+                        value={line.item_code}
+                        placeholder=""
+                        icon={<Search size={14} />}
+                        readOnly={!isEditing}
+                        onChange={(event) =>
+                          handleSearchChange(line.id, event.target.value)
+                        }
+                      />
+                      {isEditing && searchResults[line.id]?.length ? (
+                        <div className="absolute z-20 mt-1 max-h-44 w-full overflow-auto rounded-md border border-slate-200 bg-white shadow-lg">
+                          {searchResults[line.id].map((item) => (
+                            <button
+                              key={item.id}
+                              type="button"
+                              className="block w-full border-b border-slate-100 px-3 py-2 text-left text-sm hover:bg-slate-50"
+                            onClick={() => handleItemPick(line.id, item)}
+                          >
+                              <div className="font-medium text-slate-700">
+                                {item.item_code}
+                              </div>
+                              <div className="text-xs text-slate-400">
+                                {item.name}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
                   </td>
                   <td className="px-2 py-2">
                     <CellInput
                       value={line.description}
                       placeholder=""
-                      icon={<Search size={14} />}
                       readOnly={!isEditing}
                       onChange={(event) => onChange(line.id, "description", event.target.value)}
                     />
                   </td>
                   <td className="px-2 py-2">
-                    <CellInput
-                      value={line.unit}
-                      placeholder=""
-                      readOnly={!isEditing}
-                      onChange={(event) => onChange(line.id, "unit", event.target.value)}
-                    />
+                    {isEditing ? (
+                      <select
+                        className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-slate-300"
+                        value={line.unit}
+                        onChange={(event) =>
+                          onChange(line.id, "unit", event.target.value)
+                        }
+                      >
+                        <option value="">Select unit</option>
+                        {(line.unit_options ?? []).map((unit) => (
+                          <option key={unit.unit_id} value={unit.unit_id}>
+                            {unit.unit_name}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <CellInput
+                        value={line.unit_name || line.unit}
+                        placeholder=""
+                        readOnly
+                      />
+                    )}
                   </td>
                   <td className="px-2 py-2">
                     <CellInput
