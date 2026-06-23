@@ -242,12 +242,12 @@ function SalesQuotationPage() {
 
   const handleSaveQuotation = async () => {
     const payload = {
-      customer: Number(header.customer || 1),
+      customer: Number(header.customer),
       quotation_date: header.date,
       notes: header.notes,
       lines: lines.map((line) => ({
-        item: Number(line.item_id || 1),
-        unit: Number(line.unit || 1),
+        item: Number(line.item_id),
+        unit: Number(line.unit),
         quantity: Number(line.qty || 0),
         rate: Number(line.rate || 0),
         discount_percent: Number(line.discount_percent || 0),
