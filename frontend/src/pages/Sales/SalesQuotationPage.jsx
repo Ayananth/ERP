@@ -50,6 +50,7 @@ const initialLines = [
     vat_amount: "",
     net_after_vat: "",
     unit_options: [],
+    unit_prices: [],
     item_options: [],
   },
 ];
@@ -126,6 +127,7 @@ const hydrateQuotationLine = async (line, index = 0) => {
     discount_percent: line.discount_percent ?? "",
     vat_percent: line.vat_percent ?? "",
     unit_options: itemDetails?.units ?? (selectedUnit ? [selectedUnit] : []),
+    unit_prices: itemDetails?.prices ?? [],
     item_options: [],
   });
 };
@@ -274,11 +276,20 @@ function SalesQuotationPage() {
           const selectedUnit = (line.unit_options ?? []).find(
             (unit) => String(unit.unit_id) === String(value)
           );
+          const selectedPrice = (line.unit_prices ?? []).find(
+            (price) => String(price.unit_id) === String(value)
+          );
+          const nextRate =
+            selectedPrice?.sale_price ?? line.rate ?? "";
 
           return {
             ...line,
             unit: value,
             unit_name: selectedUnit?.unit_name ?? "",
+            ...calculateLine(line, {
+              rate: nextRate === "" ? "" : String(nextRate),
+            }),
+            rate: nextRate === "" ? "" : String(nextRate),
           };
         }
 
@@ -327,6 +338,7 @@ function SalesQuotationPage() {
           rate: rate === "" ? "" : String(rate),
           qty: nextQty,
           unit_options: itemDetails?.units ?? [],
+          unit_prices: itemDetails?.prices ?? [],
           item_options: [],
         });
       })
@@ -352,11 +364,11 @@ function SalesQuotationPage() {
       notes: quotation?.notes ?? "",
     });
 
-    const hydratedLines = await Promise.all(
-      (quotation?.lines ?? []).map((line, index) =>
-        hydrateQuotationLine(line, index)
-      )
-    );
+                const hydratedLines = await Promise.all(
+                  (quotation?.lines ?? []).map((line, index) =>
+                    hydrateQuotationLine(line, index)
+                  )
+                );
 
     setLines(hydratedLines.length ? hydratedLines : initialLines);
     setIsEditing(false);
