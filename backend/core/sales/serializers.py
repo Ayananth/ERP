@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Customer, SalesOrder, SalesOrderLine, SalesQuotation, SalesQuotationLine, SalesOrder
+from .models import Customer, SalesOrder, SalesOrderLine, SalesQuotation, SalesQuotationLine
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -166,6 +166,21 @@ class SalesOrderCreateSerializer(serializers.Serializer):
         many=True
     )
 
+    def validate_customer(self, value):
+        if not Customer.objects.filter(pk=value).exists():
+            raise serializers.ValidationError("Customer not found.")
+        return value
+
+    def validate_quotation(self, value):
+        if value is not None and not SalesQuotation.objects.filter(pk=value).exists():
+            raise serializers.ValidationError("Quotation not found.")
+        return value
+
+    def validate_lines(self, value):
+        if not value:
+            raise serializers.ValidationError("At least one order line is required.")
+        return value
+
 
 
 class SalesOrderListSerializer(serializers.ModelSerializer):
@@ -223,10 +238,17 @@ class SalesOrderDetailSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    quotation_no = serializers.SerializerMethodField()
+
     lines = SalesOrderLineDetailSerializer(
         many=True,
         read_only=True
     )
+
+    def get_quotation_no(self, obj):
+        if obj.quotation_id and obj.quotation:
+            return obj.quotation.quotation_no
+        return ""
 
     class Meta:
         model = SalesOrder
@@ -235,6 +257,7 @@ class SalesOrderDetailSerializer(serializers.ModelSerializer):
             "id",
             "order_no",
             "quotation",
+            "quotation_no",
             "customer",
             "customer_name",
             "order_date",
