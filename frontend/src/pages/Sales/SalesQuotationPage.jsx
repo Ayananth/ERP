@@ -6,6 +6,7 @@ import SalesQuotationLines from "../../components/sales/SalesQuotationLines";
 import SalesQuotationFooter from "../../components/sales/SalesQuotationFooter";
 
 function SalesQuotationPage() {
+  const [isEditing, setIsEditing] = useState(false);
   const [header, setHeader] = useState({
     quotation_no: "",
     quotation_type: "",
@@ -37,19 +38,48 @@ function SalesQuotationPage() {
     },
   ]);
 
+  const handleHeaderChange = (field, value) => {
+    setHeader((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleLineChange = (lineId, field, value) => {
+    setLines((prevLines) =>
+      prevLines.map((line) =>
+        line.id === lineId ? { ...line, [field]: value } : line
+      )
+    );
+  };
+
+  const handleFooterAction = () => {
+    if (isEditing) {
+      setIsEditing(false);
+      return;
+    }
+
+    setIsEditing(true);
+  };
+
   return (
     <SalesQuotationLayout>
       <SalesQuotationHeader
         data={header}
-        onChange={setHeader}
+        isEditing={isEditing}
+        onChange={handleHeaderChange}
       />
 
       <SalesQuotationLines
         lines={lines}
-        setLines={setLines}
+        isEditing={isEditing}
+        onChange={handleLineChange}
       />
 
-      <SalesQuotationFooter />
+      <SalesQuotationFooter
+        isEditing={isEditing}
+        onAction={handleFooterAction}
+      />
     </SalesQuotationLayout>
   );
 }

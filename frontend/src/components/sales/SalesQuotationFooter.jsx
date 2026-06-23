@@ -5,8 +5,9 @@ import {
   ChevronsRight,
   Eye,
   List,
+  PencilLine,
   Printer,
-  SquarePlus,
+  Save,
   X,
 } from "lucide-react";
 
@@ -34,7 +35,7 @@ function IconAction({ children, label, disabled = false, className = "" }) {
   );
 }
 
-function SalesQuotationFooter() {
+function SalesQuotationFooter({ isEditing, onAction }) {
   return (
     <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
       <div className="grid gap-4 xl:grid-cols-5">
@@ -76,10 +77,11 @@ function SalesQuotationFooter() {
         <div className="flex flex-wrap items-center gap-2 xl:justify-end">
           <button
             type="button"
+            onClick={onAction}
             className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700"
           >
-            <SquarePlus size={16} />
-            New
+            {isEditing ? <Save size={16} /> : <PencilLine size={16} />}
+            {isEditing ? "Save" : "New/Edit"}
           </button>
 
           <IconAction
