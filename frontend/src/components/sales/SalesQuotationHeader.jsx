@@ -76,7 +76,17 @@ function SearchField({
   );
 }
 
-function SalesQuotationHeader({ data, isEditing, onChange, firstInputRef }) {
+function SalesQuotationHeader({
+  data,
+  isEditing,
+  onChange,
+  firstInputRef,
+  customers = [],
+}) {
+  const selectedCustomerName =
+    customers.find((customer) => String(customer.id) === String(data.customer))
+      ?.name ?? "";
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
       <div className="grid gap-3 xl:grid-cols-6">
@@ -110,13 +120,36 @@ function SalesQuotationHeader({ data, isEditing, onChange, firstInputRef }) {
           onChange={(event) => onChange("date", event.target.value)}
         />
 
-        <SearchField
-          label="Customer Search"
-          value={data.customer}
-          placeholder=""
-          readOnly={!isEditing}
-          onChange={(event) => onChange("customer", event.target.value)}
-        />
+        <div className="space-y-1">
+          <div className="relative">
+            <span className="pointer-events-none absolute left-3 top-2 text-[11px] font-medium uppercase tracking-wide text-slate-400">
+              Customer Search
+            </span>
+            {isEditing ? (
+              <select
+                className="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 px-3 pb-3 pt-5 pr-10 text-sm text-slate-700 outline-none transition focus:border-slate-300"
+                value={data.customer}
+                onChange={(event) => onChange("customer", event.target.value)}
+              >
+                <option value="">Select customer</option>
+                {customers.map((customer) => (
+                  <option key={customer.id} value={customer.id}>
+                    {customer.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 pb-3 pt-5 pr-10 text-sm text-slate-700 outline-none transition focus:border-slate-300"
+                type="text"
+                value={selectedCustomerName}
+                placeholder=""
+                readOnly
+              />
+            )}
+            <Search className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+          </div>
+        </div>
 
         <FieldShell
           label="CusRefNum"

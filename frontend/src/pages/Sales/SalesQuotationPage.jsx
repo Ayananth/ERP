@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
+import {
+  createQuotation,
+  getCustomerDropdown,
+  getQuotationList,
+} from "../../api/salesApi";
 import SalesQuotationLayout from "../../components/sales/SalesQuotationLayout";
 import SalesQuotationHeader from "../../components/sales/SalesQuotationHeader";
 import SalesQuotationLines from "../../components/sales/SalesQuotationLines";
@@ -38,6 +43,7 @@ const initialLines = [
 
 function SalesQuotationPage() {
   const [isEditing, setIsEditing] = useState(false);
+  const [customers, setCustomers] = useState([]);
   const [header, setHeader] = useState(initialHeader);
 
   const [lines, setLines] = useState(initialLines);
@@ -55,6 +61,19 @@ function SalesQuotationPage() {
     }
   }, [isEditing]);
 
+  useEffect(() => {
+    const loadDropdownData = async () => {
+      const [customerResponse] = await Promise.all([
+        getCustomerDropdown(),
+        getQuotationList(),
+      ]);
+
+      setCustomers(customerResponse.data ?? []);
+    };
+
+    loadDropdownData();
+  }, []);
+
   const handleHeaderChange = (field, value) => {
     setHeader((prev) => ({
       ...prev,
@@ -71,11 +90,6 @@ function SalesQuotationPage() {
   };
 
   const handleFooterAction = () => {
-    if (isEditing) {
-      setIsEditing(false);
-      return;
-    }
-
     setIsEditing(true);
   };
 
@@ -85,6 +99,30 @@ function SalesQuotationPage() {
     setIsEditing(false);
   };
 
+  const handleSaveQuotation = async () => {
+    const payload = {
+      customer: 1,
+      quotation_date: "2026-06-23",
+      notes: header.notes,
+      lines: lines.map((line) => ({
+        item: 1,
+        unit: 1,
+        quantity: Number(line.qty || 0),
+        rate: Number(line.rate || 0),
+        discount_percent: Number(line.discount_percent || 0),
+        vat_percent: Number(line.vat || 0),
+      })),
+    };
+
+    const response = await createQuotation(payload);
+    setIsEditing(false);
+    return response;
+  };
+
+  const handleListQuotations = async () => {
+    await getQuotationList();
+  };
+
   return (
     <SalesQuotationLayout>
       <SalesQuotationHeader
@@ -92,6 +130,7 @@ function SalesQuotationPage() {
         isEditing={isEditing}
         onChange={handleHeaderChange}
         firstInputRef={firstFieldRef}
+        customers={customers}
       />
 
       <SalesQuotationLines
@@ -105,6 +144,8 @@ function SalesQuotationPage() {
         onAction={handleFooterAction}
         onCancel={handleCancel}
         newEditButtonRef={newEditButtonRef}
+        onList={handleListQuotations}
+        onSave={handleSaveQuotation}
       />
     </SalesQuotationLayout>
   );
