@@ -35,7 +35,7 @@ function IconAction({ children, label, disabled = false, className = "" }) {
   );
 }
 
-function SalesQuotationFooter({ isEditing, onAction }) {
+function SalesQuotationFooter({ isEditing, onAction, onCancel }) {
   return (
     <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
       <div className="grid gap-4 xl:grid-cols-5">
@@ -116,6 +116,7 @@ function SalesQuotationFooter({ isEditing, onAction }) {
 
           <button
             type="button"
+            onClick={onCancel}
             className="inline-flex items-center gap-2 rounded-md bg-slate-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-700"
           >
             <X size={16} />
