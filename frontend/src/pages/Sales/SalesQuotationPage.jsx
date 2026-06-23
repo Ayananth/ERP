@@ -74,7 +74,7 @@ function SalesQuotationPage() {
         getQuotationList(),
       ]);
 
-      setCustomers(customerResponse.data ?? []);
+      setCustomers(customerResponse ?? []);
     };
 
     loadDropdownData();
@@ -113,12 +113,11 @@ function SalesQuotationPage() {
 
   const handleItemSearch = async (search) => {
     const response = await getItemSearch(search);
-    return response.data ?? [];
+    return response ?? [];
   };
 
   const handleItemSelect = async (lineId, item) => {
-    const response = await getItemDetails(item.id);
-    const itemDetails = response.data;
+    const itemDetails = await getItemDetails(item.id);
 
     setLines((prevLines) =>
       prevLines.map((line) => {

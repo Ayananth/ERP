@@ -24,7 +24,6 @@ from sales.views import CustomerListView
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    #Todo: Need more validations for usernames and passwords.
     path("api/customers/", CustomerListView.as_view()),
     path("api/auth/", include("accounts.urls")),
     path("api/inventory/", include("inventory.urls")),
