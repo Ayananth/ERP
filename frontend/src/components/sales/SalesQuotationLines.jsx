@@ -30,6 +30,19 @@ function CellInput({
   );
 }
 
+function ReadOnlyCell({ value, align = "right" }) {
+  return (
+    <input
+      value={value}
+      readOnly
+      disabled
+      className={`h-10 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-600 ${
+        align === "right" ? "text-right" : "text-left"
+      }`}
+    />
+  );
+}
+
 function SalesQuotationLines({
   lines,
   isEditing,
@@ -107,12 +120,16 @@ function SalesQuotationLines({
                   <div className="text-sm font-semibold">Disc Amt</div>
                   <div className="text-[10px] uppercase tracking-wide text-white/60">NUMBER</div>
                 </th>
-                <th className="w-32 border-r border-white/10 px-3 py-3 text-left">
-                  <div className="text-sm font-semibold">NET</div>
+                <th className="w-28 border-r border-white/10 px-3 py-3 text-left">
+                  <div className="text-sm font-semibold">Net Amt</div>
                   <div className="text-[10px] uppercase tracking-wide text-white/60">NUMBER</div>
                 </th>
                 <th className="w-28 border-r border-white/10 px-3 py-3 text-left">
-                  <div className="text-sm font-semibold">VAT</div>
+                  <div className="text-sm font-semibold">VAT %</div>
+                  <div className="text-[10px] uppercase tracking-wide text-white/60">NUMBER</div>
+                </th>
+                <th className="w-28 border-r border-white/10 px-3 py-3 text-left">
+                  <div className="text-sm font-semibold">VAT Amt</div>
                   <div className="text-[10px] uppercase tracking-wide text-white/60">NUMBER</div>
                 </th>
                 <th className="w-36 px-3 py-3 text-left">
@@ -169,33 +186,25 @@ function SalesQuotationLines({
                     <CellInput
                       value={line.description}
                       placeholder=""
-                      readOnly={!isEditing}
-                      onChange={(event) => onChange(line.id, "description", event.target.value)}
+                      readOnly
                     />
                   </td>
                   <td className="px-2 py-2">
-                    {isEditing ? (
-                      <select
-                        className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-slate-300"
-                        value={line.unit}
-                        onChange={(event) =>
-                          onChange(line.id, "unit", event.target.value)
-                        }
-                      >
-                        <option value="">Select unit</option>
-                        {(line.unit_options ?? []).map((unit) => (
-                          <option key={unit.unit_id} value={unit.unit_id}>
-                            {unit.unit_name}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <CellInput
-                        value={line.unit_name || line.unit}
-                        placeholder=""
-                        readOnly
-                      />
-                    )}
+                    <select
+                      className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition disabled:cursor-not-allowed disabled:bg-slate-100 focus:border-slate-300"
+                      value={line.unit}
+                      disabled
+                      onChange={(event) =>
+                        onChange(line.id, "unit", event.target.value)
+                      }
+                    >
+                      <option value="">Select unit</option>
+                      {(line.unit_options ?? []).map((unit) => (
+                        <option key={unit.unit_id} value={unit.unit_id}>
+                          {unit.unit_name}
+                        </option>
+                      ))}
+                    </select>
                   </td>
                   <td className="px-2 py-2">
                     <CellInput
@@ -225,40 +234,25 @@ function SalesQuotationLines({
                     />
                   </td>
                   <td className="px-2 py-2">
-                    <CellInput
-                      value={line.discount_amount}
-                      placeholder=""
-                      align="right"
-                      readOnly={!isEditing}
-                      onChange={(event) => onChange(line.id, "discount_amount", event.target.value)}
-                    />
+                    <ReadOnlyCell value={line.discount_amount} />
+                  </td>
+                  <td className="px-2 py-2">
+                    <ReadOnlyCell value={line.net_amount} />
                   </td>
                   <td className="px-2 py-2">
                     <CellInput
-                      value={line.net}
+                      value={line.vat_percent}
                       placeholder=""
                       align="right"
                       readOnly={!isEditing}
-                      onChange={(event) => onChange(line.id, "net", event.target.value)}
+                      onChange={(event) => onChange(line.id, "vat_percent", event.target.value)}
                     />
                   </td>
                   <td className="px-2 py-2">
-                    <CellInput
-                      value={line.vat}
-                      placeholder=""
-                      align="right"
-                      readOnly={!isEditing}
-                      onChange={(event) => onChange(line.id, "vat", event.target.value)}
-                    />
+                    <ReadOnlyCell value={line.vat_amount} />
                   </td>
                   <td className="px-2 py-2">
-                    <CellInput
-                      value={line.net_after_vat}
-                      placeholder=""
-                      align="right"
-                      readOnly={!isEditing}
-                      onChange={(event) => onChange(line.id, "net_after_vat", event.target.value)}
-                    />
+                    <ReadOnlyCell value={line.net_after_vat} />
                   </td>
                 </tr>
               ))}
