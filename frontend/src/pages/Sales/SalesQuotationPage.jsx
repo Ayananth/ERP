@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
   createQuotation,
+  getQuotation,
   getItemDetails,
   getCustomerDropdown,
   getItemSearch,
   getQuotationList,
+  updateQuotation,
 } from "../../api/salesApi";
 import SalesQuotationLayout from "../../components/sales/SalesQuotationLayout";
 import SalesQuotationHeader from "../../components/sales/SalesQuotationHeader";
@@ -83,6 +86,50 @@ const calculateLine = (line, overrides = {}) => {
   };
 };
 
+const hydrateLine = (line) => {
+  const normalizedLine = {
+    ...line,
+    qty: String(line.qty ?? line.quantity ?? ""),
+    rate: String(line.rate ?? ""),
+    discount_percent: String(line.discount_percent ?? ""),
+    vat_percent: String(line.vat_percent ?? ""),
+  };
+
+  return {
+    ...normalizedLine,
+    ...calculateLine(normalizedLine),
+  };
+};
+
+const hydrateQuotationLine = async (line, index = 0) => {
+  const itemDetails = line.item ? await getItemDetails(line.item) : null;
+  const selectedUnit =
+    itemDetails?.units?.find(
+      (unit) => String(unit.unit_id) === String(line.unit)
+    ) ??
+    (line.unit
+      ? {
+          unit_id: line.unit,
+          unit_name: line.unit_name ?? "",
+        }
+      : null);
+
+  return hydrateLine({
+    id: line.id ?? index + 1,
+    item_id: line.item ?? "",
+    item_code: itemDetails?.item_code ?? "",
+    description: line.item_name ?? itemDetails?.name ?? "",
+    unit: line.unit ?? "",
+    unit_name: selectedUnit?.unit_name ?? "",
+    qty: line.quantity ?? "",
+    rate: line.rate ?? "",
+    discount_percent: line.discount_percent ?? "",
+    vat_percent: line.vat_percent ?? "",
+    unit_options: itemDetails?.units ?? (selectedUnit ? [selectedUnit] : []),
+    item_options: [],
+  });
+};
+
 const calculateTotals = (quotationLines = []) => {
   const totals = quotationLines.reduce(
     (acc, line) => {
@@ -112,9 +159,14 @@ const calculateTotals = (quotationLines = []) => {
 };
 
 function SalesQuotationPage() {
+  const navigate = useNavigate();
+  const { quotationId } = useParams();
   const [isEditing, setIsEditing] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [header, setHeader] = useState(initialHeader);
+  const [activeQuotationId, setActiveQuotationId] = useState(quotationId ?? null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loadingQuotation, setLoadingQuotation] = useState(false);
 
   const [lines, setLines] = useState(initialLines);
   const newEditButtonRef = useRef(null);
@@ -133,18 +185,77 @@ function SalesQuotationPage() {
 
   useEffect(() => {
     const loadDropdownData = async () => {
-      const [customerResponse] = await Promise.all([
-        getCustomerDropdown(),
-        getQuotationList(),
-      ]);
+      try {
+        const [customerResponse] = await Promise.all([
+          getCustomerDropdown(),
+          getQuotationList(),
+        ]);
 
-      setCustomers(customerResponse ?? []);
+        setCustomers(customerResponse ?? []);
+      } catch (error) {
+        setErrorMessage(
+          error?.response?.data?.message ??
+            "Failed to load quotation dropdown data."
+        );
+      }
     };
 
     loadDropdownData();
   }, []);
 
+  useEffect(() => {
+    const loadQuotation = async () => {
+      if (!quotationId) {
+        setActiveQuotationId(null);
+        return;
+      }
+
+      setLoadingQuotation(true);
+      setErrorMessage("");
+
+      try {
+        const quotation = await getQuotation(quotationId);
+
+        setActiveQuotationId(quotation?.id ?? quotationId);
+        setHeader({
+          quotation_no: quotation?.quotation_no ?? "",
+          quotation_type: quotation?.quotation_type ?? "",
+          date: quotation?.quotation_date ?? getTodayDate(),
+          customer: quotation?.customer ?? "",
+          customer_ref_no: quotation?.customer_ref_no ?? "",
+          sales_executive: quotation?.sales_executive ?? "",
+          attention: quotation?.attention ?? "",
+          pay_terms: quotation?.pay_terms ?? "",
+          delivery_place: quotation?.delivery_place ?? "",
+          currency: quotation?.currency ?? "1 - SAUDI RIYAL",
+          exchange_rate: quotation?.exchange_rate ?? "1",
+          notes: quotation?.notes ?? "",
+        });
+
+        const hydratedLines = await Promise.all(
+          (quotation?.lines ?? []).map((line, index) =>
+            hydrateQuotationLine(line, index)
+          )
+        );
+
+        setLines(hydratedLines.length ? hydratedLines : initialLines);
+
+        setIsEditing(false);
+      } catch (error) {
+        setErrorMessage(
+          error?.response?.data?.message ??
+            "Failed to load the selected quotation."
+        );
+      } finally {
+        setLoadingQuotation(false);
+      }
+    };
+
+    loadQuotation();
+  }, [quotationId]);
+
   const handleHeaderChange = (field, value) => {
+    setErrorMessage("");
     setHeader((prev) => ({
       ...prev,
       [field]: value,
@@ -152,6 +263,7 @@ function SalesQuotationPage() {
   };
 
   const handleLineChange = (lineId, field, value) => {
+    setErrorMessage("");
     setLines((prevLines) =>
       prevLines.map((line) => {
         if (line.id !== lineId) {
@@ -205,7 +317,7 @@ function SalesQuotationPage() {
 
         const nextQty = hasUnitOrPrice ? "1" : line.qty;
 
-        return {
+        return hydrateLine({
           ...line,
           item_id: itemDetails?.id ?? item.id,
           item_code: itemDetails?.item_code ?? item.item_code,
@@ -214,24 +326,49 @@ function SalesQuotationPage() {
           unit_name: selectedUnit?.unit_name ?? "",
           rate: rate === "" ? "" : String(rate),
           qty: nextQty,
-          ...calculateLine(line, {
-            rate: rate === "" ? "" : String(rate),
-            qty: nextQty,
-            discount_percent: line.discount_percent,
-            vat_percent: line.vat_percent,
-          }),
           unit_options: itemDetails?.units ?? [],
           item_options: [],
-        };
+        });
       })
     );
   };
 
+  const loadQuotationById = async (id) => {
+    const quotation = await getQuotation(id);
+
+    setActiveQuotationId(quotation?.id ?? id);
+    setHeader({
+      quotation_no: quotation?.quotation_no ?? "",
+      quotation_type: quotation?.quotation_type ?? "",
+      date: quotation?.quotation_date ?? getTodayDate(),
+      customer: quotation?.customer ?? "",
+      customer_ref_no: quotation?.customer_ref_no ?? "",
+      sales_executive: quotation?.sales_executive ?? "",
+      attention: quotation?.attention ?? "",
+      pay_terms: quotation?.pay_terms ?? "",
+      delivery_place: quotation?.delivery_place ?? "",
+      currency: quotation?.currency ?? "1 - SAUDI RIYAL",
+      exchange_rate: quotation?.exchange_rate ?? "1",
+      notes: quotation?.notes ?? "",
+    });
+
+    const hydratedLines = await Promise.all(
+      (quotation?.lines ?? []).map((line, index) =>
+        hydrateQuotationLine(line, index)
+      )
+    );
+
+    setLines(hydratedLines.length ? hydratedLines : initialLines);
+    setIsEditing(false);
+  };
+
   const handleFooterAction = () => {
+    setErrorMessage("");
     setIsEditing(true);
   };
 
   const handleCancel = () => {
+    setErrorMessage("");
     setHeader({
       ...initialHeader,
       date: getTodayDate(),
@@ -241,6 +378,13 @@ function SalesQuotationPage() {
   };
 
   const handleSaveQuotation = async () => {
+    setErrorMessage("");
+
+    if (!header.customer) {
+      setErrorMessage("Please select a customer before saving.");
+      return;
+    }
+
     const payload = {
       customer: Number(header.customer),
       quotation_date: header.date,
@@ -255,9 +399,29 @@ function SalesQuotationPage() {
       })),
     };
 
-    const response = await createQuotation(payload);
-    setIsEditing(false);
-    return response;
+    try {
+      const response = activeQuotationId
+        ? await updateQuotation(activeQuotationId, payload)
+        : await createQuotation(payload);
+
+      const savedQuotationId = response?.id ?? activeQuotationId;
+
+      if (savedQuotationId) {
+        navigate(`/sales/transactions/quotation/${savedQuotationId}`, {
+          replace: true,
+        });
+        await loadQuotationById(savedQuotationId);
+      }
+
+      setIsEditing(false);
+      return response;
+    } catch (error) {
+      setErrorMessage(
+        error?.response?.data?.message ??
+          "Failed to save quotation. Please try again."
+      );
+      return null;
+    }
   };
 
   const handleListQuotations = async () => {
@@ -268,6 +432,18 @@ function SalesQuotationPage() {
 
   return (
     <SalesQuotationLayout>
+      {errorMessage ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {errorMessage}
+        </div>
+      ) : null}
+
+      {loadingQuotation ? (
+        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          Loading quotation...
+        </div>
+      ) : null}
+
       <SalesQuotationHeader
         data={header}
         isEditing={isEditing}

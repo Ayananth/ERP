@@ -69,6 +69,10 @@ function AppRoutes() {
           path="sales/transactions/quotation"
           element={<SalesQuotationPage />}
         />
+        <Route
+          path="sales/transactions/quotation/:quotationId"
+          element={<SalesQuotationPage />}
+        />
 
       </Route>
 
