@@ -7,6 +7,7 @@ function FieldShell({
   rightIcon,
   accent = false,
   helper,
+  type = "text",
   readOnly = true,
   onChange,
   inputRef,
@@ -26,7 +27,7 @@ function FieldShell({
         <input
           ref={inputRef}
           className={baseClass}
-          type="text"
+          type={type}
           value={value}
           placeholder={placeholder}
           readOnly={readOnly}
@@ -113,9 +114,10 @@ function SalesQuotationHeader({
         <FieldShell
           label="Date"
           value={data.date}
-          placeholder="18-06-2026"
           rightIcon={<CalendarDays size={16} />}
           accent
+          type="date"
+          placeholder=""
           readOnly={!isEditing}
           onChange={(event) => onChange("date", event.target.value)}
         />

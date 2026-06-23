@@ -12,10 +12,12 @@ import SalesQuotationHeader from "../../components/sales/SalesQuotationHeader";
 import SalesQuotationLines from "../../components/sales/SalesQuotationLines";
 import SalesQuotationFooter from "../../components/sales/SalesQuotationFooter";
 
+const getTodayDate = () => new Date().toISOString().slice(0, 10);
+
 const initialHeader = {
   quotation_no: "",
   quotation_type: "",
-  date: "18-06-2026",
+  date: getTodayDate(),
   customer: "",
   customer_ref_no: "",
   sales_executive: "",
@@ -145,7 +147,10 @@ function SalesQuotationPage() {
   };
 
   const handleCancel = () => {
-    setHeader(initialHeader);
+    setHeader({
+      ...initialHeader,
+      date: getTodayDate(),
+    });
     setLines(initialLines);
     setIsEditing(false);
   };
@@ -153,7 +158,7 @@ function SalesQuotationPage() {
   const handleSaveQuotation = async () => {
     const payload = {
       customer: Number(header.customer || 1),
-      quotation_date: "2026-06-23",
+      quotation_date: header.date,
       notes: header.notes,
       lines: lines.map((line) => ({
         item: Number(line.item_id || 1),
