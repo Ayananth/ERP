@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import SalesQuotationLayout from "../../components/sales/SalesQuotationLayout";
 import SalesQuotationHeader from "../../components/sales/SalesQuotationHeader";
@@ -41,6 +41,19 @@ function SalesQuotationPage() {
   const [header, setHeader] = useState(initialHeader);
 
   const [lines, setLines] = useState(initialLines);
+  const newEditButtonRef = useRef(null);
+  const firstFieldRef = useRef(null);
+
+  useEffect(() => {
+    if (isEditing) {
+      firstFieldRef.current?.focus();
+      return;
+    }
+
+    if (!isEditing) {
+      newEditButtonRef.current?.focus();
+    }
+  }, [isEditing]);
 
   const handleHeaderChange = (field, value) => {
     setHeader((prev) => ({
@@ -78,6 +91,7 @@ function SalesQuotationPage() {
         data={header}
         isEditing={isEditing}
         onChange={handleHeaderChange}
+        firstInputRef={firstFieldRef}
       />
 
       <SalesQuotationLines
@@ -90,6 +104,7 @@ function SalesQuotationPage() {
         isEditing={isEditing}
         onAction={handleFooterAction}
         onCancel={handleCancel}
+        newEditButtonRef={newEditButtonRef}
       />
     </SalesQuotationLayout>
   );

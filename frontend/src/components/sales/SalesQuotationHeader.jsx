@@ -9,6 +9,7 @@ function FieldShell({
   helper,
   readOnly = true,
   onChange,
+  inputRef,
 }) {
   const baseClass = `w-full rounded-lg border px-3 pb-3 pt-5 text-sm outline-none transition ${
     accent
@@ -23,6 +24,7 @@ function FieldShell({
           {label}
         </span>
         <input
+          ref={inputRef}
           className={baseClass}
           type="text"
           value={value}
@@ -48,6 +50,7 @@ function SearchField({
   helper,
   readOnly = true,
   onChange,
+  inputRef,
 }) {
   return (
     <div className="space-y-1">
@@ -56,6 +59,7 @@ function SearchField({
           {label}
         </span>
         <input
+          ref={inputRef}
           className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 pb-3 pt-5 pr-10 text-sm text-slate-700 outline-none transition focus:border-slate-300"
           type="text"
           value={value}
@@ -72,7 +76,7 @@ function SearchField({
   );
 }
 
-function SalesQuotationHeader({ data, isEditing, onChange }) {
+function SalesQuotationHeader({ data, isEditing, onChange, firstInputRef }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
       <div className="grid gap-3 xl:grid-cols-6">
@@ -83,6 +87,7 @@ function SalesQuotationHeader({ data, isEditing, onChange }) {
           accent
           readOnly={!isEditing}
           onChange={(event) => onChange("quotation_no", event.target.value)}
+          inputRef={firstInputRef}
         />
 
         <FieldShell
