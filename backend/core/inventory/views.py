@@ -1,6 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.db import models
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -10,13 +11,16 @@ from rest_framework.exceptions import ValidationError
 
 from .models import Item, ItemGroup, ItemPhoto, ItemUnit, Shelf, Manufacturer, Unit, ItemPrice
 from .serializers import (
-    ItemCreateSerializer, 
-    ItemPhotoSerializer, 
-    ItemUnitSerializer, 
-    ItemUnitCreateSerializer, 
-    ItemUnitSettingsSerializer,     
-    ItemPriceListSerializer, 
-    ItemPriceSaveSerializer)
+    ItemCreateSerializer,
+    ItemDropdownSerializer,
+    ItemDetailSerializer,
+    ItemPhotoSerializer,
+    ItemUnitSerializer,
+    ItemUnitCreateSerializer,
+    ItemUnitSettingsSerializer,
+    ItemPriceListSerializer,
+    ItemPriceSaveSerializer,
+)
 
 
 class ItemDropdownView(APIView):
@@ -83,10 +87,14 @@ class ItemListCreateAPIView(APIView):
             "manufacturer"
         )
 
-        serializer = ItemCreateSerializer(
-            queryset,
-            many=True
-        )
+        search = request.query_params.get("search")
+        if search:
+            queryset = queryset.filter(
+                models.Q(name_1__icontains=search)
+                | models.Q(item_code__icontains=search)
+            )
+
+        serializer = ItemDropdownSerializer(queryset, many=True)
 
         return Response(serializer.data)
 
@@ -121,7 +129,32 @@ class ItemDetailAPIView(APIView):
     def get(self, request, pk):
         item = self.get_object(pk)
 
-        serializer = ItemCreateSerializer(item)
+        units = []
+        for item_unit in item.units.select_related("unit"):
+            units.append({
+                "unit_id": item_unit.unit_id,
+                "unit_name": item_unit.unit.name,
+            })
+
+        prices = []
+        for item_unit in item.units.select_related("unit"):
+            item_price = ItemPrice.objects.filter(
+                item=item,
+                unit=item_unit.unit
+            ).first()
+            if item_price:
+                prices.append({
+                    "unit_id": item_unit.unit_id,
+                    "sale_price": item_price.sale_price,
+                })
+
+        serializer = ItemDetailSerializer({
+            "id": item.id,
+            "item_code": item.item_code,
+            "name": item.name_1,
+            "units": units,
+            "prices": prices,
+        })
 
         return Response(serializer.data)
 
@@ -461,5 +494,3 @@ class ItemPriceView(APIView):
             "message": "Prices saved"
         })
     
-
-
