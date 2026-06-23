@@ -83,6 +83,34 @@ const calculateLine = (line, overrides = {}) => {
   };
 };
 
+const calculateTotals = (quotationLines = []) => {
+  const totals = quotationLines.reduce(
+    (acc, line) => {
+      acc.gross += toNumber(line.gross_amount);
+      acc.discount += toNumber(line.discount_amount);
+      acc.net += toNumber(line.net_amount);
+      acc.vat += toNumber(line.vat_amount);
+      acc.netAfterVat += toNumber(line.net_after_vat);
+      return acc;
+    },
+    {
+      gross: 0,
+      discount: 0,
+      net: 0,
+      vat: 0,
+      netAfterVat: 0,
+    }
+  );
+
+  return {
+    gross: totals.gross.toFixed(2),
+    discount: totals.discount.toFixed(2),
+    net: totals.net.toFixed(2),
+    vat: totals.vat.toFixed(2),
+    netAfterVat: totals.netAfterVat.toFixed(2),
+  };
+};
+
 function SalesQuotationPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [customers, setCustomers] = useState([]);
@@ -236,6 +264,8 @@ function SalesQuotationPage() {
     await getQuotationList();
   };
 
+  const footerTotals = calculateTotals(lines);
+
   return (
     <SalesQuotationLayout>
       <SalesQuotationHeader
@@ -261,6 +291,7 @@ function SalesQuotationPage() {
         newEditButtonRef={newEditButtonRef}
         onList={handleListQuotations}
         onSave={handleSaveQuotation}
+        totals={footerTotals}
       />
     </SalesQuotationLayout>
   );

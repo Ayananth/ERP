@@ -11,10 +11,11 @@ import {
   X,
 } from "lucide-react";
 
-function SummaryField({ label }) {
+function SummaryField({ label, value }) {
   return (
     <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-3 shadow-sm">
       <div className="text-sm text-slate-400">{label}</div>
+      <div className="mt-1 text-base font-medium text-slate-700">{value ?? "0.00"}</div>
     </div>
   );
 }
@@ -42,15 +43,16 @@ function SalesQuotationFooter({
   newEditButtonRef,
   onList,
   onSave,
+  totals = {},
 }) {
   return (
     <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
       <div className="grid gap-4 xl:grid-cols-5">
-        <SummaryField label="Gross" />
-        <SummaryField label="Disc" />
-        <SummaryField label="Net Total" />
-        <SummaryField label="VAT" />
-        <SummaryField label="Net After VAT" />
+        <SummaryField label="Gross" value={totals.gross} />
+        <SummaryField label="Disc" value={totals.discount} />
+        <SummaryField label="Net Total" value={totals.net} />
+        <SummaryField label="VAT" value={totals.vat} />
+        <SummaryField label="Net After VAT" value={totals.netAfterVat} />
       </div>
 
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-end">
