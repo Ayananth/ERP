@@ -16,7 +16,9 @@ class ItemCreateSerializer(serializers.ModelSerializer):
         return value
     
     def validate_item_code(self, value):
-        if value and Item.objects.filter(item_code=value).exists():
+        item_id = getattr(self.instance, "id", None)
+
+        if value and Item.objects.filter(item_code=value).exclude(id=item_id).exists():
             raise serializers.ValidationError(
                 "Item code already exists."
             )

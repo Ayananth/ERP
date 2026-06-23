@@ -4,6 +4,7 @@ import {
   getItemDropdowns,
   createItem,
   getItem,
+  updateItem,
 } from "../../api/inventoryApi";
 
 export const initialItemGeneralForm = {
@@ -95,7 +96,7 @@ export default function useItemGeneralPage() {
       const item = await getItem(itemId);
 
       setFormData(normalizeItemForm(item));
-      setIsEditing(false);
+      setIsEditing(true);
     } catch (error) {
       console.error(error);
     }
@@ -186,21 +187,43 @@ export default function useItemGeneralPage() {
     }
 
     try {
-      const createdItem = await createItem(formData);
+      const isExistingItem = Boolean(itemId);
+      const savedItem = isExistingItem
+        ? await updateItem(itemId, formData)
+        : await createItem(formData);
 
-      navigate(`/inventory/items/${createdItem.id}/general`);
+      const savedItemId = savedItem?.id ?? itemId;
+
+      if (!isExistingItem && savedItemId) {
+        navigate(`/inventory/items/${savedItemId}/general`, {
+          replace: true,
+          state: {
+            focusTab: "units",
+          },
+        });
+      }
 
       setMessage({
         type: "success",
-        text: "Item created successfully.",
+        text: isExistingItem
+          ? "Item updated successfully."
+          : "Item created successfully.",
       });
 
       setErrors({});
-      setIsEditing(false);
+
+      if (savedItemId) {
+        const refreshedItem = await getItem(savedItemId);
+        setFormData(normalizeItemForm(refreshedItem));
+      }
+
+      setIsEditing(true);
     } catch (error) {
       setMessage({
         type: "error",
-        text: "Failed to create item.",
+        text: itemId
+          ? "Failed to update item."
+          : "Failed to create item.",
       });
 
       console.error(error);
