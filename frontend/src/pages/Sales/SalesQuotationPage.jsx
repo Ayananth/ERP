@@ -166,12 +166,16 @@ function SalesQuotationPage() {
       itemDetails?.prices?.find((price) => price.unit_id === selectedUnit?.unit_id) ??
       itemDetails?.prices?.[0];
     const rate = selectedPrice?.sale_price ?? "";
+    const hasUnitOrPrice =
+      (itemDetails?.units?.length ?? 0) > 0 || (itemDetails?.prices?.length ?? 0) > 0;
 
     setLines((prevLines) =>
       prevLines.map((line) => {
         if (line.id !== lineId) {
           return line;
         }
+
+        const nextQty = hasUnitOrPrice ? "1" : line.qty;
 
         return {
           ...line,
@@ -181,9 +185,10 @@ function SalesQuotationPage() {
           unit: selectedUnit?.unit_id ?? "",
           unit_name: selectedUnit?.unit_name ?? "",
           rate: rate === "" ? "" : String(rate),
+          qty: nextQty,
           ...calculateLine(line, {
             rate: rate === "" ? "" : String(rate),
-            qty: line.qty,
+            qty: nextQty,
             discount_percent: line.discount_percent,
             vat_percent: line.vat_percent,
           }),
