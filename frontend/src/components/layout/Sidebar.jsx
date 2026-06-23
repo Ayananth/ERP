@@ -154,8 +154,12 @@ function Sidebar() {
 
             <div className="ml-6 border-l border-slate-700 pl-6 space-y-3">
               <NavLink
-                to="/sales/quotations"
-                className="flex items-center gap-3 py-2"
+                to="/sales/transactions/quotation"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 py-2 ${
+                    isActive ? "text-violet-400" : "text-slate-300"
+                  }`
+                }
               >
                 <div className="h-3 w-3 rounded-full bg-slate-500" />
                 Sales Quotation
