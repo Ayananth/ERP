@@ -21,6 +21,43 @@ class ItemCreateSerializer(serializers.ModelSerializer):
                 "Item code already exists."
             )
         return value
+
+
+class ItemDropdownSerializer(serializers.ModelSerializer):
+
+    name = serializers.CharField(
+        source="name_1",
+        read_only=True
+    )
+
+    class Meta:
+        model = Item
+        fields = [
+            "id",
+            "item_code",
+            "name",
+        ]
+
+
+class ItemUnitChoiceSerializer(serializers.Serializer):
+    unit_id = serializers.IntegerField()
+    unit_name = serializers.CharField()
+
+
+class ItemPriceChoiceSerializer(serializers.Serializer):
+    unit_id = serializers.IntegerField()
+    sale_price = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+
+class ItemDetailSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    item_code = serializers.CharField()
+    name = serializers.CharField()
+    units = ItemUnitChoiceSerializer(many=True)
+    prices = ItemPriceChoiceSerializer(many=True)
     
 
 class ItemUnitSerializer(serializers.ModelSerializer):

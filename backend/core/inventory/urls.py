@@ -20,7 +20,7 @@ from .views import (
 
 urlpatterns = [
     path("items/", ItemListCreateAPIView.as_view(), name="item-list-create"),
-    path("items/<int:pk>", ItemDetailAPIView.as_view(), name="item-detail"),
+    path("items/<int:pk>/", ItemDetailAPIView.as_view(), name="item-detail"),
     path("item-dropdowns/", ItemDropdownView.as_view(), name="item-dropdowns"),
     path("units/", UnitDropdownView.as_view()),
     path("items/<int:item_id>/units/", ItemUnitListView.as_view()),

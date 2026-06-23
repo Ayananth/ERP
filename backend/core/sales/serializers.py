@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Customer, SalesOrder, SalesOrderLine, SalesQuotationLine, SalesOrder
+from .models import Customer, SalesOrder, SalesOrderLine, SalesQuotation, SalesQuotationLine, SalesOrder
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -8,7 +8,6 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = [
             "id",
-            "customer_code",
             "name"
         ]
 
@@ -69,6 +68,53 @@ class SalesQuotationCreateSerializer(serializers.Serializer):
     lines = SalesQuotationLineSerializer(
         many=True
     )
+
+
+class SalesQuotationLineDetailSerializer(serializers.ModelSerializer):
+
+    item_name = serializers.CharField(
+        source="item.name_1",
+        read_only=True
+    )
+
+    unit_name = serializers.CharField(
+        source="unit.name",
+        read_only=True
+    )
+
+    class Meta:
+        model = SalesQuotationLine
+        fields = [
+            "id",
+            "item",
+            "item_name",
+            "unit",
+            "unit_name",
+            "quantity",
+            "rate",
+            "discount_percent",
+            "vat_percent",
+        ]
+
+
+class SalesQuotationDetailSerializer(serializers.ModelSerializer):
+
+    lines = SalesQuotationLineDetailSerializer(
+        many=True,
+        read_only=True
+    )
+
+    class Meta:
+        model = SalesQuotation
+        fields = [
+            "id",
+            "quotation_no",
+            "customer",
+            "quotation_date",
+            "notes",
+            "status",
+            "lines",
+        ]
 
 
 

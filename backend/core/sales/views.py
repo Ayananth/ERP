@@ -3,7 +3,14 @@ from rest_framework.response import Response
 from rest_framework import status
 
 
-from .serializers import SalesQuotationCreateSerializer, CustomerSerializer, SalesOrderListSerializer, SalesOrderCreateSerializer, SalesOrderDetailSerializer
+from .serializers import (
+    SalesQuotationCreateSerializer,
+    SalesQuotationDetailSerializer,
+    CustomerSerializer,
+    SalesOrderListSerializer,
+    SalesOrderCreateSerializer,
+    SalesOrderDetailSerializer,
+)
 
 from .models import Customer, SalesOrder, SalesQuotation, SalesQuotationLine, SalesOrderLine, SalesOrder
 
@@ -85,36 +92,24 @@ class SalesQuotationListView(APIView):
 
 
 
-# class SalesQuotationDetailView(APIView):
+class SalesQuotationDetailView(APIView):
 
-#     def get(self, request, pk):
-
-#         quotation = get_object_or_404(
-#             SalesQuotation,
-#             pk=pk
-#         )
-
-#         serializer = SalesQuotationDetailSerializer(
-#             quotation
-#         )
-
-#         return Response(serializer.data)
-
-class SalesQuotationUpdateView(APIView):
-
-    def put(self, request, pk):
-
-        quotation = get_object_or_404(
-            SalesQuotation,
+    def get_object(self, pk):
+        return get_object_or_404(
+            SalesQuotation.objects.select_related("customer").prefetch_related("lines"),
             pk=pk
         )
 
-        serializer = SalesQuotationCreateSerializer(
-            data=request.data
-        )
+    def get(self, request, pk):
+        quotation = self.get_object(pk)
+        serializer = SalesQuotationDetailSerializer(quotation)
+        return Response(serializer.data)
 
+    def put(self, request, pk):
+        quotation = self.get_object(pk)
+
+        serializer = SalesQuotationCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         data = serializer.validated_data
 
         quotation.customer_id = data["customer"]
@@ -125,7 +120,6 @@ class SalesQuotationUpdateView(APIView):
         quotation.lines.all().delete()
 
         for line in data["lines"]:
-
             SalesQuotationLine.objects.create(
                 quotation=quotation,
                 item_id=line["item"].id,
@@ -133,12 +127,15 @@ class SalesQuotationUpdateView(APIView):
                 quantity=line["quantity"],
                 rate=line["rate"],
                 discount_percent=line["discount_percent"],
-                vat_percent=line["vat_percent"]
+                vat_percent=line["vat_percent"],
             )
 
-        return Response(
-            {"message": "Updated"}
-        )
+        return Response({"id": quotation.id})
+
+    def delete(self, request, pk):
+        quotation = get_object_or_404(SalesQuotation, pk=pk)
+        quotation.delete()
+        return Response({"message": "Quotation deleted"})
     
 
 
