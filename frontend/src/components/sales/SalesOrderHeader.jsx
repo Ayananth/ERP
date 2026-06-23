@@ -7,12 +7,13 @@ function FieldShell({
   rightIcon,
   accent = false,
   helper,
+  onClick,
 }) {
   const baseClass = `w-full rounded-lg border px-3 pb-3 pt-5 text-sm outline-none transition ${
     accent
       ? "border-violet-200 bg-white text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.05)] focus:border-violet-400"
       : "border-slate-200 bg-slate-50 text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.04)] focus:border-slate-300"
-  }`;
+  } ${onClick ? "cursor-pointer" : ""}`;
 
   return (
     <div className="space-y-1">
@@ -26,6 +27,7 @@ function FieldShell({
           value={value}
           placeholder={placeholder}
           readOnly
+          onClick={onClick}
         />
         <div className="pointer-events-none absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2 text-slate-400">
           {rightIcon}
@@ -61,7 +63,7 @@ function SearchField({ label, value, placeholder }) {
   );
 }
 
-function SalesOrderHeader({ data }) {
+function SalesOrderHeader({ data, onQuotationClick }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
       <div className="grid gap-3 xl:grid-cols-6">
@@ -96,6 +98,7 @@ function SalesOrderHeader({ data }) {
           value={data.linked_quotation}
           placeholder=""
           accent
+          onClick={onQuotationClick}
         />
 
         <FieldShell
