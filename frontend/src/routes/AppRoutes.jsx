@@ -10,6 +10,7 @@ import PriceListPage from "../pages/Inventory/PriceListPage";
 import ItemPhotoPage from "../pages/Inventory/ItemPhotoPage";
 
 import SalesQuotationPage from "../pages/Sales/SalesQuotationPage";
+import SalesOrderPage from "../pages/Sales/SalesOrderPage";
 
 import MainLayout from "../layouts/MainLayout";
 import ProtectedRoute from "./ProtectedRoute";
@@ -72,6 +73,24 @@ function AppRoutes() {
         <Route
           path="sales/transactions/quotation/:quotationId"
           element={<SalesQuotationPage />}
+        />
+
+        <Route
+          path="sales/transactions/order"
+          element={<SalesOrderPage />}
+        />
+        <Route
+          path="sales/transactions/order/:orderId"
+          element={<SalesOrderPage />}
+        />
+
+        <Route
+          path="sales/orders"
+          element={<SalesOrderPage />}
+        />
+        <Route
+          path="sales/orders/:orderId"
+          element={<SalesOrderPage />}
         />
 
       </Route>
