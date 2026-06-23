@@ -9,6 +9,8 @@ import ItemUnitsPage from "../pages/Inventory/ItemUnitsPage";
 import PriceListPage from "../pages/Inventory/PriceListPage";
 import ItemPhotoPage from "../pages/Inventory/ItemPhotoPage";
 
+import SalesQuotationPage from "../pages/Sales/SalesQuotationPage";
+
 import MainLayout from "../layouts/MainLayout";
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -63,6 +65,10 @@ function AppRoutes() {
 
 
 
+        <Route
+          path="sales/transactions/quotation"
+          element={<SalesQuotationPage />}
+        />
 
       </Route>
 
