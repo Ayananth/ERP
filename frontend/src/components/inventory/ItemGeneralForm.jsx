@@ -12,6 +12,7 @@ export default function ItemGeneralForm({
   handleChange,
   handleClear,
   handleNew,
+  handleList,
   handleSubmit,
   message,
   setMessage,
@@ -72,6 +73,7 @@ export default function ItemGeneralForm({
 
             <button
               type="button"
+              onClick={handleList}
               className="px-6 py-2 rounded bg-violet-500 text-white"
             >
               List

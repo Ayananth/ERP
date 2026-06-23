@@ -4,6 +4,7 @@ import {
   getItemDropdowns,
   createItem,
   getItem,
+  getItemList,
   updateItem,
 } from "../../api/inventoryApi";
 
@@ -59,6 +60,9 @@ export default function useItemGeneralPage() {
     type: "",
     text: "",
   });
+  const [items, setItems] = useState([]);
+  const [itemsLoading, setItemsLoading] = useState(false);
+  const [isItemListOpen, setIsItemListOpen] = useState(false);
 
   const firstInputRef = useRef(null);
 
@@ -76,6 +80,10 @@ export default function useItemGeneralPage() {
 
   useEffect(() => {
     loadDropdowns();
+  }, []);
+
+  useEffect(() => {
+    loadItems();
   }, []);
 
   useEffect(() => {
@@ -109,6 +117,18 @@ export default function useItemGeneralPage() {
       setDropdowns(data);
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const loadItems = async () => {
+    try {
+      setItemsLoading(true);
+      const data = await getItemList();
+      setItems(data ?? []);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setItemsLoading(false);
     }
   };
 
@@ -230,14 +250,35 @@ export default function useItemGeneralPage() {
     }
   };
 
+  const handleList = () => {
+    setIsItemListOpen(true);
+  };
+
+  const handleCloseItemList = () => {
+    setIsItemListOpen(false);
+  };
+
+  const handleSelectItem = async (item) => {
+    setIsItemListOpen(false);
+    if (!item?.id) return;
+
+    navigate(`/inventory/items/${item.id}/general`);
+  };
+
   return {
     errors,
     firstInputRef,
     formData,
     dropdowns,
+    items,
+    itemsLoading,
+    isItemListOpen,
     handleChange,
     handleClear,
     handleNew,
+    handleList,
+    handleCloseItemList,
+    handleSelectItem,
     handleSubmit,
     isEditing,
     message,

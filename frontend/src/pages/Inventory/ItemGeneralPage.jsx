@@ -1,12 +1,19 @@
 import ItemPageLayout from "../../components/layout/ItemPageLayout";
 import ItemGeneralForm from "../../components/inventory/ItemGeneralForm";
+import ItemSelectModal from "../../components/inventory/ItemSelectModal";
 import useItemGeneralPage from "../../hooks/inventory/useItemGeneralPage";
 
 export default function ItemGeneralPage() {
   const {
     dropdowns,
     errors,
+    handleCloseItemList,
+    handleList,
+    handleSelectItem,
     firstInputRef,
+    items,
+    itemsLoading,
+    isItemListOpen,
     formData,
     handleChange,
     handleClear,
@@ -31,9 +38,18 @@ export default function ItemGeneralPage() {
         handleChange={handleChange}
         handleClear={handleClear}
         handleNew={handleNew}
+        handleList={handleList}
         handleSubmit={handleSubmit}
         message={message}
         setMessage={setMessage}
+      />
+
+      <ItemSelectModal
+        isOpen={isItemListOpen}
+        loading={itemsLoading}
+        items={items}
+        onClose={handleCloseItemList}
+        onSelect={handleSelectItem}
       />
     </ItemPageLayout>
   );

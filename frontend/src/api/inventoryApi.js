@@ -24,6 +24,14 @@ export const getItem = async (id) => {
   return response.data;
 };
 
+export const getItemList = async (search = "") => {
+  const response = await api.get("/inventory/items/", {
+    params: search ? { search } : undefined,
+  });
+
+  return response.data;
+};
+
 export const updateItem = async (id, data) => {
   const response = await api.put(`/inventory/items/${id}/`, data);
   return response.data;
