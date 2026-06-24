@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 
 import api from "../../api/axios";
 import {
@@ -12,6 +13,7 @@ import {
 function SalesOrderPreviewModal({ open, onOpenChange, orderId }) {
   const [pdfUrl, setPdfUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [iframeLoading, setIframeLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
@@ -21,6 +23,7 @@ function SalesOrderPreviewModal({ open, onOpenChange, orderId }) {
         setPdfUrl("");
       }
       setLoading(false);
+      setIframeLoading(false);
       setErrorMessage("");
       return;
     }
@@ -43,6 +46,7 @@ function SalesOrderPreviewModal({ open, onOpenChange, orderId }) {
 
         objectUrl = URL.createObjectURL(response.data);
         setPdfUrl(objectUrl);
+        setIframeLoading(true);
       } catch (error) {
         if (cancelled) {
           return;
@@ -53,9 +57,9 @@ function SalesOrderPreviewModal({ open, onOpenChange, orderId }) {
             "Failed to load the PDF preview."
         );
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+      if (!cancelled) {
+        setLoading(false);
+      }
       }
     };
 
@@ -75,6 +79,7 @@ function SalesOrderPreviewModal({ open, onOpenChange, orderId }) {
       setPdfUrl("");
       setErrorMessage("");
       setLoading(false);
+      setIframeLoading(false);
     }
 
     onOpenChange(nextOpen);
@@ -88,20 +93,29 @@ function SalesOrderPreviewModal({ open, onOpenChange, orderId }) {
         </DialogHeader>
 
         <DialogBody>
-          {loading ? (
-            <div className="flex h-full items-center justify-center text-sm text-slate-500">
-              Loading PDF preview...
-            </div>
-          ) : errorMessage ? (
+          {errorMessage ? (
             <div className="flex h-full items-center justify-center px-6 text-sm text-red-600">
               {errorMessage}
             </div>
           ) : pdfUrl ? (
-            <iframe
-              title="Sales order PDF preview"
-              src={pdfUrl}
-              className="h-full w-full border-0"
-            />
+            <div className="relative h-full w-full">
+              {(loading || iframeLoading) ? (
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-white/80 text-sm text-slate-500">
+                  <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+                  <span>Loading PDF preview...</span>
+                </div>
+              ) : null}
+              <iframe
+                title="Sales order PDF preview"
+                src={pdfUrl}
+                className="h-full w-full border-0"
+                onLoad={() => setIframeLoading(false)}
+                onError={() => {
+                  setIframeLoading(false);
+                  setErrorMessage("Failed to load the PDF preview.");
+                }}
+              />
+            </div>
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-slate-500">
               No preview available.
