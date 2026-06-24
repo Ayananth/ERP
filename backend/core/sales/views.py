@@ -7,7 +7,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from django.core.exceptions import ValidationError as DjangoValidationError
 from weasyprint import CSS, HTML
 
 
@@ -44,11 +43,7 @@ def save_order_lines(order, lines):
             discount_percent=line["discount_percent"],
             vat_percent=line["vat_percent"],
         )
-        try:
-            order_line.full_clean()
-            order_line.save()
-        except DjangoValidationError as exc:
-            raise ValidationError(exc.message_dict)
+        order_line.save()
 
 
 class CustomerListView(APIView):
@@ -94,11 +89,7 @@ class SalesQuotationCreateView(APIView):
                 discount_percent=line["discount_percent"],
                 vat_percent=line["vat_percent"]
             )
-            try:
-                quotation_line.full_clean()
-                quotation_line.save()
-            except DjangoValidationError as exc:
-                raise ValidationError(exc.message_dict)
+            quotation_line.save()
 
         return Response(
             {"id": quotation.id}
@@ -169,11 +160,7 @@ class SalesQuotationDetailView(APIView):
                 discount_percent=line["discount_percent"],
                 vat_percent=line["vat_percent"],
             )
-            try:
-                quotation_line.full_clean()
-                quotation_line.save()
-            except DjangoValidationError as exc:
-                raise ValidationError(exc.message_dict)
+            quotation_line.save()
 
         return Response({"id": quotation.id})
 
