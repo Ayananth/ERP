@@ -1,6 +1,6 @@
 @page {
   size: A4;
-  margin: 18mm;
+  margin: 140px 20px 120px 20px;
 }
 
 body {
@@ -11,6 +11,28 @@ body {
 
 .page {
   width: 100%;
+}
+
+.pdf-header {
+  position: fixed;
+  top: -120px;
+  left: 0;
+  right: 0;
+}
+
+.pdf-footer {
+  position: fixed;
+  bottom: -100px;
+  left: 0;
+  right: 0;
+}
+
+.pdf-header img,
+.pdf-footer img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
 }
 
 .invoice-header {

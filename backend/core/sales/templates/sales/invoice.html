@@ -5,6 +5,18 @@
   <title>Invoice {{ invoice_number }}</title>
 </head>
 <body>
+  {% if header_image %}
+  <div class="pdf-header">
+    <img src="{{ header_image }}" alt="Company header">
+  </div>
+  {% endif %}
+
+  {% if footer_image %}
+  <div class="pdf-footer">
+    <img src="{{ footer_image }}" alt="Company footer">
+  </div>
+  {% endif %}
+
   <div class="page">
     <header class="invoice-header">
       <div>

@@ -28,8 +28,37 @@ from .models import (
     SalesQuotation,
     SalesQuotationLine,
 )
+from accounts.models import CompanySettings
 
 from django.shortcuts import get_object_or_404
+
+
+def get_company_settings_pdf_data(request):
+    company_settings = CompanySettings.objects.first()
+    if not company_settings:
+        return {
+            "company_name": "Exalore ERP",
+            "header_image": "",
+            "footer_image": "",
+        }
+
+    header_image = (
+        company_settings.header_image.url if company_settings.header_image else ""
+    )
+    footer_image = (
+        company_settings.footer_image.url if company_settings.footer_image else ""
+    )
+
+    if header_image:
+        header_image = request.build_absolute_uri(header_image)
+    if footer_image:
+        footer_image = request.build_absolute_uri(footer_image)
+
+    return {
+        "company_name": company_settings.company_name or "Exalore ERP",
+        "header_image": header_image,
+        "footer_image": footer_image,
+    }
 
 
 def save_order_lines(order, lines):
@@ -202,7 +231,8 @@ class SalesQuotationPdfView(APIView):
                 "total": total,
             })
 
-        pdf_data = SalesQuotationPdfSerializer({
+        pdf_data = {
+            **SalesQuotationPdfSerializer({
             "company_name": "Exalore ERP",
             "quotation_number": quotation.quotation_no,
             "quotation_date": quotation.quotation_date,
@@ -210,7 +240,9 @@ class SalesQuotationPdfView(APIView):
             "notes": quotation.notes or "",
             "lines": lines,
             "grand_total": quotation.total_net_amount,
-        }).data
+        }).data,
+            **get_company_settings_pdf_data(request),
+        }
 
         html = render_to_string("sales/quotation_invoice.html", pdf_data)
         css_path = settings.BASE_DIR / "sales" / "static" / "sales" / "invoice.css"
@@ -362,16 +394,19 @@ class SalesOrderPdfView(APIView):
                 }
             )
 
-        pdf_data = SalesOrderPdfSerializer(
-            {
-                "company_name": "Exalore ERP",
-                "invoice_number": order.order_no,
-                "invoice_date": order.order_date,
-                "customer_name": order.customer.name,
-                "lines": lines,
-                "grand_total": order.total_net_amount,
-            }
-        ).data
+        pdf_data = {
+            **SalesOrderPdfSerializer(
+                {
+                    "company_name": "Exalore ERP",
+                    "invoice_number": order.order_no,
+                    "invoice_date": order.order_date,
+                    "customer_name": order.customer.name,
+                    "lines": lines,
+                    "grand_total": order.total_net_amount,
+                }
+            ).data,
+            **get_company_settings_pdf_data(request),
+        }
 
         html = render_to_string("sales/invoice.html", pdf_data)
         css_path = settings.BASE_DIR / "sales" / "static" / "sales" / "invoice.css"

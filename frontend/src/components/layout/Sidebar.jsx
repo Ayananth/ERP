@@ -11,6 +11,7 @@ import {
   User,
   Building2,
   Calendar,
+  Settings,
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
@@ -186,6 +187,32 @@ function Sidebar() {
 
               <ChevronRight size={16} />
             </div> */}
+          </div>
+        </div>
+
+        {/* Settings */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2">
+              <Settings size={22} />
+              <span className="text-sm">Settings</span>
+            </div>
+
+            <ChevronDown size={18} />
+          </div>
+
+          <div className="ml-1 border-l border-slate-700 pl-6">
+            <NavLink
+              to="/settings/company"
+              className={({ isActive }) =>
+                `flex items-center gap-3 py-2 ${
+                  isActive ? "text-violet-400" : "text-slate-300"
+                }`
+              }
+            >
+              <div className="h-3 w-3 rounded-full bg-slate-500" />
+              Company Settings
+            </NavLink>
           </div>
         </div>
       </nav>

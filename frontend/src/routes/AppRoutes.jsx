@@ -8,6 +8,7 @@ import ItemGeneralPage from "../pages/Inventory/ItemGeneralPage";
 import ItemUnitsPage from "../pages/Inventory/ItemUnitsPage";
 import PriceListPage from "../pages/Inventory/PriceListPage";
 import ItemPhotoPage from "../pages/Inventory/ItemPhotoPage";
+import CompanySettingsPage from "../pages/Settings/CompanySettingsPage";
 
 import SalesQuotationPage from "../pages/Sales/SalesQuotationPage";
 import SalesOrderPage from "../pages/Sales/SalesOrderPage";
@@ -91,6 +92,11 @@ function AppRoutes() {
         <Route
           path="sales/orders/:orderId"
           element={<SalesOrderPage />}
+        />
+
+        <Route
+          path="settings/company"
+          element={<CompanySettingsPage />}
         />
 
       </Route>
