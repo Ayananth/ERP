@@ -14,6 +14,7 @@ import SalesQuotationLayout from "../../components/sales/SalesQuotationLayout";
 import SalesQuotationHeader from "../../components/sales/SalesQuotationHeader";
 import SalesQuotationLines from "../../components/sales/SalesQuotationLines";
 import SalesQuotationFooter from "../../components/sales/SalesQuotationFooter";
+import SalesQuotationSelectModal from "../../components/sales/SalesQuotationSelectModal";
 
 const getTodayDate = () => new Date().toISOString().slice(0, 10);
 
@@ -176,6 +177,9 @@ function SalesQuotationPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loadingQuotation, setLoadingQuotation] = useState(false);
+  const [quotations, setQuotations] = useState([]);
+  const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
+  const [isQuotationModalLoading, setIsQuotationModalLoading] = useState(false);
 
   const [lines, setLines] = useState(initialLines);
   const [nextLineId, setNextLineId] = useState(2);
@@ -361,6 +365,36 @@ function SalesQuotationPage() {
     setNextLineId((prev) => prev + 1);
   };
 
+  const openQuotationModal = async () => {
+    setIsQuotationModalOpen(true);
+    setIsQuotationModalLoading(true);
+    setErrorMessage("");
+
+    try {
+      const quotationList = await getQuotationList();
+
+      setQuotations(
+        (quotationList ?? []).map((quotation) => ({
+          id: quotation.id,
+          quotation_no: quotation.quotation_no ?? "",
+          delivery_place: quotation.delivery_place ?? "",
+          quotation_date: quotation.quotation_date ?? "",
+          customer_ref_no: quotation.customer_ref_no ?? "",
+          customer_code: quotation.customer_code ?? "",
+          customer_name: quotation.customer_name ?? quotation.customer ?? "",
+          salesman_code: quotation.salesman_code ?? "",
+          net: quotation.net ?? "",
+        }))
+      );
+    } catch (error) {
+      setErrorMessage(
+        error?.response?.data?.message ?? "Failed to load sales quotations."
+      );
+    } finally {
+      setIsQuotationModalLoading(false);
+    }
+  };
+
   const loadQuotationById = async (id) => {
     const quotation = await getQuotation(id);
 
@@ -380,14 +414,32 @@ function SalesQuotationPage() {
       notes: quotation?.notes ?? "",
     });
 
-                const hydratedLines = await Promise.all(
-                  (quotation?.lines ?? []).map((line, index) =>
-                    hydrateQuotationLine(line, index)
-                  )
-                );
+    const hydratedLines = await Promise.all(
+      (quotation?.lines ?? []).map((line, index) =>
+        hydrateQuotationLine(line, index)
+      )
+    );
 
     setLines(hydratedLines.length ? hydratedLines : initialLines);
     setIsEditing(false);
+  };
+
+  const handleQuotationSelect = async (quotationSummary) => {
+    setIsQuotationModalLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    try {
+      await loadQuotationById(quotationSummary.id);
+      setIsQuotationModalOpen(false);
+    } catch (error) {
+      setErrorMessage(
+        error?.response?.data?.message ??
+          "Failed to load the selected quotation."
+      );
+    } finally {
+      setIsQuotationModalLoading(false);
+    }
   };
 
   const handleFooterAction = () => {
@@ -466,7 +518,7 @@ function SalesQuotationPage() {
   };
 
   const handleListQuotations = async () => {
-    await getQuotationList();
+    await openQuotationModal();
   };
 
   const footerTotals = calculateTotals(lines);
@@ -516,6 +568,14 @@ function SalesQuotationPage() {
         onList={handleListQuotations}
         onSave={handleSaveQuotation}
         totals={footerTotals}
+      />
+
+      <SalesQuotationSelectModal
+        isOpen={isQuotationModalOpen}
+        loading={isQuotationModalLoading}
+        quotations={quotations}
+        onClose={() => setIsQuotationModalOpen(false)}
+        onSelect={handleQuotationSelect}
       />
     </SalesQuotationLayout>
   );
