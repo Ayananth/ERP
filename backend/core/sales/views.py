@@ -103,7 +103,8 @@ class SalesQuotationListView(APIView):
                 "quotation_no": quotation.quotation_no,
                 "customer": quotation.customer.name,
                 "quotation_date": quotation.quotation_date,
-                "status": quotation.status
+                "status": quotation.status,
+                "net": quotation.total_net_amount,
             })
 
         return Response(data)

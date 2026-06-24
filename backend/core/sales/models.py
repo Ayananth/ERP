@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from inventory.models import Item, Unit
 
@@ -55,6 +57,20 @@ class SalesQuotation(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True
     )
+
+    @property
+    def total_net_amount(self):
+        total = Decimal("0.00")
+
+        for line in self.lines.all():
+            gross = line.quantity * line.rate
+            discount = gross * line.discount_percent / Decimal("100")
+            net = gross - discount
+            vat = net * line.vat_percent / Decimal("100")
+
+            total += net + vat
+
+        return total
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
@@ -160,6 +176,27 @@ class SalesOrder(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True
     )
+
+    @property
+    def total_net_amount(self):
+        total = Decimal("0.00")
+
+        for line in self.lines.all():
+            gross = line.quantity * line.rate
+
+            discount = (
+                gross * line.discount_percent / Decimal("100")
+            )
+
+            net = gross - discount
+
+            vat = (
+                net * line.vat_percent / Decimal("100")
+            )
+
+            total += net + vat
+
+        return total
 
     def save(self, *args, **kwargs):
 

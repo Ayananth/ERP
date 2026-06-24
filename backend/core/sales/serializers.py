@@ -230,8 +230,6 @@ class SalesOrderListSerializer(serializers.ModelSerializer):
         source="customer.name",
         read_only=True
     )
-    total_net_amount = serializers.SerializerMethodField()
-
     class Meta:
         model = SalesOrder
 
@@ -244,25 +242,6 @@ class SalesOrderListSerializer(serializers.ModelSerializer):
             "total_net_amount",
         ]
 
-    def get_total_net_amount(self, obj):
-        total = Decimal("0.00")
-
-        for line in obj.lines.all():
-            gross = line.quantity * line.rate
-
-            discount_amount = (
-                gross * line.discount_percent / Decimal("100")
-            )
-
-            net_before_vat = gross - discount_amount
-
-            vat_amount = (
-                net_before_vat * line.vat_percent / Decimal("100")
-            )
-
-            total += net_before_vat + vat_amount
-
-        return round(total, 2)
 
 
 
