@@ -10,6 +10,7 @@ from .views import (
     SalesQuotationCreateView,
     SalesQuotationDetailView,
     SalesQuotationListView,
+    SalesQuotationPdfView,
 )
 
 urlpatterns = [
@@ -32,6 +33,11 @@ urlpatterns = [
     path(
         "quotations/<int:pk>/",
         SalesQuotationDetailView.as_view()
+    ),
+
+    path(
+        "quotations/<int:pk>/pdf/",
+        SalesQuotationPdfView.as_view()
     ),
 
     path(

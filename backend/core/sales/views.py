@@ -14,6 +14,7 @@ from weasyprint import CSS, HTML
 from .serializers import (
     SalesQuotationCreateSerializer,
     SalesQuotationDetailSerializer,
+    SalesQuotationPdfSerializer,
     CustomerSerializer,
     SalesOrderListSerializer,
     SalesOrderCreateSerializer,
@@ -180,6 +181,62 @@ class SalesQuotationDetailView(APIView):
         quotation = get_object_or_404(SalesQuotation, pk=pk)
         quotation.delete()
         return Response({"message": "Quotation deleted"})
+
+
+class SalesQuotationPdfView(APIView):
+
+    def get_object(self, pk):
+        return get_object_or_404(
+            SalesQuotation.objects.select_related("customer").prefetch_related(
+                "lines__item",
+                "lines__unit",
+            ),
+            pk=pk
+        )
+
+    def get(self, request, pk):
+        quotation = self.get_object(pk)
+        lines = []
+
+        for line in quotation.lines.all():
+            gross = line.quantity * line.rate
+            discount = gross * line.discount_percent / Decimal("100")
+            net = gross - discount
+            vat = net * line.vat_percent / Decimal("100")
+            total = net + vat
+
+            lines.append({
+                "item_name": line.item.name_1,
+                "unit_name": line.unit.name,
+                "quantity": line.quantity,
+                "rate": line.rate,
+                "discount": discount,
+                "vat": vat,
+                "total": total,
+            })
+
+        pdf_data = SalesQuotationPdfSerializer({
+            "company_name": "Exalore ERP",
+            "quotation_number": quotation.quotation_no,
+            "quotation_date": quotation.quotation_date,
+            "customer_name": quotation.customer.name,
+            "notes": quotation.notes or "",
+            "lines": lines,
+            "grand_total": quotation.total_net_amount,
+        }).data
+
+        html = render_to_string("sales/quotation_invoice.html", pdf_data)
+        css_path = settings.BASE_DIR / "sales" / "static" / "sales" / "invoice.css"
+
+        pdf = HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf(
+            stylesheets=[CSS(filename=str(css_path))]
+        )
+
+        response = HttpResponse(pdf, content_type="application/pdf")
+        response["Content-Disposition"] = (
+            f'inline; filename="{quotation.quotation_no}.pdf"'
+        )
+        return response
     
 
 

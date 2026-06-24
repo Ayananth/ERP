@@ -16,6 +16,7 @@ import SalesQuotationHeader from "../../components/sales/SalesQuotationHeader";
 import SalesQuotationLines from "../../components/sales/SalesQuotationLines";
 import SalesQuotationFooter from "../../components/sales/SalesQuotationFooter";
 import SalesQuotationSelectModal from "../../components/sales/SalesQuotationSelectModal";
+import SalesOrderPreviewModal from "../../components/sales/SalesOrderPreviewModal";
 
 const getTodayDate = () => new Date().toISOString().slice(0, 10);
 
@@ -223,6 +224,7 @@ function SalesQuotationPage() {
   const [quotations, setQuotations] = useState([]);
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [isQuotationModalLoading, setIsQuotationModalLoading] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   useEffect(() => {
     if (!errorMessage) return;
@@ -609,6 +611,14 @@ function SalesQuotationPage() {
     await openQuotationModal();
   };
 
+  const handlePreview = () => {
+    if (!activeQuotationId) {
+      return;
+    }
+
+    setIsPreviewOpen(true);
+  };
+
   const footerTotals = calculateTotals(lines);
 
   return (
@@ -654,11 +664,23 @@ function SalesQuotationPage() {
         onCancel={handleCancel}
         newEditButtonRef={newEditButtonRef}
         onList={handleListQuotations}
+        onPreview={handlePreview}
+        previewDisabled={!activeQuotationId}
         onSave={handleSaveQuotation}
         primaryActionLabel={
           isEditing ? (viewState === "viewExisting" ? "Update" : "Save") : viewState === "viewExisting" ? "Edit" : "New"
         }
         totals={footerTotals}
+      />
+
+      <SalesOrderPreviewModal
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
+        pdfPath={
+          activeQuotationId
+            ? `/sales/quotations/${activeQuotationId}/pdf/`
+            : ""
+        }
       />
 
       <SalesQuotationSelectModal

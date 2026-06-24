@@ -372,3 +372,23 @@ class SalesOrderPdfSerializer(serializers.Serializer):
     customer_name = serializers.CharField()
     lines = SalesOrderPdfLineSerializer(many=True)
     grand_total = serializers.DecimalField(max_digits=12, decimal_places=2)
+
+
+class SalesQuotationPdfLineSerializer(serializers.Serializer):
+    item_name = serializers.CharField()
+    unit_name = serializers.CharField()
+    quantity = serializers.DecimalField(max_digits=12, decimal_places=2)
+    rate = serializers.DecimalField(max_digits=12, decimal_places=2)
+    discount = serializers.DecimalField(max_digits=12, decimal_places=2)
+    vat = serializers.DecimalField(max_digits=12, decimal_places=2)
+    total = serializers.DecimalField(max_digits=12, decimal_places=2)
+
+
+class SalesQuotationPdfSerializer(serializers.Serializer):
+    company_name = serializers.CharField()
+    quotation_number = serializers.CharField()
+    quotation_date = serializers.DateField()
+    customer_name = serializers.CharField()
+    notes = serializers.CharField(allow_blank=True)
+    lines = SalesQuotationPdfLineSerializer(many=True)
+    grand_total = serializers.DecimalField(max_digits=12, decimal_places=2)
