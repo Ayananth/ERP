@@ -14,6 +14,7 @@ import {
 import SalesQuotationLayout from "../../components/sales/SalesQuotationLayout";
 import SalesQuotationFooter from "../../components/sales/SalesQuotationFooter";
 import SalesQuotationSelectModal from "../../components/sales/SalesQuotationSelectModal";
+import SalesOrderSelectModal from "../../components/sales/SalesOrderSelectModal";
 import SalesOrderHeader from "../../components/sales/SalesOrderHeader";
 import SalesOrderLines from "../../components/sales/SalesOrderLines";
 
@@ -182,8 +183,11 @@ function SalesOrderPage() {
   const [viewState, setViewState] = useState(orderId ? "viewExisting" : "viewBlank");
   const [lines, setLines] = useState(initialLines);
   const [quotations, setQuotations] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [isQuotationModalLoading, setIsQuotationModalLoading] = useState(false);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [isOrderModalLoading, setIsOrderModalLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loadingOrder, setLoadingOrder] = useState(false);
@@ -251,31 +255,6 @@ function SalesOrderPage() {
     setIsEditing(false);
   };
 
-  useEffect(() => {
-    const loadOrder = async () => {
-      if (!orderId) {
-        setActiveOrderId(null);
-        return;
-      }
-
-      setLoadingOrder(true);
-      setErrorMessage("");
-
-      try {
-        await loadOrderById(orderId);
-      } catch (error) {
-        setErrorMessage(
-          error?.response?.data?.message ??
-            "Failed to load the selected sales order."
-        );
-      } finally {
-        setLoadingOrder(false);
-      }
-    };
-
-    loadOrder();
-  }, [orderId]);
-
   const openQuotationModal = async () => {
     if (!isEditing) {
       return;
@@ -310,22 +289,6 @@ function SalesOrderPage() {
     }
   };
 
-  const resetToBlankTransaction = () => {
-    setHeader({
-      ...initialHeader,
-      issue_date: getTodayDate(),
-      valid_date: getValidDate(),
-    });
-    setLines(initialLines);
-    setNextLineId(2);
-    setActiveOrderId(null);
-    setViewState("viewBlank");
-    setIsEditing(true);
-    navigate("/sales/transactions/order", {
-      replace: true,
-    });
-  };
-
   const handleQuotationSelect = async (quotationSummary) => {
     setIsQuotationModalLoading(true);
     setErrorMessage("");
@@ -351,11 +314,13 @@ function SalesOrderPage() {
 
       setHeader((prev) => ({
         ...prev,
-        linked_quotation: quotation?.quotation_no ?? quotationSummary.quotation_no,
+        linked_quotation:
+          quotation?.quotation_no ?? quotationSummary.quotation_no,
         quotation_id: quotation?.id ?? quotationSummary.id,
         customer: quotation?.customer ?? "",
         customer_display: quotationSummary.customer_name ?? "",
-        delivery_place: quotation?.delivery_place ?? quotationSummary.delivery_place,
+        delivery_place:
+          quotation?.delivery_place ?? quotationSummary.delivery_place,
         notes: quotation?.notes ?? prev.notes,
       }));
       setLines(hydratedLines.length ? hydratedLines : initialLines);
@@ -363,10 +328,139 @@ function SalesOrderPage() {
       setIsQuotationModalOpen(false);
     } catch (error) {
       setErrorMessage(
-        error?.response?.data?.message ?? "Failed to load the selected quotation."
+        error?.response?.data?.message ??
+          "Failed to load the selected quotation."
       );
     } finally {
       setIsQuotationModalLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const loadOrder = async () => {
+      if (!orderId) {
+        setActiveOrderId(null);
+        return;
+      }
+
+      setLoadingOrder(true);
+      setErrorMessage("");
+
+      try {
+        await loadOrderById(orderId);
+      } catch (error) {
+        setErrorMessage(
+          error?.response?.data?.message ??
+            "Failed to load the selected sales order."
+        );
+      } finally {
+        setLoadingOrder(false);
+      }
+    };
+
+    loadOrder();
+  }, [orderId]);
+
+  const openOrderModal = async () => {
+    setIsOrderModalOpen(true);
+    setIsOrderModalLoading(true);
+    setErrorMessage("");
+
+    try {
+      const orderList = await getSalesOrderList();
+
+      setOrders(
+        (orderList ?? []).map((order) => ({
+          id: order.id,
+          order_no: order.order_no ?? "",
+          customer_name: order.customer_name ?? order.customer ?? "",
+          order_date: order.order_date ?? "",
+          total_net_amount:
+            order.total_net_amount ??
+            order.net_after_vat ??
+            order.net ??
+            order.grand_total ??
+            "",
+          status: order.status ?? order.order_status ?? "",
+        }))
+      );
+    } catch (error) {
+      setErrorMessage(
+        error?.response?.data?.message ?? "Failed to load sales orders."
+      );
+    } finally {
+      setIsOrderModalLoading(false);
+    }
+  };
+
+  const resetToBlankTransaction = () => {
+    setHeader({
+      ...initialHeader,
+      issue_date: getTodayDate(),
+      valid_date: getValidDate(),
+    });
+    setLines(initialLines);
+    setNextLineId(2);
+    setActiveOrderId(null);
+    setViewState("viewBlank");
+    setIsEditing(true);
+    navigate("/sales/transactions/order", {
+      replace: true,
+    });
+  };
+
+  const handleOrderSelect = async (orderSummary) => {
+    setIsOrderModalLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    try {
+      const order = await getSalesOrder(orderSummary.id);
+      const hydratedLines = await Promise.all(
+        (order?.lines ?? []).map((line, index) =>
+          hydrateOrderLine(
+            {
+              ...line,
+              item: line.item,
+              quantity: line.quantity,
+            },
+            index
+          )
+        )
+      );
+
+      const nextId =
+        hydratedLines.reduce((max, line) => Math.max(max, line.id ?? 0), 0) + 1;
+
+      setHeader((prev) => ({
+        ...prev,
+        order_no: order?.order_no ?? "",
+        order_type: order?.order_type ?? "",
+        issue_date: order?.order_date ?? getTodayDate(),
+        valid_date: order?.valid_date ?? getValidDate(),
+        linked_quotation: order?.quotation_no || "No quotation linked",
+        quotation_id: order?.quotation ?? "",
+        customer: order?.customer ?? "",
+        customer_display: order?.customer_name ?? orderSummary.customer_name ?? "",
+        customer_po: order?.customer_po ?? "",
+        sales_executive: order?.sales_executive ?? "",
+        currency: order?.currency ?? "1 - SAUDI RIYAL",
+        exchange_rate: order?.exchange_rate ?? "1.00",
+        delivery_place: order?.delivery_place ?? "",
+        notes: order?.notes ?? "",
+      }));
+      setLines(hydratedLines.length ? hydratedLines : initialLines);
+      setNextLineId(nextId);
+      setActiveOrderId(order?.id ?? orderSummary.id);
+      setViewState("viewExisting");
+      setIsEditing(false);
+      setIsOrderModalOpen(false);
+    } catch (error) {
+      setErrorMessage(
+        error?.response?.data?.message ?? "Failed to load the selected sales order."
+      );
+    } finally {
+      setIsOrderModalLoading(false);
     }
   };
 
@@ -569,7 +663,7 @@ function SalesOrderPage() {
   };
 
   const handleListOrders = async () => {
-    await getSalesOrderList();
+    await openOrderModal();
   };
 
   const totals = calculateTotals(lines);
@@ -631,6 +725,14 @@ function SalesOrderPage() {
         quotations={quotations}
         onClose={() => setIsQuotationModalOpen(false)}
         onSelect={handleQuotationSelect}
+      />
+
+      <SalesOrderSelectModal
+        isOpen={isOrderModalOpen}
+        loading={isOrderModalLoading}
+        orders={orders}
+        onClose={() => setIsOrderModalOpen(false)}
+        onSelect={handleOrderSelect}
       />
     </SalesQuotationLayout>
   );
