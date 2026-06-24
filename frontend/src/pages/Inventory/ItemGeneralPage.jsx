@@ -9,6 +9,7 @@ export default function ItemGeneralPage() {
     errors,
     handleCloseItemList,
     handleList,
+    handlePrimaryAction,
     handleSelectItem,
     firstInputRef,
     items,
@@ -20,6 +21,7 @@ export default function ItemGeneralPage() {
     handleNew,
     handleSubmit,
     isEditing,
+    viewState,
     message,
     setMessage,
   } = useItemGeneralPage();
@@ -39,7 +41,9 @@ export default function ItemGeneralPage() {
         handleClear={handleClear}
         handleNew={handleNew}
         handleList={handleList}
+        handlePrimaryAction={handlePrimaryAction}
         handleSubmit={handleSubmit}
+        viewState={viewState}
         message={message}
         setMessage={setMessage}
       />

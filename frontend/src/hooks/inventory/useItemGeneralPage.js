@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   getItemDropdowns,
   createItem,
@@ -49,9 +49,11 @@ const normalizeItemForm = (item = {}) => ({
 
 export default function useItemGeneralPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { itemId } = useParams();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [viewState, setViewState] = useState(itemId ? "viewExisting" : "viewBlank");
   const [formData, setFormData] = useState(initialItemGeneralForm);
   const [dropdowns, setDropdowns] =
     useState(initialDropdowns);
@@ -104,7 +106,8 @@ export default function useItemGeneralPage() {
       const item = await getItem(itemId);
 
       setFormData(normalizeItemForm(item));
-      setIsEditing(true);
+      setViewState(location.state?.created ? "viewBlank" : "viewExisting");
+      setIsEditing(false);
     } catch (error) {
       console.error(error);
     }
@@ -182,22 +185,40 @@ export default function useItemGeneralPage() {
 
   const handleNew = () => {
     setFormData(normalizeItemForm());
+    setErrors({});
+    setMessage({
+      type: "",
+      text: "",
+    });
+    setViewState("viewBlank");
     setIsEditing(true);
+    if (itemId) {
+      navigate("/inventory/items/general", {
+        replace: true,
+      });
+    }
   };
 
   const handleClear = () => {
     setFormData(normalizeItemForm());
+    setErrors({});
+    setMessage({
+      type: "",
+      text: "",
+    });
 
     if (itemId) {
       navigate("/inventory/items/general", {
         replace: true,
       });
-      setIsEditing(false);
     }
+
+    setViewState("viewBlank");
+    setIsEditing(false);
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e?.preventDefault?.();
 
     setMessage({
       type: "",
@@ -225,6 +246,7 @@ export default function useItemGeneralPage() {
         navigate(`/inventory/items/${savedItemId}/general`, {
           replace: true,
           state: {
+            created: true,
             focusTab: "units",
           },
         });
@@ -244,7 +266,8 @@ export default function useItemGeneralPage() {
         setFormData(normalizeItemForm(refreshedItem));
       }
 
-      setIsEditing(true);
+      setIsEditing(false);
+      setViewState("viewBlank");
     } catch (error) {
       setMessage({
         type: "error",
@@ -255,6 +278,20 @@ export default function useItemGeneralPage() {
 
       console.error(error);
     }
+  };
+
+  const handlePrimaryAction = async () => {
+    if (!isEditing) {
+      if (viewState === "viewExisting") {
+        setIsEditing(true);
+        return;
+      }
+
+      handleNew();
+      return;
+    }
+
+    await handleSubmit();
   };
 
   const handleList = () => {
@@ -286,8 +323,10 @@ export default function useItemGeneralPage() {
     handleList,
     handleCloseItemList,
     handleSelectItem,
+    handlePrimaryAction,
     handleSubmit,
     isEditing,
+    viewState,
     message,
     setMessage,
   };

@@ -13,10 +13,20 @@ export default function ItemGeneralForm({
   handleClear,
   handleNew,
   handleList,
+  handlePrimaryAction,
   handleSubmit,
+  viewState,
   message,
   setMessage,
 }) {
+  const primaryLabel = isEditing
+    ? viewState === "viewExisting"
+      ? "Update"
+      : "Save"
+    : viewState === "viewExisting"
+    ? "Edit"
+    : "New";
+
   return (
     <>
       <Alert
@@ -65,10 +75,10 @@ export default function ItemGeneralForm({
           <div className="flex justify-end gap-3 border-t bg-slate-50 p-4">
             <button
               type="button"
-              onClick={handleNew}
+              onClick={handlePrimaryAction}
               className="px-6 py-2 rounded bg-emerald-500 text-white"
             >
-              New
+              {primaryLabel}
             </button>
 
             <button
@@ -87,13 +97,6 @@ export default function ItemGeneralForm({
               Clear
             </button>
 
-            <button
-              type="submit"
-              disabled={!isEditing}
-              className="px-6 py-2 rounded bg-blue-600 text-white disabled:opacity-50"
-            >
-              Save
-            </button>
           </div>
         </div>
       </form>
