@@ -16,6 +16,7 @@ import SalesQuotationLayout from "../../components/sales/SalesQuotationLayout";
 import SalesQuotationFooter from "../../components/sales/SalesQuotationFooter";
 import SalesQuotationSelectModal from "../../components/sales/SalesQuotationSelectModal";
 import SalesOrderSelectModal from "../../components/sales/SalesOrderSelectModal";
+import SalesOrderPreviewModal from "../../components/sales/SalesOrderPreviewModal";
 import SalesOrderHeader from "../../components/sales/SalesOrderHeader";
 import SalesOrderLines from "../../components/sales/SalesOrderLines";
 
@@ -229,6 +230,7 @@ function SalesOrderPage() {
   const [isQuotationModalLoading, setIsQuotationModalLoading] = useState(false);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isOrderModalLoading, setIsOrderModalLoading] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loadingOrder, setLoadingOrder] = useState(false);
@@ -726,6 +728,14 @@ function SalesOrderPage() {
     await openOrderModal();
   };
 
+  const handlePreview = () => {
+    if (!activeOrderId) {
+      return;
+    }
+
+    setIsPreviewOpen(true);
+  };
+
   const totals = calculateTotals(lines);
 
   return (
@@ -772,6 +782,8 @@ function SalesOrderPage() {
         onCancel={handleCancel}
         newEditButtonRef={newEditButtonRef}
         onList={handleListOrders}
+        onPreview={handlePreview}
+        previewDisabled={!activeOrderId}
         onSave={handleSaveOrder}
         primaryActionLabel={
           isEditing ? (viewState === "viewExisting" ? "Update" : "Save") : viewState === "viewExisting" ? "Edit" : "New"
@@ -793,6 +805,12 @@ function SalesOrderPage() {
         orders={orders}
         onClose={() => setIsOrderModalOpen(false)}
         onSelect={handleOrderSelect}
+      />
+
+      <SalesOrderPreviewModal
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
+        orderId={activeOrderId}
       />
     </SalesQuotationLayout>
   );
