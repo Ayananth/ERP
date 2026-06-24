@@ -236,6 +236,8 @@ class SalesQuotationPdfView(APIView):
         response["Content-Disposition"] = (
             f'inline; filename="{quotation.quotation_no}.pdf"'
         )
+        response["X-Filename"] = f"SalesQuotation_{quotation.quotation_no}.pdf"
+        response["Access-Control-Expose-Headers"] = "X-Filename"
         return response
     
 
@@ -393,4 +395,6 @@ class SalesOrderPdfView(APIView):
 
         response = HttpResponse(pdf, content_type="application/pdf")
         response["Content-Disposition"] = f'inline; filename="{order.order_no}.pdf"'
+        response["X-Filename"] = f"SalesOrder_{order.order_no}.pdf"
+        response["Access-Control-Expose-Headers"] = "X-Filename"
         return response

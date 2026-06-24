@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 
 import api from "../../api/axios";
 import {
@@ -19,6 +19,7 @@ function PdfPreviewModal({
   emptyLabel = "No preview available.",
 }) {
   const [pdfUrl, setPdfUrl] = useState("");
+  const [filename, setFilename] = useState("");
   const [loading, setLoading] = useState(false);
   const [iframeLoading, setIframeLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -29,6 +30,7 @@ function PdfPreviewModal({
         URL.revokeObjectURL(pdfUrl);
         setPdfUrl("");
       }
+      setFilename("");
       setLoading(false);
       setIframeLoading(false);
       setErrorMessage("");
@@ -53,6 +55,11 @@ function PdfPreviewModal({
 
         objectUrl = URL.createObjectURL(response.data);
         setPdfUrl(objectUrl);
+        setFilename(
+          response.headers?.["x-filename"] ||
+            response.headers?.["X-Filename"] ||
+            "document.pdf"
+        );
         setIframeLoading(true);
       } catch (error) {
         if (cancelled) {
@@ -84,6 +91,7 @@ function PdfPreviewModal({
     if (!nextOpen && pdfUrl) {
       URL.revokeObjectURL(pdfUrl);
       setPdfUrl("");
+      setFilename("");
       setErrorMessage("");
       setLoading(false);
       setIframeLoading(false);
@@ -96,7 +104,31 @@ function PdfPreviewModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent onClose={() => handleOpenChange(false)}>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <div className="flex items-center justify-between gap-3">
+            <DialogTitle>{title}</DialogTitle>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={!pdfUrl || loading || iframeLoading}
+                onClick={() => {
+                  if (!pdfUrl || !filename) {
+                    return;
+                  }
+
+                  const link = document.createElement("a");
+                  link.href = pdfUrl;
+                  link.download = filename;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Download size={16} />
+                Download PDF
+              </button>
+            </div>
+          </div>
         </DialogHeader>
 
         <DialogBody>
