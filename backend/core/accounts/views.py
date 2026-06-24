@@ -3,8 +3,51 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer,CompanySettingsSerializer
+from .models import CompanySettings
 
+
+class CompanySettingsAPIView(APIView):
+
+    def get(self, request):
+
+        settings = CompanySettings.objects.first()
+
+        if not settings:
+            return Response(
+                {
+                    "company_name": "",
+                    "header_image": None,
+                    "footer_image": None,
+                }
+            )
+
+        serializer = CompanySettingsSerializer(settings)
+
+        return Response(serializer.data)
+
+    def put(self, request):
+
+        settings = CompanySettings.objects.first()
+
+        if settings:
+            serializer = CompanySettingsSerializer(
+                settings,
+                data=request.data,
+                partial=True,
+            )
+        else:
+            serializer = CompanySettingsSerializer(
+                data=request.data
+            )
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
 
 class RegisterView(APIView):
 

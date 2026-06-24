@@ -1,7 +1,23 @@
 import re
 from django.contrib.auth.models import User
+from .models import CompanySettings
 from rest_framework import serializers
 
+
+
+
+
+
+class CompanySettingsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CompanySettings
+        fields = [
+            "id",
+            "company_name",
+            "header_image",
+            "footer_image",
+        ]
 
 class RegisterSerializer(serializers.ModelSerializer):
 
