@@ -9,14 +9,18 @@ function CellInput({
   icon,
   readOnly = true,
   onChange,
+  type = "text",
+  ...inputProps
 }) {
   return (
     <div className="relative">
-      <input
+        <input
+        type={type}
         value={value}
         placeholder={placeholder}
         readOnly={readOnly}
         onChange={onChange}
+        {...inputProps}
         className={`h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-300 focus:border-slate-300 ${
           align === "right" ? "text-right" : "text-left"
         } ${icon ? "pr-10" : ""}`}
@@ -211,9 +215,12 @@ function SalesOrderLines({
                   </td>
                   <td className="px-2 py-2">
                     <CellInput
+                      type="number"
                       value={line.qty}
                       placeholder=""
                       align="right"
+                      min="0"
+                      step="1"
                       readOnly={!isEditing}
                       onChange={(event) =>
                         onChange(line.id, "qty", event.target.value)
@@ -221,13 +228,25 @@ function SalesOrderLines({
                     />
                   </td>
                   <td className="px-2 py-2">
-                    <CellInput value={line.rate} placeholder="" align="right" readOnly />
+                    <CellInput
+                      type="number"
+                      value={line.rate}
+                      placeholder=""
+                      align="right"
+                      min="0"
+                      step="1"
+                      readOnly
+                    />
                   </td>
                   <td className="px-2 py-2">
                     <CellInput
+                      type="number"
                       value={line.discount_percent}
                       placeholder=""
                       align="right"
+                      min="0"
+                      max="100"
+                      step="1"
                       readOnly={!isEditing}
                       onChange={(event) =>
                         onChange(line.id, "discount_percent", event.target.value)

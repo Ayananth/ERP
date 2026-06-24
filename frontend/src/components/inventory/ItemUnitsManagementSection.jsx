@@ -74,7 +74,8 @@ export default function ItemUnitsManagementSection({
 
             <input
               type="number"
-              min="1"
+              min="0"
+              step="1"
               value={unitForm.conversion_factor}
               onChange={(e) => {
                 setUnitForm((prev) => ({

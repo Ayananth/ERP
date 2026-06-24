@@ -68,13 +68,13 @@ export default function usePriceListPage() {
         row.sale_price === undefined
       ) {
         rowErrors.sale_price =
-          "Sale price is required";
+          "Sale price is required.";
       } else if (
         Number.isNaN(Number(row.sale_price)) ||
         Number(row.sale_price) < 0
       ) {
         rowErrors.sale_price =
-          "Sale price must be a valid non-negative number";
+          "Sale price cannot be negative.";
       }
 
       if (
@@ -83,13 +83,13 @@ export default function usePriceListPage() {
         row.minimum_price === undefined
       ) {
         rowErrors.minimum_price =
-          "Minimum price is required";
+          "Minimum selling price is required.";
       } else if (
         Number.isNaN(Number(row.minimum_price)) ||
         Number(row.minimum_price) < 0
       ) {
         rowErrors.minimum_price =
-          "Minimum price must be a valid non-negative number";
+          "Minimum selling price cannot be negative.";
       }
 
       if (Object.keys(rowErrors).length > 0) {

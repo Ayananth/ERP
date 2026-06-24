@@ -136,7 +136,7 @@ export default function useItemUnitsPage() {
       Number(unitForm.conversion_factor) <= 0
     ) {
       newErrors.conversion_factor =
-        "Factor must be greater than 0";
+        "Conversion factor must be greater than zero.";
     }
 
     setErrors((prev) => ({

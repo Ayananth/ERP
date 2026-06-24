@@ -75,6 +75,27 @@ const calculateLine = (line, overrides = {}) => {
   );
   const vatPercent = toNumber(overrides.vat_percent ?? line.vat_percent);
 
+  if (
+    qty <= 0 ||
+    rate < 0 ||
+    discountPercent < 0 ||
+    discountPercent > 100 ||
+    vatPercent < 0 ||
+    vatPercent > 100
+  ) {
+    return {
+      qty: overrides.qty ?? line.qty,
+      rate: overrides.rate ?? line.rate,
+      discount_percent: overrides.discount_percent ?? line.discount_percent,
+      vat_percent: overrides.vat_percent ?? line.vat_percent,
+      discount_amount: "0.00",
+      gross_amount: "0.00",
+      net_amount: "0.00",
+      vat_amount: "0.00",
+      net_after_vat: "0.00",
+    };
+  }
+
   const grossAmount = qty * rate;
   const discountAmount = grossAmount * (discountPercent / 100);
   const netAmount = grossAmount - discountAmount;
@@ -92,6 +113,26 @@ const calculateLine = (line, overrides = {}) => {
     vat_amount: vatAmount.toFixed(2),
     net_after_vat: netAfterVat.toFixed(2),
   };
+};
+
+const validateLines = (quotationLines) => {
+  for (const line of quotationLines) {
+    const qty = toNumber(line.qty);
+    const rate = toNumber(line.rate);
+    const discountPercent = toNumber(line.discount_percent);
+    const vatPercent = toNumber(line.vat_percent);
+
+    if (qty <= 0) return "Quantity must be greater than zero.";
+    if (rate < 0) return "Rate cannot be negative.";
+    if (discountPercent < 0 || discountPercent > 100) {
+      return "Discount percentage must be between 0 and 100.";
+    }
+    if (vatPercent < 0 || vatPercent > 100) {
+      return "VAT percentage must be between 0 and 100.";
+    }
+  }
+
+  return "";
 };
 
 const hydrateLine = (line) => {
@@ -325,9 +366,10 @@ function SalesQuotationPage() {
         }
 
         if (field === "qty" || field === "rate" || field === "discount_percent" || field === "vat_percent") {
+          const nextLine = { ...line, [field]: value };
           return {
-            ...line,
-            ...calculateLine(line, { [field]: value }),
+            ...nextLine,
+            ...calculateLine(nextLine, { [field]: value }),
           };
         }
 
@@ -512,6 +554,12 @@ function SalesQuotationPage() {
 
     if (!header.customer) {
       setErrorMessage("Please select a customer before saving.");
+      return;
+    }
+
+    const lineValidationMessage = validateLines(lines);
+    if (lineValidationMessage) {
+      setErrorMessage(lineValidationMessage);
       return;
     }
 

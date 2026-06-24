@@ -103,6 +103,12 @@ class ItemUnitCreateSerializer(serializers.ModelSerializer):
             "barcode",
         ]
 
+    conversion_factor = serializers.DecimalField(
+        max_digits=12,
+        decimal_places=4,
+        min_value=0.0001,
+    )
+
     def validate(self, attrs):
 
         item = self.context["item"]
@@ -182,13 +188,13 @@ class ItemPriceSaveRowSerializer(serializers.Serializer):
     sale_price = serializers.DecimalField(
         max_digits=12,
         decimal_places=2,
-        min_value=0.01
+        min_value=0
     )
 
     minimum_price = serializers.DecimalField(
         max_digits=12,
         decimal_places=2,
-        min_value=0.01
+        min_value=0
     )
 
     def validate(self, attrs):
@@ -197,10 +203,6 @@ class ItemPriceSaveRowSerializer(serializers.Serializer):
         minimum_price = attrs["minimum_price"]
 
         if minimum_price > sale_price:
-            raise serializers.ValidationError(
-                "Minimum selling price cannot be greater than sale price."
-            )
-        if minimum_price < 0:
             raise serializers.ValidationError(
                 "Minimum selling price cannot be greater than sale price."
             )

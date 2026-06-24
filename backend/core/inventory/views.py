@@ -2,6 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import models
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -270,10 +271,15 @@ class ItemUnitCreateView(APIView):
             raise_exception=True
         )
 
-        item_unit = ItemUnit.objects.create(
+        item_unit = ItemUnit(
             item=item,
             **serializer.validated_data
         )
+        try:
+            item_unit.full_clean()
+            item_unit.save()
+        except DjangoValidationError as exc:
+            raise ValidationError(exc.message_dict)
 
         return Response(
             ItemUnitSerializer(item_unit).data,
@@ -498,7 +504,7 @@ class ItemPriceView(APIView):
                     )
                 })
 
-            ItemPrice.objects.update_or_create(
+            item_price, _ = ItemPrice.objects.update_or_create(
                 item=item,
                 unit_id=row["unit_id"],
                 defaults={
@@ -506,6 +512,11 @@ class ItemPriceView(APIView):
                     "minimum_price": row["minimum_price"],
                 }
             )
+            try:
+                item_price.full_clean()
+                item_price.save()
+            except DjangoValidationError as exc:
+                raise ValidationError(exc.message_dict)
 
         return Response({
             "message": "Prices saved"

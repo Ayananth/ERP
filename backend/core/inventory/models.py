@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 class Item(models.Model):
@@ -166,6 +167,15 @@ class ItemUnit(models.Model):
     def __str__(self):
         return f"{self.item.name_1} - {self.unit.code}"
 
+    def clean(self):
+        errors = {}
+
+        if self.conversion_factor is None or self.conversion_factor <= 0:
+            errors["conversion_factor"] = "Conversion factor must be greater than zero."
+
+        if errors:
+            raise ValidationError(errors)
+
 
 class ItemPrice(models.Model):
 
@@ -198,6 +208,27 @@ class ItemPrice(models.Model):
 
     def __str__(self):
         return f"{self.item.name_1} - {self.unit.code}"
+
+    def clean(self):
+        errors = {}
+
+        if self.sale_price is None or self.sale_price < 0:
+            errors["sale_price"] = "Sale price cannot be negative."
+
+        if self.minimum_price is None or self.minimum_price < 0:
+            errors["minimum_price"] = "Minimum selling price cannot be negative."
+
+        if (
+            self.sale_price is not None
+            and self.minimum_price is not None
+            and self.minimum_price > self.sale_price
+        ):
+            errors["minimum_price"] = (
+                "Minimum selling price cannot be greater than sale price."
+            )
+
+        if errors:
+            raise ValidationError(errors)
 
 
 class ItemPhoto(models.Model):

@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from inventory.models import Item, Unit
 
@@ -126,6 +127,21 @@ class SalesQuotationLine(models.Model):
 
     def __str__(self):
         return f"{self.quotation.quotation_no}"
+
+    def clean(self):
+        errors = {}
+
+        if self.quantity is None or self.quantity <= 0:
+            errors["quantity"] = "Quantity must be greater than zero."
+        if self.rate is None or self.rate < 0:
+            errors["rate"] = "Rate cannot be negative."
+        if self.discount_percent is None or self.discount_percent < 0 or self.discount_percent > 100:
+            errors["discount_percent"] = "Discount percentage must be between 0 and 100."
+        if self.vat_percent is None or self.vat_percent < 0 or self.vat_percent > 100:
+            errors["vat_percent"] = "VAT percentage must be between 0 and 100."
+
+        if errors:
+            raise ValidationError(errors)
     
 
 
@@ -255,3 +271,18 @@ class SalesOrderLine(models.Model):
 
     def __str__(self):
         return f"{self.order.order_no}"
+
+    def clean(self):
+        errors = {}
+
+        if self.quantity is None or self.quantity <= 0:
+            errors["quantity"] = "Quantity must be greater than zero."
+        if self.rate is None or self.rate < 0:
+            errors["rate"] = "Rate cannot be negative."
+        if self.discount_percent is None or self.discount_percent < 0 or self.discount_percent > 100:
+            errors["discount_percent"] = "Discount percentage must be between 0 and 100."
+        if self.vat_percent is None or self.vat_percent < 0 or self.vat_percent > 100:
+            errors["vat_percent"] = "VAT percentage must be between 0 and 100."
+
+        if errors:
+            raise ValidationError(errors)

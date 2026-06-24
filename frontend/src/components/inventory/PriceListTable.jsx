@@ -52,10 +52,12 @@ export default function PriceListTable({
                 </td>
 
                 <td className="px-4 py-4">
-                  <input
-                    type="number"
-                    disabled={!editing}
-                    value={row.sale_price ?? ""}
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      disabled={!editing}
+                      value={row.sale_price ?? ""}
                     onChange={(e) =>
                       handlePriceChange(
                         row.unit_id,
@@ -73,10 +75,12 @@ export default function PriceListTable({
                 </td>
 
                 <td className="px-4 py-4">
-                  <input
-                    type="number"
-                    disabled={!editing}
-                    value={row.minimum_price ?? ""}
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      disabled={!editing}
+                      value={row.minimum_price ?? ""}
                     onChange={(e) =>
                       handlePriceChange(
                         row.unit_id,

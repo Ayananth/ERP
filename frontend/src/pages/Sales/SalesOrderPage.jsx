@@ -79,6 +79,26 @@ const calculateLine = (line, overrides = {}) => {
   );
   const vatPercent = toNumber(overrides.vat_percent ?? line.vat_percent);
 
+  if (
+    qty <= 0 ||
+    rate < 0 ||
+    discountPercent < 0 ||
+    discountPercent > 100 ||
+    vatPercent < 0 ||
+    vatPercent > 100
+  ) {
+    return {
+      qty: overrides.qty ?? line.qty,
+      rate: overrides.rate ?? line.rate,
+      discount_percent: overrides.discount_percent ?? line.discount_percent,
+      vat_percent: overrides.vat_percent ?? line.vat_percent,
+      discount_amount: "0.00",
+      net: "0.00",
+      vat: "0.00",
+      net_after_vat: "0.00",
+    };
+  }
+
   const gross = qty * rate;
   const discountAmount = gross * (discountPercent / 100);
   const net = gross - discountAmount;
@@ -94,6 +114,26 @@ const calculateLine = (line, overrides = {}) => {
     vat: vatAmount.toFixed(2),
     net_after_vat: (net + vatAmount).toFixed(2),
   };
+};
+
+const validateLines = (orderLines) => {
+  for (const line of orderLines) {
+    const qty = toNumber(line.qty);
+    const rate = toNumber(line.rate);
+    const discountPercent = toNumber(line.discount_percent);
+    const vatPercent = toNumber(line.vat_percent);
+
+    if (qty <= 0) return "Quantity must be greater than zero.";
+    if (rate < 0) return "Rate cannot be negative.";
+    if (discountPercent < 0 || discountPercent > 100) {
+      return "Discount percentage must be between 0 and 100.";
+    }
+    if (vatPercent < 0 || vatPercent > 100) {
+      return "VAT percentage must be between 0 and 100.";
+    }
+  }
+
+  return "";
 };
 
 const hydrateLine = (line) => {
@@ -521,9 +561,10 @@ function SalesOrderPage() {
           field === "discount_percent" ||
           field === "vat_percent"
         ) {
+          const nextLine = { ...line, [field]: value };
           return {
-            ...line,
-            ...calculateLine(line, { [field]: value }),
+            ...nextLine,
+            ...calculateLine(nextLine, { [field]: value }),
           };
         }
 
@@ -647,6 +688,12 @@ function SalesOrderPage() {
 
     if (!payload.lines.length) {
       setErrorMessage("Please add at least one order line before saving.");
+      return;
+    }
+
+    const lineValidationMessage = validateLines(lines);
+    if (lineValidationMessage) {
+      setErrorMessage(lineValidationMessage);
       return;
     }
 

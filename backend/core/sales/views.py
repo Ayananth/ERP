@@ -1,6 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 
 from .serializers import (
@@ -25,7 +27,7 @@ from django.shortcuts import get_object_or_404
 
 def save_order_lines(order, lines):
     for line in lines:
-        SalesOrderLine.objects.create(
+        order_line = SalesOrderLine(
             order=order,
             item_id=line["item"],
             unit_id=line["unit"],
@@ -34,6 +36,11 @@ def save_order_lines(order, lines):
             discount_percent=line["discount_percent"],
             vat_percent=line["vat_percent"],
         )
+        try:
+            order_line.full_clean()
+            order_line.save()
+        except DjangoValidationError as exc:
+            raise ValidationError(exc.message_dict)
 
 
 class CustomerListView(APIView):
@@ -70,15 +77,20 @@ class SalesQuotationCreateView(APIView):
 
         for line in data["lines"]:
 
-            SalesQuotationLine.objects.create(
+            quotation_line = SalesQuotationLine(
                 quotation=quotation,
-                item_id=line["item"].id,
-                unit_id=line["unit"].id,
+                item_id=line["item"],
+                unit_id=line["unit"],
                 quantity=line["quantity"],
                 rate=line["rate"],
                 discount_percent=line["discount_percent"],
                 vat_percent=line["vat_percent"]
             )
+            try:
+                quotation_line.full_clean()
+                quotation_line.save()
+            except DjangoValidationError as exc:
+                raise ValidationError(exc.message_dict)
 
         return Response(
             {"id": quotation.id}
@@ -140,15 +152,20 @@ class SalesQuotationDetailView(APIView):
         quotation.lines.all().delete()
 
         for line in data["lines"]:
-            SalesQuotationLine.objects.create(
+            quotation_line = SalesQuotationLine(
                 quotation=quotation,
-                item_id=line["item"].id,
-                unit_id=line["unit"].id,
+                item_id=line["item"],
+                unit_id=line["unit"],
                 quantity=line["quantity"],
                 rate=line["rate"],
                 discount_percent=line["discount_percent"],
                 vat_percent=line["vat_percent"],
             )
+            try:
+                quotation_line.full_clean()
+                quotation_line.save()
+            except DjangoValidationError as exc:
+                raise ValidationError(exc.message_dict)
 
         return Response({"id": quotation.id})
 

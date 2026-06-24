@@ -47,6 +47,10 @@ class CustomerSerializer(serializers.ModelSerializer):
 
 
 class SalesQuotationLineSerializer(serializers.ModelSerializer):
+    quantity = serializers.DecimalField(max_digits=12, decimal_places=2, min_value=Decimal("0.01"))
+    rate = serializers.DecimalField(max_digits=12, decimal_places=2, min_value=Decimal("0"))
+    discount_percent = serializers.DecimalField(max_digits=5, decimal_places=2, min_value=Decimal("0"), max_value=Decimal("100"))
+    vat_percent = serializers.DecimalField(max_digits=5, decimal_places=2, min_value=Decimal("0"), max_value=Decimal("100"))
 
     gross = serializers.SerializerMethodField()
     discount_amount = serializers.SerializerMethodField()
@@ -108,6 +112,24 @@ class SalesQuotationCreateSerializer(serializers.Serializer):
             })
         return value
 
+    def validate(self, attrs):
+        errors = {}
+        for index, line in enumerate(attrs.get("lines", [])):
+            try:
+                if line["quantity"] <= 0:
+                    raise ValidationError({"quantity": "Quantity must be greater than zero."})
+                if line["rate"] < 0:
+                    raise ValidationError({"rate": "Rate cannot be negative."})
+                if line["discount_percent"] < 0 or line["discount_percent"] > 100:
+                    raise ValidationError({"discount_percent": "Discount percentage must be between 0 and 100."})
+                if line["vat_percent"] < 0 or line["vat_percent"] > 100:
+                    raise ValidationError({"vat_percent": "VAT percentage must be between 0 and 100."})
+            except ValidationError as exc:
+                errors[index] = exc.detail
+        if errors:
+            raise ValidationError({"lines": errors})
+        return attrs
+
 
 class SalesQuotationLineDetailSerializer(serializers.ModelSerializer):
 
@@ -166,23 +188,31 @@ class SalesOrderLineInputSerializer(serializers.Serializer):
     quantity = serializers.DecimalField(
         max_digits=12,
         decimal_places=2
+        ,
+        min_value=Decimal("0.01")
     )
 
     rate = serializers.DecimalField(
         max_digits=12,
         decimal_places=2
+        ,
+        min_value=Decimal("0")
     )
 
     discount_percent = serializers.DecimalField(
         max_digits=5,
         decimal_places=2,
-        default=0
+        default=0,
+        min_value=Decimal("0"),
+        max_value=Decimal("100")
     )
 
     vat_percent = serializers.DecimalField(
         max_digits=5,
         decimal_places=2,
-        default=0
+        default=0,
+        min_value=Decimal("0"),
+        max_value=Decimal("100")
     )
 
 class SalesOrderCreateSerializer(serializers.Serializer):
@@ -221,6 +251,24 @@ class SalesOrderCreateSerializer(serializers.Serializer):
                 "error": "At least one order line is required."
             })
         return value
+
+    def validate(self, attrs):
+        errors = {}
+        for index, line in enumerate(attrs.get("lines", [])):
+            try:
+                if line["quantity"] <= 0:
+                    raise ValidationError({"quantity": "Quantity must be greater than zero."})
+                if line["rate"] < 0:
+                    raise ValidationError({"rate": "Rate cannot be negative."})
+                if line["discount_percent"] < 0 or line["discount_percent"] > 100:
+                    raise ValidationError({"discount_percent": "Discount percentage must be between 0 and 100."})
+                if line["vat_percent"] < 0 or line["vat_percent"] > 100:
+                    raise ValidationError({"vat_percent": "VAT percentage must be between 0 and 100."})
+            except ValidationError as exc:
+                errors[index] = exc.detail
+        if errors:
+            raise ValidationError({"lines": errors})
+        return attrs
 
 
 
