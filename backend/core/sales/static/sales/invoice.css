@@ -1,6 +1,9 @@
 @page {
   size: A4;
-  margin: 140px 20px 120px 20px;
+  margin-top: 220px;
+  margin-right: 20px;
+  margin-bottom: 140px;
+  margin-left: 20px;
 }
 
 body {
@@ -15,14 +18,14 @@ body {
 
 .pdf-header {
   position: fixed;
-  top: -120px;
+  top: -180px;
   left: 0;
   right: 0;
 }
 
 .pdf-footer {
   position: fixed;
-  bottom: -100px;
+  bottom: -120px;
   left: 0;
   right: 0;
 }
