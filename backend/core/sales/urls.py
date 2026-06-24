@@ -6,6 +6,7 @@ from .views import (
     SalesOrderCreateView,
     SalesOrderDetailAPIView,
     SalesOrderListView,
+    SalesOrderPdfView,
     SalesQuotationCreateView,
     SalesQuotationDetailView,
     SalesQuotationListView,
@@ -46,5 +47,10 @@ urlpatterns = [
     path(
         "orders/<int:pk>/",
         SalesOrderDetailAPIView.as_view()
+    ),
+
+    path(
+        "orders/<int:pk>/pdf/",
+        SalesOrderPdfView.as_view()
     ),
 ]

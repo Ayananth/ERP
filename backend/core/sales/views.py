@@ -1,8 +1,14 @@
+from decimal import Decimal
+
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ValidationError as DjangoValidationError
+from weasyprint import CSS, HTML
 
 
 from .serializers import (
@@ -12,6 +18,7 @@ from .serializers import (
     SalesOrderListSerializer,
     SalesOrderCreateSerializer,
     SalesOrderDetailSerializer,
+    SalesOrderPdfSerializer,
 )
 
 from .models import (
@@ -278,3 +285,55 @@ class SalesOrderDetailAPIView(APIView):
         order.delete()
 
         return Response({"message": "Sales order deleted"})
+
+
+class SalesOrderPdfView(APIView):
+
+    def get_object(self, pk):
+        return get_object_or_404(
+            SalesOrder.objects.select_related(
+                "customer",
+                "quotation"
+            ).prefetch_related(
+                "lines__item",
+                "lines__unit",
+            ),
+            pk=pk
+        )
+
+    def get(self, request, pk):
+        order = self.get_object(pk)
+        lines = []
+        for line in order.lines.all():
+            line_total = (line.quantity * line.rate).quantize(Decimal("0.01"))
+            lines.append(
+                {
+                    "item_name": line.item.name_1,
+                    "unit_name": line.unit.name,
+                    "quantity": line.quantity,
+                    "rate": line.rate,
+                    "total": line_total,
+                }
+            )
+
+        pdf_data = SalesOrderPdfSerializer(
+            {
+                "company_name": "Exalore ERP",
+                "invoice_number": order.order_no,
+                "invoice_date": order.order_date,
+                "customer_name": order.customer.name,
+                "lines": lines,
+                "grand_total": order.total_net_amount,
+            }
+        ).data
+
+        html = render_to_string("sales/invoice.html", pdf_data)
+        css_path = settings.BASE_DIR / "sales" / "static" / "sales" / "invoice.css"
+
+        pdf = HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf(
+            stylesheets=[CSS(filename=str(css_path))]
+        )
+
+        response = HttpResponse(pdf, content_type="application/pdf")
+        response["Content-Disposition"] = f'inline; filename="{order.order_no}.pdf"'
+        return response

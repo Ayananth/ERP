@@ -1,0 +1,123 @@
+@page {
+  size: A4;
+  margin: 18mm;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #1f2937;
+  font-size: 12px;
+}
+
+.page {
+  width: 100%;
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid #111827;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+}
+
+.company-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.document-label {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.invoice-meta {
+  text-align: right;
+  line-height: 1.8;
+}
+
+.invoice-meta span {
+  font-weight: 700;
+}
+
+.bill-to {
+  margin-bottom: 18px;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.customer-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.item-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.item-table th,
+.item-table td {
+  border: 1px solid #d1d5db;
+  padding: 10px 8px;
+  vertical-align: top;
+}
+
+.item-table thead th {
+  background: #f3f4f6;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.col-item {
+  width: 50%;
+  text-align: left;
+}
+
+.col-qty,
+.col-rate,
+.col-total {
+  width: 16.666%;
+  text-align: right;
+}
+
+.item-name {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.item-subtitle {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.summary {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.summary-row {
+  min-width: 240px;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+}
+
+.grand-total {
+  font-size: 14px;
+  font-weight: 700;
+}

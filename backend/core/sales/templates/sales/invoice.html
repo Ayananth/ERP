@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Invoice {{ invoice_number }}</title>
+</head>
+<body>
+  <div class="page">
+    <header class="invoice-header">
+      <div>
+        <div class="company-name">{{ company_name }}</div>
+        <div class="document-label">Sales Order Invoice</div>
+      </div>
+      <div class="invoice-meta">
+        <div><span>Invoice Number:</span> {{ invoice_number }}</div>
+        <div><span>Invoice Date:</span> {{ invoice_date }}</div>
+      </div>
+    </header>
+
+    <section class="bill-to">
+      <div class="section-title">Bill To</div>
+      <div class="customer-name">{{ customer_name }}</div>
+    </section>
+
+    <section class="items">
+      <table class="item-table">
+        <thead>
+          <tr>
+            <th class="col-item">Item</th>
+            <th class="col-qty">Quantity</th>
+            <th class="col-rate">Rate</th>
+            <th class="col-total">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for line in lines %}
+          <tr>
+            <td class="col-item">
+              <div class="item-name">{{ line.item_name }}</div>
+              <div class="item-subtitle">{{ line.unit_name }}</div>
+            </td>
+            <td class="col-qty">{{ line.quantity }}</td>
+            <td class="col-rate">{{ line.rate }}</td>
+            <td class="col-total">{{ line.total|floatformat:2 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="summary">
+      <div class="summary-row grand-total">
+        <span>Grand Total</span>
+        <span>{{ grand_total|floatformat:2 }}</span>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

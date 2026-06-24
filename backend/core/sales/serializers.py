@@ -355,3 +355,20 @@ class SalesOrderDetailSerializer(serializers.ModelSerializer):
             "status",
             "lines"
         ]
+
+
+class SalesOrderPdfLineSerializer(serializers.Serializer):
+    item_name = serializers.CharField()
+    unit_name = serializers.CharField()
+    quantity = serializers.DecimalField(max_digits=12, decimal_places=2)
+    rate = serializers.DecimalField(max_digits=12, decimal_places=2)
+    total = serializers.DecimalField(max_digits=12, decimal_places=2)
+
+
+class SalesOrderPdfSerializer(serializers.Serializer):
+    company_name = serializers.CharField()
+    invoice_number = serializers.CharField()
+    invoice_date = serializers.DateField()
+    customer_name = serializers.CharField()
+    lines = SalesOrderPdfLineSerializer(many=True)
+    grand_total = serializers.DecimalField(max_digits=12, decimal_places=2)
