@@ -179,6 +179,7 @@ function SalesOrderPage() {
   const [customers, setCustomers] = useState([]);
   const [header, setHeader] = useState(initialHeader);
   const [activeOrderId, setActiveOrderId] = useState(orderId ?? null);
+  const [viewState, setViewState] = useState(orderId ? "viewExisting" : "viewBlank");
   const [lines, setLines] = useState(initialLines);
   const [quotations, setQuotations] = useState([]);
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
@@ -220,6 +221,7 @@ function SalesOrderPage() {
     const order = await getSalesOrder(id);
 
     setActiveOrderId(order?.id ?? id);
+    setViewState("viewExisting");
     setHeader({
       order_no: order?.order_no ?? "",
       order_type: order?.order_type ?? "",
@@ -306,6 +308,22 @@ function SalesOrderPage() {
     } finally {
       setIsQuotationModalLoading(false);
     }
+  };
+
+  const resetToBlankTransaction = () => {
+    setHeader({
+      ...initialHeader,
+      issue_date: getTodayDate(),
+      valid_date: getValidDate(),
+    });
+    setLines(initialLines);
+    setNextLineId(2);
+    setActiveOrderId(null);
+    setViewState("viewBlank");
+    setIsEditing(true);
+    navigate("/sales/transactions/order", {
+      replace: true,
+    });
   };
 
   const handleQuotationSelect = async (quotationSummary) => {
@@ -457,7 +475,13 @@ function SalesOrderPage() {
   const handleFooterAction = () => {
     setErrorMessage("");
     setSuccessMessage("");
-    setIsEditing(true);
+
+    if (viewState === "viewExisting") {
+      setIsEditing(true);
+      return;
+    }
+
+    resetToBlankTransaction();
   };
 
   const handleCancel = () => {
@@ -482,6 +506,8 @@ function SalesOrderPage() {
     setLines(initialLines);
     setNextLineId(2);
     setIsEditing(false);
+    setActiveOrderId(null);
+    setViewState("viewBlank");
   };
 
   const buildPayload = () => ({
@@ -529,6 +555,7 @@ function SalesOrderPage() {
       }
 
       setIsEditing(false);
+      setViewState("viewBlank");
       setSuccessMessage("Sales order saved successfully.");
       return response;
     } catch (error) {
@@ -592,6 +619,9 @@ function SalesOrderPage() {
         newEditButtonRef={newEditButtonRef}
         onList={handleListOrders}
         onSave={handleSaveOrder}
+        primaryActionLabel={
+          isEditing ? (viewState === "viewExisting" ? "Update" : "Save") : viewState === "viewExisting" ? "Edit" : "New"
+        }
         totals={totals}
       />
 

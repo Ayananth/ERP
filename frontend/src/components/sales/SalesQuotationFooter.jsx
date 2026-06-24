@@ -43,8 +43,11 @@ function SalesQuotationFooter({
   newEditButtonRef,
   onList,
   onSave,
+  primaryActionLabel,
   totals = {},
 }) {
+  const actionLabel = primaryActionLabel ?? (isEditing ? "Save" : "New");
+
   return (
     <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
       <div className="grid gap-4 xl:grid-cols-5">
@@ -90,8 +93,12 @@ function SalesQuotationFooter({
             onClick={isEditing ? onSave : onAction}
             className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700"
           >
-            {isEditing ? <Save size={16} /> : <PencilLine size={16} />}
-            {isEditing ? "Save" : "New/Edit"}
+            {actionLabel === "Save" || actionLabel === "Update" ? (
+              <Save size={16} />
+            ) : (
+              <PencilLine size={16} />
+            )}
+            {actionLabel}
           </button>
 
           <IconAction

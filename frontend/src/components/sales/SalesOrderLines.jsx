@@ -80,7 +80,7 @@ function SalesOrderLines({
   return (
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="flex items-center justify-between bg-amber-100 px-4 py-3 text-sm font-medium text-amber-950">
-        <span>Click &apos;New/Edit&apos; to enable the form</span>
+        <span>Click the primary button to enable the form</span>
         {isEditing ? (
           <button
             type="button"

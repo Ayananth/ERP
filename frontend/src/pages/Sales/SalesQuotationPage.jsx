@@ -174,6 +174,7 @@ function SalesQuotationPage() {
   const [customers, setCustomers] = useState([]);
   const [header, setHeader] = useState(initialHeader);
   const [activeQuotationId, setActiveQuotationId] = useState(quotationId ?? null);
+  const [viewState, setViewState] = useState(quotationId ? "viewExisting" : "viewBlank");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loadingQuotation, setLoadingQuotation] = useState(false);
@@ -221,6 +222,7 @@ function SalesQuotationPage() {
     const loadQuotation = async () => {
       if (!quotationId) {
         setActiveQuotationId(null);
+        setViewState("viewBlank");
         return;
       }
 
@@ -231,6 +233,7 @@ function SalesQuotationPage() {
         const quotation = await getQuotation(quotationId);
 
         setActiveQuotationId(quotation?.id ?? quotationId);
+        setViewState("viewExisting");
         setHeader({
           quotation_no: quotation?.quotation_no ?? "",
           quotation_type: quotation?.quotation_type ?? "",
@@ -365,6 +368,21 @@ function SalesQuotationPage() {
     setNextLineId((prev) => prev + 1);
   };
 
+  const resetToBlankTransaction = () => {
+    setHeader({
+      ...initialHeader,
+      date: getTodayDate(),
+    });
+    setLines(initialLines);
+    setNextLineId(2);
+    setActiveQuotationId(null);
+    setViewState("viewBlank");
+    setIsEditing(true);
+    navigate("/sales/transactions/quotation", {
+      replace: true,
+    });
+  };
+
   const openQuotationModal = async () => {
     setIsQuotationModalOpen(true);
     setIsQuotationModalLoading(true);
@@ -399,6 +417,7 @@ function SalesQuotationPage() {
     const quotation = await getQuotation(id);
 
     setActiveQuotationId(quotation?.id ?? id);
+    setViewState("viewExisting");
     setHeader({
       quotation_no: quotation?.quotation_no ?? "",
       quotation_type: quotation?.quotation_type ?? "",
@@ -445,7 +464,13 @@ function SalesQuotationPage() {
   const handleFooterAction = () => {
     setErrorMessage("");
     setSuccessMessage("");
-    setIsEditing(true);
+
+    if (viewState === "viewExisting") {
+      setIsEditing(true);
+      return;
+    }
+
+    resetToBlankTransaction();
   };
 
   const handleCancel = () => {
@@ -458,12 +483,13 @@ function SalesQuotationPage() {
     setLines(initialLines);
     setNextLineId(2);
     setIsEditing(false);
+    setActiveQuotationId(null);
+    setViewState("viewBlank");
 
     if (quotationId) {
       navigate("/sales/transactions/quotation", {
         replace: true,
       });
-      setActiveQuotationId(null);
     }
   };
 
@@ -505,6 +531,7 @@ function SalesQuotationPage() {
       }
 
       setIsEditing(false);
+      setViewState("viewBlank");
       setSuccessMessage("Quotation saved successfully.");
       return response;
     } catch (error) {
@@ -567,6 +594,9 @@ function SalesQuotationPage() {
         newEditButtonRef={newEditButtonRef}
         onList={handleListQuotations}
         onSave={handleSaveQuotation}
+        primaryActionLabel={
+          isEditing ? (viewState === "viewExisting" ? "Update" : "Save") : viewState === "viewExisting" ? "Edit" : "New"
+        }
         totals={footerTotals}
       />
 
