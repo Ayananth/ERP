@@ -11,6 +11,7 @@ import {
   getSalesOrder,
   getSalesOrderList,
 } from "../../api/salesApi";
+import Alert from "../../components/common/Alert";
 import SalesQuotationLayout from "../../components/sales/SalesQuotationLayout";
 import SalesQuotationFooter from "../../components/sales/SalesQuotationFooter";
 import SalesQuotationSelectModal from "../../components/sales/SalesQuotationSelectModal";
@@ -192,6 +193,17 @@ function SalesOrderPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [nextLineId, setNextLineId] = useState(2);
+  useEffect(() => {
+    if (!errorMessage) return;
+    const timer = setTimeout(() => setErrorMessage(""), 5000);
+    return () => clearTimeout(timer);
+  }, [errorMessage]);
+
+  useEffect(() => {
+    if (!successMessage) return;
+    const timer = setTimeout(() => setSuccessMessage(""), 5000);
+    return () => clearTimeout(timer);
+  }, [successMessage]);
 
   const newEditButtonRef = useRef(null);
   const firstFieldRef = useRef(null);
@@ -457,7 +469,8 @@ function SalesOrderPage() {
       setIsOrderModalOpen(false);
     } catch (error) {
       setErrorMessage(
-        error?.response?.data?.message ?? "Failed to load the selected sales order."
+        error?.response?.data?.message ??
+          "Failed to load the selected sales order."
       );
     } finally {
       setIsOrderModalLoading(false);
@@ -670,17 +683,17 @@ function SalesOrderPage() {
 
   return (
     <SalesQuotationLayout title="Sales Order">
-      {errorMessage ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {errorMessage}
-        </div>
-      ) : null}
+      <Alert
+        type="error"
+        message={errorMessage}
+        onClose={() => setErrorMessage("")}
+      />
 
-      {successMessage ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-          {successMessage}
-        </div>
-      ) : null}
+      <Alert
+        type="success"
+        message={successMessage}
+        onClose={() => setSuccessMessage("")}
+      />
 
       {loadingOrder ? (
         <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
