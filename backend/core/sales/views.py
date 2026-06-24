@@ -82,8 +82,8 @@ class SalesQuotationCreateView(APIView):
 
             quotation_line = SalesQuotationLine(
                 quotation=quotation,
-                item_id=line["item"],
-                unit_id=line["unit"],
+                item=line["item"],
+                unit=line["unit"],
                 quantity=line["quantity"],
                 rate=line["rate"],
                 discount_percent=line["discount_percent"],
@@ -153,8 +153,8 @@ class SalesQuotationDetailView(APIView):
         for line in data["lines"]:
             quotation_line = SalesQuotationLine(
                 quotation=quotation,
-                item_id=line["item"],
-                unit_id=line["unit"],
+                item=line["item"],
+                unit=line["unit"],
                 quantity=line["quantity"],
                 rate=line["rate"],
                 discount_percent=line["discount_percent"],
