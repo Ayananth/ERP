@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { UploadCloud, ImageIcon } from "lucide-react";
 
 import Alert from "../../components/common/Alert";
-import { getCompanySettings, updateCompanySettings } from "../../api/companySettingsApi";
+import {
+  getCompanySettings,
+  updateCompanySettings,
+} from "../../api/companySettingsApi";
 
 const normalizeImageUrl = (value) => {
   if (!value) return "";
@@ -24,11 +28,10 @@ export default function CompanySettingsPage() {
   const headerInputRef = useRef(null);
   const footerInputRef = useRef(null);
 
-
-useEffect(()=>{
-  console.log("Header URL:", headerImage);
-console.log("Footer URL:", footerImage);
-}, [headerImage, footerImage])
+  useEffect(() => {
+    console.log("Header URL:", headerImage);
+    console.log("Footer URL:", footerImage);
+  }, [headerImage, footerImage]);
 
   useEffect(() => {
     let cancelled = false;
@@ -45,7 +48,9 @@ console.log("Footer URL:", footerImage);
         if (cancelled) return;
         setMessage({
           type: "error",
-          text: error?.response?.data?.message ?? "Failed to load company settings.",
+          text:
+            error?.response?.data?.message ??
+            "Failed to load company settings.",
         });
       }
     };
@@ -168,9 +173,12 @@ console.log("Footer URL:", footerImage);
 
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 px-6 py-4">
-          <h1 className="text-xl font-semibold text-slate-900">Company Settings</h1>
+          <h1 className="text-xl font-semibold text-slate-900">
+            Company Settings
+          </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Manage the company name and the PDF header/footer images used in sales documents.
+            Manage the company name and the PDF header/footer images used in
+            sales documents.
           </p>
         </div>
 
@@ -200,17 +208,36 @@ console.log("Footer URL:", footerImage);
                     className="max-h-40 w-full object-contain"
                   />
                 ) : (
-                  <div className="flex h-40 items-center justify-center text-sm text-slate-400">
-                    No header image selected
+                  <div className="flex h-40 flex-col items-center justify-center gap-2 text-slate-400">
+                    <ImageIcon size={36} />
+                    <span className="text-sm">No header image selected</span>
                   </div>
                 )}
               </div>
+              <label
+                htmlFor="header-upload"
+                className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-emerald-400 hover:bg-emerald-50"
+              >
+                <UploadCloud size={18} />
+                <span>
+                  {headerFile ? "Change Header Image" : "Upload Header Image"}
+                </span>
+              </label>
+
               <input
+                id="header-upload"
                 ref={headerInputRef}
                 type="file"
                 accept="image/*"
                 onChange={handleHeaderChange}
+                className="hidden"
               />
+
+              {headerFile && (
+                <p className="text-xs text-slate-500">
+                  Selected: {headerFile.name}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -225,17 +252,36 @@ console.log("Footer URL:", footerImage);
                     className="max-h-40 w-full object-contain"
                   />
                 ) : (
-                  <div className="flex h-40 items-center justify-center text-sm text-slate-400">
-                    No footer image selected
+                  <div className="flex h-40 flex-col items-center justify-center gap-2 text-slate-400">
+                    <ImageIcon size={36} />
+                    <span className="text-sm">No Footer image selected</span>
                   </div>
                 )}
               </div>
+              <label
+                htmlFor="footer-upload"
+                className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-emerald-400 hover:bg-emerald-50"
+              >
+                <UploadCloud size={18} />
+                <span>
+                  {footerFile ? "Change Footer Image" : "Upload Footer Image"}
+                </span>
+              </label>
+
               <input
+                id="footer-upload"
                 ref={footerInputRef}
                 type="file"
                 accept="image/*"
                 onChange={handleFooterChange}
+                className="hidden"
               />
+
+              {footerFile && (
+                <p className="text-xs text-slate-500">
+                  Selected: {footerFile.name}
+                </p>
+              )}
             </div>
           </div>
 
