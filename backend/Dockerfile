@@ -5,13 +5,9 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir \
-    "django>=6.0.6" \
-    "django-cors-headers>=4.9.0" \
-    "djangorestframework>=3.17.1" \
-    "djangorestframework-simplejwt>=5.5.1" \
-    "pillow>=12.2.0" \
-    "python-dotenv>=1.2.2"
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY core ./core
 
