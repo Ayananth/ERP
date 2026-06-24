@@ -33,27 +33,27 @@ function ItemTabs({ itemId }) {
   ];
 
   return (
-    <div className="bg-white border rounded-lg p-2">
-      <div className="flex gap-2">
+    <div className="rounded-xl border border-slate-200 bg-white px-2 py-2 shadow-[0_1px_8px_rgba(15,23,42,0.06)]">
+      <div className="flex gap-2 overflow-x-auto">
         {tabs.map((tab) => (
           <NavLink
             key={tab.label}
             to={tab.path}
             className={({ isActive }) =>
-              `px-4 py-3 rounded-lg border text-sm ${
+              `min-w-[170px] rounded-lg border px-4 py-3 text-sm transition ${
                 !itemId
-                  ? "opacity-50 cursor-not-allowed pointer-events-none"
+                  ? "pointer-events-none cursor-not-allowed opacity-40"
                   : isActive
-                  ? "bg-blue-50 border-blue-300 text-blue-600"
-                  : "border-transparent hover:bg-slate-50"
+                  ? "border-blue-200 bg-blue-50 text-blue-600 shadow-sm"
+                  : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-700"
               }`
             }
           >
-            <div className="font-medium">
+            <div className="font-medium leading-none">
               {tab.label}
             </div>
 
-            <div className="text-xs text-slate-500">
+            <div className="mt-1 text-[11px] text-slate-400">
               {tab.description}
             </div>
           </NavLink>

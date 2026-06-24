@@ -5,14 +5,14 @@ export default function ItemGeneralConfigurationSection({
   onChange,
 }) {
   return (
-    <section className="border rounded-lg">
-      <div className="border-b bg-slate-50 px-4 py-3 font-medium">
+    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+      <div className="border-b border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
         Configuration
       </div>
 
-      <div className="p-4 grid grid-cols-12 gap-4">
+      <div className="grid grid-cols-12 gap-4 p-4">
         <div className="col-span-12 md:col-span-2">
-          <label className="block text-sm mb-1">
+          <label className="mb-1 block text-sm font-medium text-slate-700">
             Behaviour *
           </label>
 
@@ -20,7 +20,7 @@ export default function ItemGeneralConfigurationSection({
             name="behaviour"
             value={formData.behaviour}
             onChange={onChange}
-            className="w-full border rounded px-3 py-2"
+            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:bg-white"
           >
             <option value="">
               Select behaviour
@@ -35,14 +35,14 @@ export default function ItemGeneralConfigurationSection({
             ))}
           </select>
           {errors.behaviour && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-1 text-xs text-red-600">
               {errors.behaviour}
             </p>
           )}
         </div>
 
         <div className="col-span-12 md:col-span-4">
-          <label className="block text-sm mb-1">
+          <label className="mb-1 block text-sm font-medium text-slate-700">
             Group Code *
           </label>
 
@@ -50,7 +50,7 @@ export default function ItemGeneralConfigurationSection({
             name="group"
             value={formData.group}
             onChange={onChange}
-            className="w-full border rounded px-3 py-2"
+            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:bg-white"
           >
             <option value="">
               Select Group
@@ -65,14 +65,14 @@ export default function ItemGeneralConfigurationSection({
             ))}
           </select>
           {errors.group && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-1 text-xs text-red-600">
               {errors.group}
             </p>
           )}
         </div>
 
         <div className="col-span-12 md:col-span-4">
-          <label className="block text-sm mb-1">
+          <label className="mb-1 block text-sm font-medium text-slate-700">
             Status *
           </label>
 
@@ -80,7 +80,7 @@ export default function ItemGeneralConfigurationSection({
             name="status"
             value={formData.status}
             onChange={onChange}
-            className="w-full border rounded px-3 py-2"
+            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:bg-white"
           >
             {dropdowns.statuses.map((status) => (
               <option
@@ -92,14 +92,14 @@ export default function ItemGeneralConfigurationSection({
             ))}
           </select>
           {errors.status && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-1 text-xs text-red-600">
               {errors.status}
             </p>
           )}
         </div>
 
         <div className="col-span-12 md:col-span-2">
-          <label className="block text-sm mb-1">
+          <label className="mb-1 block text-sm font-medium text-slate-700">
             Taxable Status *
           </label>
 
@@ -107,7 +107,7 @@ export default function ItemGeneralConfigurationSection({
             name="taxable_status"
             value={formData.taxable_status}
             onChange={onChange}
-            className="w-full border rounded px-3 py-2"
+            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:bg-white"
           >
             <option value="">
               Select Taxable Status
@@ -122,14 +122,14 @@ export default function ItemGeneralConfigurationSection({
             ))}
           </select>
           {errors.taxable_status && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-1 text-xs text-red-600">
               {errors.taxable_status}
             </p>
           )}
         </div>
 
         <div className="col-span-12 md:col-span-2">
-          <label className="block text-sm mb-1">
+          <label className="mb-1 block text-sm font-medium text-slate-700">
             Shelf Code
           </label>
 
@@ -137,7 +137,7 @@ export default function ItemGeneralConfigurationSection({
             name="shelf"
             value={formData.shelf}
             onChange={onChange}
-            className="w-full border rounded px-3 py-2"
+            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:bg-white"
           >
             <option value="">
               Select Shelf
@@ -154,7 +154,7 @@ export default function ItemGeneralConfigurationSection({
         </div>
 
         <div className="col-span-12 md:col-span-4">
-          <label className="block text-sm mb-1">
+          <label className="mb-1 block text-sm font-medium text-slate-700">
             Manufacturer
           </label>
 
@@ -162,7 +162,7 @@ export default function ItemGeneralConfigurationSection({
             name="manufacturer"
             value={formData.manufacturer}
             onChange={onChange}
-            className="w-full border rounded px-3 py-2"
+            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:bg-white"
           >
             <option value="">
               Select Manufacturer
