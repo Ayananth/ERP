@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
+import { SALES_FOCUS_BUTTON } from "./salesFocusStyles";
 
 function PdfPreviewModal({
   open,
@@ -122,7 +123,7 @@ function PdfPreviewModal({
                   link.click();
                   document.body.removeChild(link);
                 }}
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className={`inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 ${SALES_FOCUS_BUTTON}`}
               >
                 <Download size={16} />
                 Download PDF

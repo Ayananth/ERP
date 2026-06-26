@@ -1,5 +1,7 @@
 import { CalendarDays, ChevronDown, Search } from "lucide-react";
 
+import { SALES_FOCUS_FIELD } from "./salesFocusStyles";
+
 function FieldShell({
   label,
   value,
@@ -14,10 +16,10 @@ function FieldShell({
   inputRef,
   onKeyDown,
 }) {
-  const baseClass = `w-full rounded-lg border px-3 pb-3 pt-5 text-sm outline-none transition ${
+  const baseClass = `w-full rounded-lg border px-3 pb-3 pt-5 text-sm transition ${SALES_FOCUS_FIELD} ${
     accent
-      ? "border-violet-200 bg-white text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.05)] focus:border-violet-400"
-      : "border-slate-200 bg-slate-50 text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.04)] focus:border-slate-300"
+      ? "border-violet-200 bg-white text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.05)]"
+      : "border-slate-200 bg-slate-50 text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.04)]"
   } ${onClick ? "cursor-pointer" : ""}`;
 
   return (
@@ -143,7 +145,7 @@ function SalesOrderHeader({
             </span>
             {isEditing ? (
               <select
-                className="w-full appearance-none rounded-lg border border-violet-200 bg-white px-3 pb-3 pt-5 pr-10 text-sm text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.05)] outline-none transition focus:border-violet-400"
+                className={`w-full appearance-none rounded-lg border border-violet-200 bg-white px-3 pb-3 pt-5 pr-10 text-sm text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition ${SALES_FOCUS_FIELD}`}
                 value={data.customer}
                 onChange={(event) => onChange("customer", event.target.value)}
                 onKeyDown={handleCustomerKeyDown}
@@ -157,7 +159,7 @@ function SalesOrderHeader({
               </select>
             ) : (
               <input
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 pb-3 pt-5 pr-10 text-sm text-slate-700 outline-none transition focus:border-slate-300"
+                className={`w-full rounded-lg border border-slate-200 bg-slate-50 px-3 pb-3 pt-5 pr-10 text-sm text-slate-700 transition ${SALES_FOCUS_FIELD}`}
                 type="text"
                 value={selectedCustomerName}
                 placeholder=""

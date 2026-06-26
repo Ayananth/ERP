@@ -1,6 +1,12 @@
 import { ClipboardList, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import {
+  SALES_FOCUS_BUTTON_ICON,
+  SALES_FOCUS_FIELD,
+  SALES_FOCUS_SELECTABLE_ROW,
+} from "./salesFocusStyles";
+
 const columns = [
   { key: "order_no", label: "ORDER NO", placeholder: "Filter..." },
   { key: "customer_name", label: "CUSTOMER", placeholder: "Filter..." },
@@ -65,7 +71,7 @@ function SalesOrderSelectModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            className={`rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 ${SALES_FOCUS_BUTTON_ICON}`}
             aria-label="Close order selector"
           >
             <X size={16} />
@@ -94,7 +100,7 @@ function SalesOrderSelectModal({
                             }))
                           }
                           placeholder={column.placeholder}
-                          className="mt-2 h-8 w-full rounded border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 outline-none transition focus:border-blue-400"
+                          className={`mt-2 h-8 w-full rounded border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 transition ${SALES_FOCUS_FIELD}`}
                         />
                       ) : null}
                     </th>
@@ -130,7 +136,7 @@ function SalesOrderSelectModal({
                     <tr
                       key={order.id}
                       onClick={() => onSelect(order)}
-                      className="cursor-pointer transition hover:bg-blue-50"
+                      className={SALES_FOCUS_SELECTABLE_ROW}
                     >
                       <td className="px-3 py-3 text-slate-700">{order.order_no}</td>
                       <td className="px-3 py-3 text-slate-700">{order.customer_name}</td>

@@ -1,6 +1,12 @@
 import { ClipboardList, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import {
+  SALES_FOCUS_BUTTON_ICON,
+  SALES_FOCUS_FIELD,
+  SALES_FOCUS_SELECTABLE_ROW,
+} from "./salesFocusStyles";
+
 const columns = [
   { key: "quotation_no", label: "QUOTATION NO", placeholder: "Filter..." },
   { key: "delivery_place", label: "DELIVERY PLACE", placeholder: "Filter..." },
@@ -69,7 +75,7 @@ function SalesQuotationSelectModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            className={`rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 ${SALES_FOCUS_BUTTON_ICON}`}
             aria-label="Close quotation selector"
           >
             <X size={16} />
@@ -98,7 +104,7 @@ function SalesQuotationSelectModal({
                             }))
                           }
                           placeholder={column.placeholder}
-                          className="mt-2 h-8 w-full rounded border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 outline-none transition focus:border-blue-400"
+                          className={`mt-2 h-8 w-full rounded border border-slate-200 bg-white px-2 text-xs font-normal text-slate-700 transition ${SALES_FOCUS_FIELD}`}
                         />
                       ) : null}
                     </th>
@@ -128,7 +134,7 @@ function SalesQuotationSelectModal({
                     <tr
                       key={quotation.id}
                       onClick={() => onSelect(quotation)}
-                      className="cursor-pointer transition hover:bg-blue-50"
+                      className={SALES_FOCUS_SELECTABLE_ROW}
                     >
                       <td className="px-3 py-3 text-slate-700">{quotation.quotation_no}</td>
                       <td className="px-3 py-3 text-slate-700">{quotation.delivery_place}</td>

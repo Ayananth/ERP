@@ -32,7 +32,7 @@ export default function Alert({
       <button
         type="button"
         onClick={onClose}
-        className="ml-4 text-lg font-bold"
+        className="ml-4 rounded text-lg font-bold outline-none focus:ring-2 focus:ring-blue-500"
       >
         &times;
       </button>

@@ -2,6 +2,13 @@ import { useEffect, useRef, useState } from "react";
 
 import { Plus, Search } from "lucide-react";
 
+import {
+  SALES_FOCUS_BUTTON,
+  SALES_FOCUS_FIELD,
+  SALES_FOCUS_LIST_ITEM,
+  SALES_TABLE_ROW,
+} from "./salesFocusStyles";
+
 const TABLE_COLUMNS = {
   CODE: 0,
   DESCRIPTION: 1,
@@ -32,7 +39,7 @@ function CellInput({
         readOnly={readOnly}
         onChange={onChange}
         {...inputProps}
-        className={`h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-300 focus:border-slate-300 ${
+        className={`h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 transition placeholder:text-slate-300 ${SALES_FOCUS_FIELD} ${
           align === "right" ? "text-right" : "text-left"
         } ${icon ? "pr-10" : ""}`}
       />
@@ -181,7 +188,7 @@ function SalesQuotationLines({
           <button
             type="button"
             onClick={onAddLine}
-            className="inline-flex items-center gap-1 rounded-md bg-amber-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-amber-950"
+            className={`inline-flex items-center gap-1 rounded-md bg-amber-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-amber-950 ${SALES_FOCUS_BUTTON}`}
           >
             <Plus size={14} />
             Add Row
@@ -250,7 +257,7 @@ function SalesQuotationLines({
               {lines.map((line, index) => (
                 <tr
                   key={line.id}
-                  className="border-b border-slate-100"
+                  className={`border-b border-slate-100 ${SALES_TABLE_ROW}`}
                 >
                   <td className="px-3 py-3 align-top">
                     <div className="inline-flex h-8 min-w-8 items-center justify-center rounded-md bg-slate-100 px-2 text-sm text-slate-600">
@@ -275,7 +282,7 @@ function SalesQuotationLines({
                             <button
                               key={item.id}
                               type="button"
-                              className="block w-full border-b border-slate-100 px-3 py-2 text-left text-sm hover:bg-slate-50"
+                              className={`block w-full border-b border-slate-100 px-3 py-2 text-left text-sm hover:bg-slate-50 ${SALES_FOCUS_LIST_ITEM}`}
                             onClick={() => handleItemPick(line.id, item, index)}
                           >
                               <div className="font-medium text-slate-700">
@@ -301,7 +308,7 @@ function SalesQuotationLines({
                     {isEditing ? (
                       <select
                         ref={registerCell(index, TABLE_COLUMNS.UNIT)}
-                        className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-slate-300"
+                        className={`h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 transition ${SALES_FOCUS_FIELD}`}
                         value={line.unit}
                         onKeyDown={(event) =>
                           handleCellEnter(event, index, TABLE_COLUMNS.UNIT)
