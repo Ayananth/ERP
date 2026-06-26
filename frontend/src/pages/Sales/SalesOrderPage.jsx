@@ -238,6 +238,10 @@ function SalesOrderPage() {
   const [nextLineId, setNextLineId] = useState(2);
   const firstTableCellRef = useRef(null);
   const tableRefs = useRef([]);
+  const newEditButtonRef = useRef(null);
+  const firstFieldRef = useRef(null);
+  const schedulePrimaryActionFocus = usePrimaryActionFocus(newEditButtonRef);
+
   useEffect(() => {
     if (!errorMessage) return;
     const timer = setTimeout(() => setErrorMessage(""), 5000);
@@ -249,10 +253,6 @@ function SalesOrderPage() {
     const timer = setTimeout(() => setSuccessMessage(""), 5000);
     return () => clearTimeout(timer);
   }, [successMessage]);
-
-  const newEditButtonRef = useRef(null);
-  const firstFieldRef = useRef(null);
-  const schedulePrimaryActionFocus = usePrimaryActionFocus(newEditButtonRef);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -625,7 +625,6 @@ function SalesOrderPage() {
         });
       })
     );
-    schedulePrimaryActionFocus();
   };
 
   const handleAddLine = () => {
