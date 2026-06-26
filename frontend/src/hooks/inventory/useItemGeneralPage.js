@@ -7,6 +7,7 @@ import {
   getItemList,
   updateItem,
 } from "../../api/inventoryApi";
+import usePrimaryActionFocus from "../usePrimaryActionFocus";
 
 export const initialItemGeneralForm = {
   item_code: "",
@@ -67,12 +68,20 @@ export default function useItemGeneralPage() {
   const [isItemListOpen, setIsItemListOpen] = useState(false);
 
   const firstInputRef = useRef(null);
+  const primaryButtonRef = useRef(null);
+  const schedulePrimaryActionFocus = usePrimaryActionFocus(primaryButtonRef);
 
   useEffect(() => {
-    if (isEditing && firstInputRef.current) {
-      firstInputRef.current.focus();
-    }
-  }, [isEditing]);
+    const timer = setTimeout(() => {
+      if (isEditing) {
+        firstInputRef.current?.focus();
+      } else {
+        schedulePrimaryActionFocus();
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [isEditing, schedulePrimaryActionFocus]);
 
   useEffect(() => {
     if (!itemId) return;
@@ -215,6 +224,7 @@ export default function useItemGeneralPage() {
 
     setViewState("viewBlank");
     setIsEditing(false);
+    schedulePrimaryActionFocus();
   };
 
   const handleSubmit = async (e) => {
@@ -268,6 +278,7 @@ export default function useItemGeneralPage() {
 
       setIsEditing(false);
       setViewState("viewBlank");
+      schedulePrimaryActionFocus();
     } catch (error) {
       setMessage({
         type: "error",
@@ -312,6 +323,7 @@ export default function useItemGeneralPage() {
   return {
     errors,
     firstInputRef,
+    primaryButtonRef,
     formData,
     dropdowns,
     items,

@@ -1,6 +1,12 @@
+import { SALES_FOCUS_FIELD } from "../sales/salesFocusStyles";
+
+const inputClassName = `h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-300 focus:bg-white ${SALES_FOCUS_FIELD}`;
+
 export default function ItemGeneralAdditionalSection({
   formData,
+  handleFieldEnter,
   onChange,
+  registerField,
 }) {
   return (
     <section className="overflow-hidden rounded-lg border border-slate-200 bg-white">
@@ -15,12 +21,14 @@ export default function ItemGeneralAdditionalSection({
           </label>
 
           <input
+            ref={registerField(3)}
             type="text"
             name="generic_name"
             value={formData.generic_name}
             onChange={onChange}
+            onKeyDown={(event) => handleFieldEnter(event, 3)}
             placeholder="Enter generic name"
-            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-300 focus:border-blue-300 focus:bg-white"
+            className={inputClassName}
           />
         </div>
 
@@ -30,12 +38,14 @@ export default function ItemGeneralAdditionalSection({
           </label>
 
           <input
+            ref={registerField(4)}
             type="text"
             name="description"
             value={formData.description}
             onChange={onChange}
+            onKeyDown={(event) => handleFieldEnter(event, 4)}
             placeholder="Enter description"
-            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-300 focus:border-blue-300 focus:bg-white"
+            className={inputClassName}
           />
         </div>
       </div>

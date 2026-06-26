@@ -1,4 +1,7 @@
+import { useRef } from "react";
+
 import Alert from "../common/Alert";
+import { SALES_FOCUS_BUTTON } from "../sales/salesFocusStyles";
 import ItemGeneralBasicSection from "./ItemGeneralBasicSection";
 import ItemGeneralAdditionalSection from "./ItemGeneralAdditionalSection";
 import ItemGeneralConfigurationSection from "./ItemGeneralConfigurationSection";
@@ -7,6 +10,7 @@ export default function ItemGeneralForm({
   dropdowns,
   errors,
   firstInputRef,
+  primaryButtonRef,
   formData,
   isEditing,
   handleChange,
@@ -19,6 +23,8 @@ export default function ItemGeneralForm({
   message,
   setMessage,
 }) {
+  const formRefs = useRef([]);
+
   const primaryLabel = isEditing
     ? viewState === "viewExisting"
       ? "Update"
@@ -26,6 +32,31 @@ export default function ItemGeneralForm({
     : viewState === "viewExisting"
     ? "Edit"
     : "New";
+
+  const registerField = (index) => (element) => {
+    formRefs.current[index] = element;
+    if (index === 0 && firstInputRef) {
+      firstInputRef.current = element;
+    }
+  };
+
+  const handleFieldEnter = (event, index) => {
+    if (event.key !== "Enter") return;
+
+    event.preventDefault();
+    const nextField = formRefs.current[index + 1];
+    if (nextField) {
+      nextField.focus();
+    }
+  };
+
+  const handleFormKeyDown = (event) => {
+    if (!isEditing || !event.ctrlKey || event.key !== "Enter") return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    primaryButtonRef?.current?.focus();
+  };
 
   return (
     <>
@@ -50,33 +81,40 @@ export default function ItemGeneralForm({
 
           <fieldset
             disabled={!isEditing}
+            onKeyDown={handleFormKeyDown}
             className="space-y-6 p-6"
           >
             <ItemGeneralBasicSection
               errors={errors}
-              firstInputRef={firstInputRef}
               formData={formData}
+              handleFieldEnter={handleFieldEnter}
               onChange={handleChange}
+              registerField={registerField}
             />
 
             <ItemGeneralAdditionalSection
               formData={formData}
+              handleFieldEnter={handleFieldEnter}
               onChange={handleChange}
+              registerField={registerField}
             />
 
             <ItemGeneralConfigurationSection
               dropdowns={dropdowns}
               errors={errors}
               formData={formData}
+              handleFieldEnter={handleFieldEnter}
               onChange={handleChange}
+              registerField={registerField}
             />
           </fieldset>
 
           <div className="flex flex-wrap justify-end gap-3 border-t border-slate-200 bg-[#f8fafc] p-4">
             <button
               type="button"
+              ref={primaryButtonRef}
               onClick={handlePrimaryAction}
-              className="min-w-[84px] rounded-md bg-emerald-500 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-600"
+              className={`min-w-[84px] rounded-md bg-emerald-500 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-600 ${SALES_FOCUS_BUTTON}`}
             >
               {primaryLabel}
             </button>

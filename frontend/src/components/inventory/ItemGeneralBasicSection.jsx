@@ -1,8 +1,13 @@
+import { SALES_FOCUS_FIELD } from "../sales/salesFocusStyles";
+
+const inputClassName = `h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-300 focus:bg-white ${SALES_FOCUS_FIELD}`;
+
 export default function ItemGeneralBasicSection({
   errors,
-  firstInputRef,
   formData,
+  handleFieldEnter,
   onChange,
+  registerField,
 }) {
   return (
     <section className="overflow-hidden rounded-lg border border-slate-200 bg-white">
@@ -17,13 +22,14 @@ export default function ItemGeneralBasicSection({
           </label>
 
           <input
-            ref={firstInputRef}
+            ref={registerField(0)}
             type="text"
             name="item_code"
             value={formData.item_code}
             onChange={onChange}
+            onKeyDown={(event) => handleFieldEnter(event, 0)}
             placeholder="Enter item code"
-            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-300 focus:border-blue-300 focus:bg-white"
+            className={inputClassName}
           />
         </div>
 
@@ -33,12 +39,14 @@ export default function ItemGeneralBasicSection({
           </label>
 
           <input
+            ref={registerField(1)}
             type="text"
             name="name_1"
             value={formData.name_1}
             onChange={onChange}
+            onKeyDown={(event) => handleFieldEnter(event, 1)}
             placeholder="Enter name 1"
-            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-300 focus:border-blue-300 focus:bg-white"
+            className={inputClassName}
           />
           {errors.name_1 && (
             <p className="mt-1 text-xs text-red-600">
@@ -53,12 +61,14 @@ export default function ItemGeneralBasicSection({
           </label>
 
           <input
+            ref={registerField(2)}
             type="text"
             name="name_2"
             value={formData.name_2}
             onChange={onChange}
+            onKeyDown={(event) => handleFieldEnter(event, 2)}
             placeholder="Enter name 2"
-            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-300 focus:border-blue-300 focus:bg-white"
+            className={inputClassName}
           />
         </div>
 

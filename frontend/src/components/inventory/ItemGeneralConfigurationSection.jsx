@@ -1,8 +1,14 @@
+import { SALES_FOCUS_FIELD } from "../sales/salesFocusStyles";
+
+const selectClassName = `h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:bg-white ${SALES_FOCUS_FIELD}`;
+
 export default function ItemGeneralConfigurationSection({
   dropdowns,
   errors,
   formData,
+  handleFieldEnter,
   onChange,
+  registerField,
 }) {
   return (
     <section className="overflow-hidden rounded-lg border border-slate-200 bg-white">
@@ -17,10 +23,12 @@ export default function ItemGeneralConfigurationSection({
           </label>
 
           <select
+            ref={registerField(5)}
             name="behaviour"
             value={formData.behaviour}
             onChange={onChange}
-            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:bg-white"
+            onKeyDown={(event) => handleFieldEnter(event, 5)}
+            className={selectClassName}
           >
             <option value="">
               Select behaviour
@@ -47,10 +55,12 @@ export default function ItemGeneralConfigurationSection({
           </label>
 
           <select
+            ref={registerField(6)}
             name="group"
             value={formData.group}
             onChange={onChange}
-            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:bg-white"
+            onKeyDown={(event) => handleFieldEnter(event, 6)}
+            className={selectClassName}
           >
             <option value="">
               Select Group
@@ -77,10 +87,12 @@ export default function ItemGeneralConfigurationSection({
           </label>
 
           <select
+            ref={registerField(7)}
             name="status"
             value={formData.status}
             onChange={onChange}
-            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:bg-white"
+            onKeyDown={(event) => handleFieldEnter(event, 7)}
+            className={selectClassName}
           >
             {dropdowns.statuses.map((status) => (
               <option
@@ -104,10 +116,12 @@ export default function ItemGeneralConfigurationSection({
           </label>
 
           <select
+            ref={registerField(8)}
             name="taxable_status"
             value={formData.taxable_status}
             onChange={onChange}
-            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:bg-white"
+            onKeyDown={(event) => handleFieldEnter(event, 8)}
+            className={selectClassName}
           >
             <option value="">
               Select Taxable Status
@@ -134,10 +148,12 @@ export default function ItemGeneralConfigurationSection({
           </label>
 
           <select
+            ref={registerField(9)}
             name="shelf"
             value={formData.shelf}
             onChange={onChange}
-            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:bg-white"
+            onKeyDown={(event) => handleFieldEnter(event, 9)}
+            className={selectClassName}
           >
             <option value="">
               Select Shelf
@@ -159,10 +175,12 @@ export default function ItemGeneralConfigurationSection({
           </label>
 
           <select
+            ref={registerField(10)}
             name="manufacturer"
             value={formData.manufacturer}
             onChange={onChange}
-            className="h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:bg-white"
+            onKeyDown={(event) => handleFieldEnter(event, 10)}
+            className={selectClassName}
           >
             <option value="">
               Select Manufacturer

@@ -12,6 +12,7 @@ export default function ItemGeneralPage() {
     handlePrimaryAction,
     handleSelectItem,
     firstInputRef,
+    primaryButtonRef,
     items,
     itemsLoading,
     isItemListOpen,
@@ -35,6 +36,7 @@ export default function ItemGeneralPage() {
         dropdowns={dropdowns}
         errors={errors}
         firstInputRef={firstInputRef}
+        primaryButtonRef={primaryButtonRef}
         formData={formData}
         isEditing={isEditing}
         handleChange={handleChange}
