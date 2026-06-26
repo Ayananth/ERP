@@ -95,6 +95,19 @@ function SalesOrderHeader({
     }
   };
 
+  const handleLinkedQuotationKeyDown = (event) => {
+    if (
+      isEditing &&
+      (event.key === "Enter" || event.key === " " || event.key === "ArrowDown")
+    ) {
+      event.preventDefault();
+      onQuotationClick?.();
+      return;
+    }
+
+    handleHeaderEnter(event, 4);
+  };
+
   const selectedCustomerName =
     customers.find((customer) => String(customer.id) === String(data.customer))
       ?.name ?? data.customer_display ?? "";
@@ -158,7 +171,7 @@ function SalesOrderHeader({
           readOnly={!isEditing}
           onClick={isEditing ? onQuotationClick : undefined}
           onChange={(event) => onChange("linked_quotation", event.target.value)}
-          onKeyDown={(event) => handleHeaderEnter(event, 4)}
+          onKeyDown={handleLinkedQuotationKeyDown}
           inputRef={registerField(4)}
         />
 
