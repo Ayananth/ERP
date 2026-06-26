@@ -70,6 +70,7 @@ function SalesQuotationLines({
 }) {
   const [searchResults, setSearchResults] = useState({});
   const searchTimeoutRef = useRef(null);
+  const pendingFocusRowRef = useRef(null);
 
   const registerCell = (row, column) => (element) => {
     if (!tableRefs.current[row]) {
@@ -88,6 +89,14 @@ function SalesQuotationLines({
 
     event.preventDefault();
 
+    if (columnIndex === TABLE_COLUMNS.DISCOUNT) {
+      if (rowIndex === lines.length - 1) {
+        pendingFocusRowRef.current = lines.length;
+        onAddLine();
+      }
+      return;
+    }
+
     let nextColumn = columnIndex + 1;
     while (nextColumn <= TABLE_COLUMNS.DISCOUNT) {
       const nextCell = tableRefs.current[rowIndex]?.[nextColumn];
@@ -104,6 +113,29 @@ function SalesQuotationLines({
       tableRefs.current[rowIndex]?.[column]?.focus();
     }, 0);
   };
+
+  useEffect(() => {
+    if (pendingFocusRowRef.current === null) return;
+
+    const rowIndex = pendingFocusRowRef.current;
+
+    const focusNewRowCode = () => {
+      const codeCell = tableRefs.current[rowIndex]?.[TABLE_COLUMNS.CODE];
+      if (!codeCell) return false;
+
+      pendingFocusRowRef.current = null;
+      codeCell.focus();
+      return true;
+    };
+
+    if (focusNewRowCode()) return;
+
+    const timer = setTimeout(() => {
+      focusNewRowCode();
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [lines, tableRefs]);
 
   useEffect(() => () => clearTimeout(searchTimeoutRef.current), []);
 
