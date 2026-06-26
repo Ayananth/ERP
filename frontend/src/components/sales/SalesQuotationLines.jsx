@@ -67,6 +67,7 @@ function SalesQuotationLines({
   onAddLine,
   firstTableCellRef,
   tableRefs,
+  saveButtonRef,
 }) {
   const [searchResults, setSearchResults] = useState({});
   const searchTimeoutRef = useRef(null);
@@ -85,7 +86,7 @@ function SalesQuotationLines({
   };
 
   const handleCellEnter = (event, rowIndex, columnIndex) => {
-    if (!isEditing || event.key !== "Enter") return;
+    if (!isEditing || event.key !== "Enter" || event.ctrlKey) return;
 
     event.preventDefault();
 
@@ -161,8 +162,19 @@ function SalesQuotationLines({
     focusCell(rowIndex, TABLE_COLUMNS.UNIT);
   };
 
+  const handleTableKeyDown = (event) => {
+    if (!isEditing || !event.ctrlKey || event.key !== "Enter") return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    saveButtonRef?.current?.focus();
+  };
+
   return (
-    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <section
+      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+      onKeyDown={handleTableKeyDown}
+    >
       <div className="flex items-center justify-between gap-3 bg-amber-100 px-4 py-3 text-sm font-medium text-amber-950">
         <span>Click the primary button to enable the form</span>
         {isEditing ? (

@@ -665,6 +665,7 @@ function SalesQuotationPage() {
         onAddLine={handleAddLine}
         firstTableCellRef={firstTableCellRef}
         tableRefs={tableRefs}
+        saveButtonRef={newEditButtonRef}
       />
 
       <SalesQuotationFooter
