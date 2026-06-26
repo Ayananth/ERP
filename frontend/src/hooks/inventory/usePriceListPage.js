@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   getItemPrices,
   saveItemPrices,
 } from "../../api/inventoryApi";
+import usePrimaryActionFocus from "../usePrimaryActionFocus";
 
 export default function usePriceListPage() {
   const { itemId } = useParams();
@@ -17,6 +18,24 @@ export default function usePriceListPage() {
     text: "",
   });
   const [errors, setErrors] = useState({});
+
+  const editButtonRef = useRef(null);
+  const firstSalePriceRef = useRef(null);
+  const scheduleEditButtonFocus = usePrimaryActionFocus(editButtonRef);
+
+  useEffect(() => {
+    if (loading) return undefined;
+
+    const timer = setTimeout(() => {
+      if (editing) {
+        firstSalePriceRef.current?.focus();
+      } else {
+        scheduleEditButtonFocus();
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [editing, loading, scheduleEditButtonFocus]);
 
   useEffect(() => {
     if (!itemId) return;
@@ -169,6 +188,7 @@ export default function usePriceListPage() {
       await loadPrices();
 
       setEditing(false);
+      scheduleEditButtonFocus();
       setMessage({
         type: "success",
         text: "Prices saved successfully.",
@@ -186,19 +206,26 @@ export default function usePriceListPage() {
     await loadPrices();
     setEditing(false);
     setErrors({});
+    scheduleEditButtonFocus();
+  };
+
+  const handleStartEditing = () => {
+    setEditing(true);
   };
 
   return {
+    editButtonRef,
     editing,
     errors,
+    firstSalePriceRef,
     handleClear,
     handlePriceChange,
     handleSave,
+    handleStartEditing,
     item,
     loading,
     message,
     prices,
-    setEditing,
     setMessage,
   };
 }

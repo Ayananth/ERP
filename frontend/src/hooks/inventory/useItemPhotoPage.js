@@ -5,6 +5,7 @@ import {
   uploadItemPhoto,
   deleteItemPhoto,
 } from "../../api/inventoryApi";
+import usePrimaryActionFocus from "../usePrimaryActionFocus";
 
 const MAX_IMAGE_SIZE_MB = 5;
 const MAX_IMAGE_SIZE_BYTES =
@@ -13,6 +14,8 @@ const MAX_IMAGE_SIZE_BYTES =
 export default function useItemPhotoPage() {
   const { itemId } = useParams();
   const fileInputRef = useRef(null);
+  const editButtonRef = useRef(null);
+  const scheduleEditButtonFocus = usePrimaryActionFocus(editButtonRef);
 
   const [imageUrl, setImageUrl] =
     useState(null);
@@ -43,6 +46,16 @@ export default function useItemPhotoPage() {
 
     return () => clearTimeout(timer);
   }, [message]);
+
+  useEffect(() => {
+    if (loading) return undefined;
+
+    const timer = setTimeout(() => {
+      scheduleEditButtonFocus();
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [loading, scheduleEditButtonFocus]);
 
   const loadPhoto = async () => {
     try {
@@ -137,6 +150,7 @@ export default function useItemPhotoPage() {
   };
 
   return {
+    editButtonRef,
     fileInputRef,
     handleDelete,
     handleEditClick,

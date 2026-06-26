@@ -4,15 +4,17 @@ import PriceListTable from "./PriceListTable";
 import PriceListFooter from "./PriceListFooter";
 
 export default function PriceListContent({
+  editButtonRef,
   editing,
   errors,
+  firstSalePriceRef,
   handleClear,
   handlePriceChange,
   handleSave,
+  handleStartEditing,
   item,
   message,
   prices,
-  setEditing,
   setMessage,
 }) {
   return (
@@ -33,14 +35,16 @@ export default function PriceListContent({
         <PriceListTable
           editing={editing}
           errors={errors}
+          firstSalePriceRef={firstSalePriceRef}
           handlePriceChange={handlePriceChange}
           prices={prices}
         />
         <PriceListFooter
+          editButtonRef={editButtonRef}
           editing={editing}
           handleClear={handleClear}
           handleSave={handleSave}
-          setEditing={setEditing}
+          handleStartEditing={handleStartEditing}
         />
       </div>
     </>

@@ -1,4 +1,5 @@
 export default function ItemPhotoFooter({
+  editButtonRef,
   imageUrl,
   loading,
   onEdit,
@@ -7,6 +8,8 @@ export default function ItemPhotoFooter({
   return (
     <div className="border-t bg-slate-100 p-3 flex justify-end gap-2">
       <button
+        type="button"
+        ref={editButtonRef}
         onClick={onEdit}
         disabled={loading}
         className="

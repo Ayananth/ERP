@@ -4,6 +4,7 @@ import useItemPhotoPage from "../../hooks/inventory/useItemPhotoPage";
 
 function ItemPhotoPage() {
   const {
+    editButtonRef,
     fileInputRef,
     handleDelete,
     handleEditClick,
@@ -22,6 +23,7 @@ function ItemPhotoPage() {
       description="Item Image"
     >
       <ItemPhotoContent
+        editButtonRef={editButtonRef}
         fileInputRef={fileInputRef}
         handleDelete={handleDelete}
         handleEditClick={handleEditClick}

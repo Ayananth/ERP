@@ -1,20 +1,24 @@
 export default function PriceListFooter({
+  editButtonRef,
   editing,
   handleClear,
   handleSave,
-  setEditing,
+  handleStartEditing,
 }) {
   return (
     <div className="border-t bg-slate-50 px-4 py-3 flex justify-end gap-3">
       {!editing ? (
         <button
-          onClick={() => setEditing(true)}
+          type="button"
+          ref={editButtonRef}
+          onClick={handleStartEditing}
           className="px-6 py-2 rounded bg-emerald-500 text-white"
         >
           Edit
         </button>
       ) : (
         <button
+          type="button"
           onClick={handleSave}
           className="px-6 py-2 rounded bg-emerald-500 text-white"
         >

@@ -4,6 +4,7 @@ import ItemPhotoCard from "./ItemPhotoCard";
 import ItemPhotoFooter from "./ItemPhotoFooter";
 
 export default function ItemPhotoContent({
+  editButtonRef,
   fileInputRef,
   handleDelete,
   handleEditClick,
@@ -50,6 +51,7 @@ export default function ItemPhotoContent({
         />
 
         <ItemPhotoFooter
+          editButtonRef={editButtonRef}
           imageUrl={imageUrl}
           loading={loading}
           onEdit={handleEditClick}

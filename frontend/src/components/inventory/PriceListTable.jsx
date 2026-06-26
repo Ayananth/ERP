@@ -1,6 +1,7 @@
 export default function PriceListTable({
   editing,
   errors,
+  firstSalePriceRef,
   handlePriceChange,
   prices,
 }) {
@@ -53,6 +54,7 @@ export default function PriceListTable({
 
                 <td className="px-4 py-4">
                     <input
+                      ref={index === 0 ? firstSalePriceRef : undefined}
                       type="number"
                       min="0"
                       step="1"
