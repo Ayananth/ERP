@@ -79,6 +79,7 @@ function SalesQuotationLines({
   const [searchResults, setSearchResults] = useState({});
   const searchTimeoutRef = useRef(null);
   const pendingFocusRowRef = useRef(null);
+  const pendingFocusCellRef = useRef(null);
 
   const registerCell = (row, column) => (element) => {
     if (!tableRefs.current[row]) {
@@ -115,6 +116,29 @@ function SalesQuotationLines({
       nextColumn += 1;
     }
   };
+
+  useEffect(() => {
+    if (!pendingFocusCellRef.current) return;
+
+    const { rowIndex, column } = pendingFocusCellRef.current;
+
+    const focusTargetCell = () => {
+      const cell = tableRefs.current[rowIndex]?.[column];
+      if (!cell) return false;
+
+      pendingFocusCellRef.current = null;
+      cell.focus();
+      return true;
+    };
+
+    if (focusTargetCell()) return;
+
+    const timer = setTimeout(() => {
+      focusTargetCell();
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [lines, tableRefs]);
 
   useEffect(() => {
     if (pendingFocusRowRef.current === null) return;
@@ -154,12 +178,13 @@ function SalesQuotationLines({
     }, 250);
   };
 
-  const handleItemPick = async (lineId, item) => {
+  const handleItemPick = async (lineId, item, rowIndex) => {
     setSearchResults((prev) => ({
       ...prev,
       [lineId]: [],
     }));
     await onItemSelect(lineId, item);
+    pendingFocusCellRef.current = { rowIndex, column: TABLE_COLUMNS.UNIT };
   };
 
   const handleTableKeyDown = (event) => {
@@ -276,7 +301,7 @@ function SalesQuotationLines({
                               key={item.id}
                               type="button"
                               className={`block w-full border-b border-slate-100 px-3 py-2 text-left text-sm hover:bg-slate-50 ${SALES_FOCUS_LIST_ITEM}`}
-                            onClick={() => handleItemPick(line.id, item)}
+                            onClick={() => handleItemPick(line.id, item, index)}
                           >
                               <div className="font-medium text-slate-700">
                                 {item.item_code}

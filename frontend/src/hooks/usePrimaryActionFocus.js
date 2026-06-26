@@ -1,20 +1,23 @@
-import { useCallback, useLayoutEffect, useRef } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function usePrimaryActionFocus(buttonRef) {
-  const pendingRef = useRef(false);
+  const [focusRequestId, setFocusRequestId] = useState(0);
 
   const scheduleFocus = useCallback(() => {
-    pendingRef.current = true;
+    setFocusRequestId((id) => id + 1);
   }, []);
 
-  useLayoutEffect(() => {
-    if (!pendingRef.current) {
-      return;
+  useEffect(() => {
+    if (focusRequestId === 0) {
+      return undefined;
     }
 
-    pendingRef.current = false;
-    buttonRef.current?.focus();
-  });
+    const timeoutId = window.setTimeout(() => {
+      buttonRef.current?.focus({ preventScroll: true });
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [buttonRef, focusRequestId]);
 
   return scheduleFocus;
 }

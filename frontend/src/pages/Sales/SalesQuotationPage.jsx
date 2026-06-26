@@ -253,12 +253,12 @@ function SalesQuotationPage() {
       if (isEditing) {
         firstFieldRef.current?.focus();
       } else {
-        newEditButtonRef.current?.focus();
+        schedulePrimaryActionFocus();
       }
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [isEditing]);
+  }, [isEditing, schedulePrimaryActionFocus]);
 
   useEffect(() => {
     const loadDropdownData = async () => {
@@ -424,7 +424,6 @@ function SalesQuotationPage() {
         });
       })
     );
-    schedulePrimaryActionFocus();
   };
 
   const handleAddLine = () => {

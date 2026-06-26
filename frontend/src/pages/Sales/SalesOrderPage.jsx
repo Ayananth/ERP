@@ -255,13 +255,16 @@ function SalesOrderPage() {
   const schedulePrimaryActionFocus = usePrimaryActionFocus(newEditButtonRef);
 
   useEffect(() => {
-    if (isEditing) {
-      firstFieldRef.current?.focus();
-      return;
-    }
+    const timer = setTimeout(() => {
+      if (isEditing) {
+        firstFieldRef.current?.focus();
+      } else {
+        schedulePrimaryActionFocus();
+      }
+    }, 0);
 
-    newEditButtonRef.current?.focus();
-  }, [isEditing]);
+    return () => clearTimeout(timer);
+  }, [isEditing, schedulePrimaryActionFocus]);
 
   useEffect(() => {
     const loadDropdownData = async () => {
@@ -385,6 +388,7 @@ function SalesOrderPage() {
       setNextLineId(nextId);
       setIsQuotationModalOpen(false);
       schedulePrimaryActionFocus();
+      
     } catch (error) {
       setErrorMessage(
         error?.response?.data?.message ??
