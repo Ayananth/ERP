@@ -226,6 +226,7 @@ function SalesQuotationPage() {
   const [isQuotationModalLoading, setIsQuotationModalLoading] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const firstTableCellRef = useRef(null);
+  const tableRefs = useRef([]);
 
   useEffect(() => {
     if (!errorMessage) return;
@@ -663,6 +664,7 @@ function SalesQuotationPage() {
         onItemSelect={handleItemSelect}
         onAddLine={handleAddLine}
         firstTableCellRef={firstTableCellRef}
+        tableRefs={tableRefs}
       />
 
       <SalesQuotationFooter

@@ -57,9 +57,18 @@ function SalesQuotationLines({
   onItemSelect,
   onAddLine,
   firstTableCellRef,
+  tableRefs,
 }) {
   const [searchResults, setSearchResults] = useState({});
   const searchTimeoutRef = useRef(null);
+
+  const registerCell = (row, column) => (element) => {
+    if (!tableRefs.current[row]) {
+      tableRefs.current[row] = [];
+    }
+
+    tableRefs.current[row][column] = element;
+  };
 
   useEffect(() => () => clearTimeout(searchTimeoutRef.current), []);
 

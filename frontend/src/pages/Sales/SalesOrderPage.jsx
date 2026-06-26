@@ -236,6 +236,7 @@ function SalesOrderPage() {
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [nextLineId, setNextLineId] = useState(2);
   const firstTableCellRef = useRef(null);
+  const tableRefs = useRef([]);
   useEffect(() => {
     if (!errorMessage) return;
     const timer = setTimeout(() => setErrorMessage(""), 5000);
@@ -781,6 +782,7 @@ function SalesOrderPage() {
         onItemSelect={handleItemSelect}
         onAddLine={handleAddLine}
         firstTableCellRef={firstTableCellRef}
+        tableRefs={tableRefs}
       />
 
       <SalesQuotationFooter
