@@ -86,6 +86,7 @@ function SalesQuotationHeader({
   data,
   isEditing,
   onChange,
+  onHeaderEnd,
   firstInputRef,
   customers = [],
 }) {
@@ -102,7 +103,13 @@ function SalesQuotationHeader({
     if (event.key !== "Enter") return;
 
     event.preventDefault();
-    formRefs.current[index + 1]?.focus();
+    const nextField = formRefs.current[index + 1];
+    if (nextField) {
+      nextField.focus();
+      return;
+    }
+
+    onHeaderEnd?.();
   };
 
   const handleCustomerKeyDown = (event) => {

@@ -225,6 +225,7 @@ function SalesQuotationPage() {
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [isQuotationModalLoading, setIsQuotationModalLoading] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const firstTableCellRef = useRef(null);
 
   useEffect(() => {
     if (!errorMessage) return;
@@ -611,6 +612,10 @@ function SalesQuotationPage() {
     await openQuotationModal();
   };
 
+  const handleHeaderEnd = () => {
+    firstTableCellRef.current?.focus?.();
+  };
+
   const handlePreview = () => {
     if (!activeQuotationId) {
       return;
@@ -645,6 +650,7 @@ function SalesQuotationPage() {
         data={header}
         isEditing={isEditing}
         onChange={handleHeaderChange}
+        onHeaderEnd={handleHeaderEnd}
         firstInputRef={firstFieldRef}
         customers={customers}
       />
@@ -656,6 +662,7 @@ function SalesQuotationPage() {
         onItemSearch={handleItemSearch}
         onItemSelect={handleItemSelect}
         onAddLine={handleAddLine}
+        firstTableCellRef={firstTableCellRef}
       />
 
       <SalesQuotationFooter

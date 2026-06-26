@@ -235,6 +235,7 @@ function SalesOrderPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [nextLineId, setNextLineId] = useState(2);
+  const firstTableCellRef = useRef(null);
   useEffect(() => {
     if (!errorMessage) return;
     const timer = setTimeout(() => setErrorMessage(""), 5000);
@@ -728,6 +729,10 @@ function SalesOrderPage() {
     await openOrderModal();
   };
 
+  const handleHeaderEnd = () => {
+    firstTableCellRef.current?.focus?.();
+  };
+
   const handlePreview = () => {
     if (!activeOrderId) {
       return;
@@ -765,6 +770,7 @@ function SalesOrderPage() {
         onQuotationClick={openQuotationModal}
         firstInputRef={firstFieldRef}
         customers={customers}
+        onHeaderEnd={handleHeaderEnd}
       />
 
       <SalesOrderLines
@@ -774,6 +780,7 @@ function SalesOrderPage() {
         onItemSearch={handleItemSearch}
         onItemSelect={handleItemSelect}
         onAddLine={handleAddLine}
+        firstTableCellRef={firstTableCellRef}
       />
 
       <SalesQuotationFooter

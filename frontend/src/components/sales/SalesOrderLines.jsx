@@ -10,11 +10,13 @@ function CellInput({
   readOnly = true,
   onChange,
   type = "text",
+  inputRef,
   ...inputProps
 }) {
   return (
     <div className="relative">
         <input
+        ref={inputRef}
         type={type}
         value={value}
         placeholder={placeholder}
@@ -54,6 +56,7 @@ function SalesOrderLines({
   onItemSearch,
   onItemSelect,
   onAddLine,
+  firstTableCellRef,
 }) {
   const [searchResults, setSearchResults] = useState({});
   const searchTimeoutRef = useRef(null);
@@ -161,6 +164,7 @@ function SalesOrderLines({
                   <td className="px-2 py-2">
                     <div className="relative">
                       <CellInput
+                        inputRef={index === 0 ? firstTableCellRef : undefined}
                         value={line.item_code}
                         placeholder=""
                         icon={<Search size={14} />}
