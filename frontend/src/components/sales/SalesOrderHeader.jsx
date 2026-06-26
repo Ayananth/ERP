@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { CalendarDays, ChevronDown, Search } from "lucide-react";
 
 import { SALES_FOCUS_FIELD } from "./salesFocusStyles";
@@ -55,9 +56,32 @@ function SalesOrderHeader({
   isEditing,
   onChange,
   onQuotationClick,
+  onHeaderEnd,
   firstInputRef,
   customers = [],
 }) {
+  const formRefs = useRef([]);
+
+  const registerField = (index) => (element) => {
+    formRefs.current[index] = element;
+    if (index === 0 && firstInputRef) {
+      firstInputRef.current = element;
+    }
+  };
+
+  const handleHeaderEnter = (event, index) => {
+    if (event.key !== "Enter") return;
+
+    event.preventDefault();
+    const nextField = formRefs.current[index + 1];
+    if (nextField) {
+      nextField.focus();
+      return;
+    }
+
+    onHeaderEnd?.();
+  };
+
   const handleCustomerKeyDown = (event) => {
     if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown") {
       event.preventDefault();
@@ -84,6 +108,8 @@ function SalesOrderHeader({
           placeholder=""
           accent
           readOnly
+          onKeyDown={(event) => handleHeaderEnter(event, 0)}
+          inputRef={registerField(0)}
         />
 
         <FieldShell
@@ -94,6 +120,8 @@ function SalesOrderHeader({
           accent
           readOnly={!isEditing}
           onChange={(event) => onChange("order_type", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 1)}
+          inputRef={registerField(1)}
         />
 
         <FieldShell
@@ -105,7 +133,8 @@ function SalesOrderHeader({
           type="date"
           readOnly={!isEditing}
           onChange={(event) => onChange("issue_date", event.target.value)}
-          inputRef={firstInputRef}
+          onKeyDown={(event) => handleHeaderEnter(event, 2)}
+          inputRef={registerField(2)}
         />
 
         <FieldShell
@@ -117,6 +146,8 @@ function SalesOrderHeader({
           type="date"
           readOnly={!isEditing}
           onChange={(event) => onChange("valid_date", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 3)}
+          inputRef={registerField(3)}
         />
 
         <FieldShell
@@ -127,6 +158,8 @@ function SalesOrderHeader({
           readOnly={!isEditing}
           onClick={isEditing ? onQuotationClick : undefined}
           onChange={(event) => onChange("linked_quotation", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 4)}
+          inputRef={registerField(4)}
         />
 
         <FieldShell
@@ -136,6 +169,8 @@ function SalesOrderHeader({
           accent
           readOnly={!isEditing}
           onChange={(event) => onChange("customer_po", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 5)}
+          inputRef={registerField(5)}
         />
 
         <div className="space-y-1">
@@ -145,6 +180,7 @@ function SalesOrderHeader({
             </span>
             {isEditing ? (
               <select
+                ref={registerField(6)}
                 className={`w-full appearance-none rounded-lg border border-violet-200 bg-white px-3 pb-3 pt-5 pr-10 text-sm text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition ${SALES_FOCUS_FIELD}`}
                 value={data.customer}
                 onChange={(event) => onChange("customer", event.target.value)}
@@ -181,6 +217,8 @@ function SalesOrderHeader({
           accent
           readOnly={!isEditing}
           onChange={(event) => onChange("sales_executive", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 7)}
+          inputRef={registerField(7)}
         />
 
         <FieldShell
@@ -191,6 +229,8 @@ function SalesOrderHeader({
           accent
           readOnly={!isEditing}
           onChange={(event) => onChange("currency", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 8)}
+          inputRef={registerField(8)}
         />
 
         <FieldShell
@@ -200,6 +240,8 @@ function SalesOrderHeader({
           accent
           readOnly={!isEditing}
           onChange={(event) => onChange("exchange_rate", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 9)}
+          inputRef={registerField(9)}
         />
 
         <FieldShell
@@ -208,6 +250,8 @@ function SalesOrderHeader({
           placeholder=""
           readOnly={!isEditing}
           onChange={(event) => onChange("delivery_place", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 10)}
+          inputRef={registerField(10)}
         />
 
         <FieldShell
@@ -216,6 +260,8 @@ function SalesOrderHeader({
           placeholder=""
           readOnly={!isEditing}
           onChange={(event) => onChange("notes", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 11)}
+          inputRef={registerField(11)}
         />
       </div>
     </section>
