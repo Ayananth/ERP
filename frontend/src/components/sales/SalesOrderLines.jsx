@@ -68,6 +68,10 @@ function SalesOrderLines({
     }
 
     tableRefs.current[row][column] = element;
+
+    if (row === 0 && column === 0 && firstTableCellRef) {
+      firstTableCellRef.current = element;
+    }
   };
 
   useEffect(() => () => clearTimeout(searchTimeoutRef.current), []);
@@ -173,7 +177,7 @@ function SalesOrderLines({
                   <td className="px-2 py-2">
                     <div className="relative">
                       <CellInput
-                        inputRef={index === 0 ? firstTableCellRef : undefined}
+                        inputRef={registerCell(index, 0)}
                         value={line.item_code}
                         placeholder=""
                         icon={<Search size={14} />}
@@ -209,6 +213,7 @@ function SalesOrderLines({
                   <td className="px-2 py-2">
                     {isEditing ? (
                       <select
+                        ref={registerCell(index, 2)}
                         className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-slate-300"
                         value={line.unit}
                         onChange={(event) =>
@@ -228,6 +233,7 @@ function SalesOrderLines({
                   </td>
                   <td className="px-2 py-2">
                     <CellInput
+                      inputRef={registerCell(index, 3)}
                       type="number"
                       value={line.qty}
                       placeholder=""
@@ -253,6 +259,7 @@ function SalesOrderLines({
                   </td>
                   <td className="px-2 py-2">
                     <CellInput
+                      inputRef={registerCell(index, 5)}
                       type="number"
                       value={line.discount_percent}
                       placeholder=""
