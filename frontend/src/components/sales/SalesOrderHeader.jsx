@@ -12,6 +12,7 @@ function FieldShell({
   onChange,
   onClick,
   inputRef,
+  onKeyDown,
 }) {
   const baseClass = `w-full rounded-lg border px-3 pb-3 pt-5 text-sm outline-none transition ${
     accent
@@ -34,6 +35,7 @@ function FieldShell({
           readOnly={readOnly}
           onChange={onChange}
           onClick={onClick}
+          onKeyDown={onKeyDown}
         />
         <div className="pointer-events-none absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2 text-slate-400">
           {rightIcon}
@@ -54,6 +56,19 @@ function SalesOrderHeader({
   firstInputRef,
   customers = [],
 }) {
+  const handleCustomerKeyDown = (event) => {
+    if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown") {
+      event.preventDefault();
+      if (typeof event.currentTarget.showPicker === "function") {
+        event.currentTarget.showPicker();
+        return;
+      }
+
+      event.currentTarget.focus();
+      event.currentTarget.click();
+    }
+  };
+
   const selectedCustomerName =
     customers.find((customer) => String(customer.id) === String(data.customer))
       ?.name ?? data.customer_display ?? "";
@@ -131,6 +146,7 @@ function SalesOrderHeader({
                 className="w-full appearance-none rounded-lg border border-violet-200 bg-white px-3 pb-3 pt-5 pr-10 text-sm text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.05)] outline-none transition focus:border-violet-400"
                 value={data.customer}
                 onChange={(event) => onChange("customer", event.target.value)}
+                onKeyDown={handleCustomerKeyDown}
               >
                 <option value="">Select customer</option>
                 {customers.map((customer) => (

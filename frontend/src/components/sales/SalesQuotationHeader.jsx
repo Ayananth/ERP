@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { CalendarDays, ChevronDown, Search } from "lucide-react";
 
 function FieldShell({
@@ -10,6 +11,7 @@ function FieldShell({
   type = "text",
   readOnly = true,
   onChange,
+  onKeyDown,
   inputRef,
 }) {
   const baseClass = `w-full rounded-lg border px-3 pb-3 pt-5 text-sm outline-none transition ${
@@ -32,6 +34,7 @@ function FieldShell({
           placeholder={placeholder}
           readOnly={readOnly}
           onChange={onChange}
+          onKeyDown={onKeyDown}
         />
         <div className="pointer-events-none absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2 text-slate-400">
           {rightIcon}
@@ -51,6 +54,7 @@ function SearchField({
   helper,
   readOnly = true,
   onChange,
+  onKeyDown,
   inputRef,
 }) {
   return (
@@ -67,6 +71,7 @@ function SearchField({
           placeholder={placeholder}
           readOnly={readOnly}
           onChange={onChange}
+          onKeyDown={onKeyDown}
         />
         <Search className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
       </div>
@@ -84,6 +89,35 @@ function SalesQuotationHeader({
   firstInputRef,
   customers = [],
 }) {
+  const formRefs = useRef([]);
+
+  const registerField = (index) => (element) => {
+    formRefs.current[index] = element;
+    if (index === 0 && firstInputRef) {
+      firstInputRef.current = element;
+    }
+  };
+
+  const handleHeaderEnter = (event, index) => {
+    if (event.key !== "Enter") return;
+
+    event.preventDefault();
+    formRefs.current[index + 1]?.focus();
+  };
+
+  const handleCustomerKeyDown = (event) => {
+    if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown") {
+      event.preventDefault();
+      if (typeof event.currentTarget.showPicker === "function") {
+        event.currentTarget.showPicker();
+        return;
+      }
+
+      event.currentTarget.focus();
+      event.currentTarget.click();
+    }
+  };
+
   const selectedCustomerName =
     customers.find((customer) => String(customer.id) === String(data.customer))
       ?.name ?? "";
@@ -98,7 +132,8 @@ function SalesQuotationHeader({
           accent
           readOnly={!isEditing}
           onChange={(event) => onChange("quotation_no", event.target.value)}
-          inputRef={firstInputRef}
+          onKeyDown={(event) => handleHeaderEnter(event, 0)}
+          inputRef={registerField(0)}
         />
 
         <FieldShell
@@ -109,6 +144,8 @@ function SalesQuotationHeader({
           accent
           readOnly={!isEditing}
           onChange={(event) => onChange("quotation_type", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 1)}
+          inputRef={registerField(1)}
         />
 
         <FieldShell
@@ -120,6 +157,8 @@ function SalesQuotationHeader({
           placeholder=""
           readOnly={!isEditing}
           onChange={(event) => onChange("date", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 2)}
+          inputRef={registerField(2)}
         />
 
         <div className="space-y-1">
@@ -129,9 +168,11 @@ function SalesQuotationHeader({
             </span>
             {isEditing ? (
               <select
+                ref={registerField(3)}
                 className="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 px-3 pb-3 pt-5 pr-10 text-sm text-slate-700 outline-none transition focus:border-slate-300"
                 value={data.customer}
                 onChange={(event) => onChange("customer", event.target.value)}
+                onKeyDown={handleCustomerKeyDown}
               >
                 <option value="">Select customer</option>
                 {customers.map((customer) => (
@@ -161,6 +202,8 @@ function SalesQuotationHeader({
           accent
           readOnly={!isEditing}
           onChange={(event) => onChange("customer_ref_no", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 4)}
+          inputRef={registerField(4)}
         />
 
         <FieldShell
@@ -171,6 +214,8 @@ function SalesQuotationHeader({
           accent
           readOnly={!isEditing}
           onChange={(event) => onChange("sales_executive", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 5)}
+          inputRef={registerField(5)}
         />
 
         <FieldShell
@@ -180,6 +225,8 @@ function SalesQuotationHeader({
           helper="0/200"
           readOnly={!isEditing}
           onChange={(event) => onChange("attention", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 6)}
+          inputRef={registerField(6)}
         />
 
         <FieldShell
@@ -189,6 +236,8 @@ function SalesQuotationHeader({
           helper="0/100"
           readOnly={!isEditing}
           onChange={(event) => onChange("pay_terms", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 7)}
+          inputRef={registerField(7)}
         />
 
         <FieldShell
@@ -198,6 +247,8 @@ function SalesQuotationHeader({
           helper="0/150"
           readOnly={!isEditing}
           onChange={(event) => onChange("delivery_place", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 8)}
+          inputRef={registerField(8)}
         />
 
         <FieldShell
@@ -208,6 +259,8 @@ function SalesQuotationHeader({
           accent
           readOnly={!isEditing}
           onChange={(event) => onChange("currency", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 9)}
+          inputRef={registerField(9)}
         />
 
         <FieldShell
@@ -217,6 +270,8 @@ function SalesQuotationHeader({
           accent
           readOnly={!isEditing}
           onChange={(event) => onChange("exchange_rate", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 10)}
+          inputRef={registerField(10)}
         />
 
         <FieldShell
@@ -226,6 +281,8 @@ function SalesQuotationHeader({
           helper="0/500"
           readOnly={!isEditing}
           onChange={(event) => onChange("notes", event.target.value)}
+          onKeyDown={(event) => handleHeaderEnter(event, 11)}
+          inputRef={registerField(11)}
         />
       </div>
     </section>
