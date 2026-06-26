@@ -1,6 +1,8 @@
 import { ClipboardList, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import useSelectModalKeyboard from "../../hooks/useSelectModalKeyboard";
+
 const columns = [
   { key: "item_code", label: "ITEM CODE", placeholder: "Filter..." },
   { key: "name", label: "ITEM NAME", placeholder: "Filter..." },
@@ -33,13 +35,25 @@ function ItemSelectModal({
     [filters, items]
   );
 
+  const { panelRef, getRowProps, isRowHighlighted } = useSelectModalKeyboard({
+    isOpen,
+    items: filteredItems,
+    loading,
+    onSelect,
+    onClose,
+  });
+
   if (!isOpen) {
     return null;
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 px-4 py-4 backdrop-blur-[2px]">
-      <div className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl">
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl outline-none"
+      >
         <div className="flex shrink-0 items-start justify-between border-b border-slate-200 px-4 py-3">
           <div className="flex items-start gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-500 text-white">
@@ -111,11 +125,13 @@ function ItemSelectModal({
                 ) : null}
 
                 {!loading &&
-                  filteredItems.map((item) => (
+                  filteredItems.map((item, index) => (
                     <tr
                       key={item.id}
-                      onClick={() => onSelect(item)}
-                      className="cursor-pointer transition hover:bg-blue-50"
+                      {...getRowProps(index, item)}
+                      className={`cursor-pointer transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 ${
+                        isRowHighlighted(index) ? "bg-blue-100" : ""
+                      }`}
                     >
                       <td className="px-3 py-3 text-slate-700">{item.item_code}</td>
                       <td className="px-3 py-3 text-slate-700">{item.name}</td>

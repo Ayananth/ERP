@@ -1,6 +1,7 @@
 import { ClipboardList, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import useSelectModalKeyboard from "../../hooks/useSelectModalKeyboard";
 import {
   SALES_FOCUS_BUTTON_ICON,
   SALES_FOCUS_FIELD,
@@ -50,13 +51,25 @@ function SalesQuotationSelectModal({
     [filters, quotations]
   );
 
+  const { panelRef, getRowProps, isRowHighlighted } = useSelectModalKeyboard({
+    isOpen,
+    items: filteredQuotations,
+    loading,
+    onSelect,
+    onClose,
+  });
+
   if (!isOpen) {
     return null;
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 px-4 py-4 backdrop-blur-[2px]">
-      <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl">
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl outline-none"
+      >
         <div className="flex shrink-0 items-start justify-between border-b border-slate-200 px-4 py-3">
           <div className="flex items-start gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-500 text-white">
@@ -130,11 +143,13 @@ function SalesQuotationSelectModal({
                 ) : null}
 
                 {!loading &&
-                  filteredQuotations.map((quotation) => (
+                  filteredQuotations.map((quotation, index) => (
                     <tr
                       key={quotation.id}
-                      onClick={() => onSelect(quotation)}
-                      className={SALES_FOCUS_SELECTABLE_ROW}
+                      {...getRowProps(index, quotation)}
+                      className={`${SALES_FOCUS_SELECTABLE_ROW} ${
+                        isRowHighlighted(index) ? "bg-blue-100" : ""
+                      }`}
                     >
                       <td className="px-3 py-3 text-slate-700">{quotation.quotation_no}</td>
                       <td className="px-3 py-3 text-slate-700">{quotation.delivery_place}</td>
