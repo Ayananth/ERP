@@ -50,6 +50,38 @@ export default function ItemGeneralForm({
     }
   };
 
+  const openSelectPicker = (selectElement) => {
+    if (typeof selectElement?.showPicker === "function") {
+      selectElement.showPicker();
+      return;
+    }
+
+    selectElement?.focus();
+    selectElement?.click();
+  };
+
+  const handleSelectKeyDown = (event, index) => {
+    if (event.ctrlKey && event.key === "Enter") {
+      return;
+    }
+
+    if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+      return;
+    }
+
+    if (
+      event.key === " " ||
+      event.key === "F4" ||
+      (event.key === "ArrowDown" && event.altKey)
+    ) {
+      event.preventDefault();
+      openSelectPicker(event.currentTarget);
+      return;
+    }
+
+    handleFieldEnter(event, index);
+  };
+
   const handleFormKeyDown = (event) => {
     if (!isEditing || !event.ctrlKey || event.key !== "Enter") return;
 
@@ -103,7 +135,7 @@ export default function ItemGeneralForm({
               dropdowns={dropdowns}
               errors={errors}
               formData={formData}
-              handleFieldEnter={handleFieldEnter}
+              handleSelectKeyDown={handleSelectKeyDown}
               onChange={handleChange}
               registerField={registerField}
             />
@@ -113,7 +145,7 @@ export default function ItemGeneralForm({
             <button
               type="button"
               ref={primaryButtonRef}
-              onClick={handlePrimaryAction}
+              onClick={isEditing ? () => handleSubmit() : handlePrimaryAction}
               className={`min-w-[84px] rounded-md bg-emerald-500 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-600 ${SALES_FOCUS_BUTTON}`}
             >
               {primaryLabel}

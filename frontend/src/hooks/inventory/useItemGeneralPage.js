@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   getItemDropdowns,
   createItem,
@@ -50,7 +50,6 @@ const normalizeItemForm = (item = {}) => ({
 
 export default function useItemGeneralPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { itemId } = useParams();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -115,8 +114,9 @@ export default function useItemGeneralPage() {
       const item = await getItem(itemId);
 
       setFormData(normalizeItemForm(item));
-      setViewState(location.state?.created ? "viewBlank" : "viewExisting");
+      setViewState("viewExisting");
       setIsEditing(false);
+      schedulePrimaryActionFocus();
     } catch (error) {
       console.error(error);
     }
@@ -256,7 +256,6 @@ export default function useItemGeneralPage() {
         navigate(`/inventory/items/${savedItemId}/general`, {
           replace: true,
           state: {
-            created: true,
             focusTab: "units",
           },
         });
@@ -277,7 +276,7 @@ export default function useItemGeneralPage() {
       }
 
       setIsEditing(false);
-      setViewState("viewBlank");
+      setViewState("viewExisting");
       schedulePrimaryActionFocus();
     } catch (error) {
       setMessage({
@@ -291,18 +290,13 @@ export default function useItemGeneralPage() {
     }
   };
 
-  const handlePrimaryAction = async () => {
-    if (!isEditing) {
-      if (viewState === "viewExisting") {
-        setIsEditing(true);
-        return;
-      }
-
-      handleNew();
+  const handlePrimaryAction = () => {
+    if (viewState === "viewExisting") {
+      setIsEditing(true);
       return;
     }
 
-    await handleSubmit();
+    handleNew();
   };
 
   const handleList = () => {

@@ -6,7 +6,7 @@ export default function ItemGeneralConfigurationSection({
   dropdowns,
   errors,
   formData,
-  handleFieldEnter,
+  handleSelectKeyDown,
   onChange,
   registerField,
 }) {
@@ -27,7 +27,7 @@ export default function ItemGeneralConfigurationSection({
             name="behaviour"
             value={formData.behaviour}
             onChange={onChange}
-            onKeyDown={(event) => handleFieldEnter(event, 5)}
+            onKeyDown={(event) => handleSelectKeyDown(event, 5)}
             className={selectClassName}
           >
             <option value="">
@@ -59,7 +59,7 @@ export default function ItemGeneralConfigurationSection({
             name="group"
             value={formData.group}
             onChange={onChange}
-            onKeyDown={(event) => handleFieldEnter(event, 6)}
+            onKeyDown={(event) => handleSelectKeyDown(event, 6)}
             className={selectClassName}
           >
             <option value="">
@@ -91,7 +91,7 @@ export default function ItemGeneralConfigurationSection({
             name="status"
             value={formData.status}
             onChange={onChange}
-            onKeyDown={(event) => handleFieldEnter(event, 7)}
+            onKeyDown={(event) => handleSelectKeyDown(event, 7)}
             className={selectClassName}
           >
             {dropdowns.statuses.map((status) => (
@@ -120,7 +120,7 @@ export default function ItemGeneralConfigurationSection({
             name="taxable_status"
             value={formData.taxable_status}
             onChange={onChange}
-            onKeyDown={(event) => handleFieldEnter(event, 8)}
+            onKeyDown={(event) => handleSelectKeyDown(event, 8)}
             className={selectClassName}
           >
             <option value="">
@@ -152,7 +152,7 @@ export default function ItemGeneralConfigurationSection({
             name="shelf"
             value={formData.shelf}
             onChange={onChange}
-            onKeyDown={(event) => handleFieldEnter(event, 9)}
+            onKeyDown={(event) => handleSelectKeyDown(event, 9)}
             className={selectClassName}
           >
             <option value="">
@@ -179,7 +179,7 @@ export default function ItemGeneralConfigurationSection({
             name="manufacturer"
             value={formData.manufacturer}
             onChange={onChange}
-            onKeyDown={(event) => handleFieldEnter(event, 10)}
+            onKeyDown={(event) => handleSelectKeyDown(event, 10)}
             className={selectClassName}
           >
             <option value="">
