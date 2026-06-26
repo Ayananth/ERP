@@ -2,6 +2,15 @@ import { useEffect, useRef, useState } from "react";
 
 import { Plus, Search } from "lucide-react";
 
+const TABLE_COLUMNS = {
+  CODE: 0,
+  DESCRIPTION: 1,
+  UNIT: 2,
+  QTY: 3,
+  RATE: 4,
+  DISCOUNT: 5,
+};
+
 function CellInput({
   value,
   placeholder,
@@ -69,9 +78,31 @@ function SalesQuotationLines({
 
     tableRefs.current[row][column] = element;
 
-    if (row === 0 && column === 0 && firstTableCellRef) {
+    if (row === 0 && column === TABLE_COLUMNS.CODE && firstTableCellRef) {
       firstTableCellRef.current = element;
     }
+  };
+
+  const handleCellEnter = (event, rowIndex, columnIndex) => {
+    if (!isEditing || event.key !== "Enter") return;
+
+    event.preventDefault();
+
+    let nextColumn = columnIndex + 1;
+    while (nextColumn <= TABLE_COLUMNS.DISCOUNT) {
+      const nextCell = tableRefs.current[rowIndex]?.[nextColumn];
+      if (nextCell) {
+        nextCell.focus();
+        return;
+      }
+      nextColumn += 1;
+    }
+  };
+
+  const focusCell = (rowIndex, column) => {
+    setTimeout(() => {
+      tableRefs.current[rowIndex]?.[column]?.focus();
+    }, 0);
   };
 
   useEffect(() => () => clearTimeout(searchTimeoutRef.current), []);
@@ -89,12 +120,13 @@ function SalesQuotationLines({
     }, 250);
   };
 
-  const handleItemPick = (lineId, item) => {
+  const handleItemPick = async (lineId, item, rowIndex) => {
     setSearchResults((prev) => ({
       ...prev,
       [lineId]: [],
     }));
-    onItemSelect(lineId, item);
+    await onItemSelect(lineId, item);
+    focusCell(rowIndex, TABLE_COLUMNS.UNIT);
   };
 
   return (
@@ -184,7 +216,7 @@ function SalesQuotationLines({
                   <td className="px-2 py-2">
                     <div className="relative">
                       <CellInput
-                        inputRef={registerCell(index, 0)}
+                        inputRef={registerCell(index, TABLE_COLUMNS.CODE)}
                         value={line.item_code}
                         placeholder=""
                         icon={<Search size={14} />}
@@ -200,7 +232,7 @@ function SalesQuotationLines({
                               key={item.id}
                               type="button"
                               className="block w-full border-b border-slate-100 px-3 py-2 text-left text-sm hover:bg-slate-50"
-                            onClick={() => handleItemPick(line.id, item)}
+                            onClick={() => handleItemPick(line.id, item, index)}
                           >
                               <div className="font-medium text-slate-700">
                                 {item.item_code}
@@ -224,9 +256,12 @@ function SalesQuotationLines({
                   <td className="px-2 py-2">
                     {isEditing ? (
                       <select
-                        ref={registerCell(index, 2)}
+                        ref={registerCell(index, TABLE_COLUMNS.UNIT)}
                         className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-slate-300"
                         value={line.unit}
+                        onKeyDown={(event) =>
+                          handleCellEnter(event, index, TABLE_COLUMNS.UNIT)
+                        }
                         onChange={(event) =>
                           onChange(line.id, "unit", event.target.value)
                         }
@@ -244,7 +279,7 @@ function SalesQuotationLines({
                   </td>
                   <td className="px-2 py-2">
                     <CellInput
-                      inputRef={registerCell(index, 3)}
+                      inputRef={registerCell(index, TABLE_COLUMNS.QTY)}
                       type="number"
                       value={line.qty}
                       placeholder=""
@@ -252,6 +287,9 @@ function SalesQuotationLines({
                       min="0"
                       step="1"
                       readOnly={!isEditing}
+                      onKeyDown={(event) =>
+                        handleCellEnter(event, index, TABLE_COLUMNS.QTY)
+                      }
                       onChange={(event) => onChange(line.id, "qty", event.target.value)}
                     />
                   </td>
@@ -268,7 +306,7 @@ function SalesQuotationLines({
                   </td>
                   <td className="px-2 py-2">
                     <CellInput
-                      inputRef={registerCell(index, 5)}
+                      inputRef={registerCell(index, TABLE_COLUMNS.DISCOUNT)}
                       type="number"
                       value={line.discount_percent}
                       placeholder=""
@@ -277,6 +315,9 @@ function SalesQuotationLines({
                       max="100"
                       step="1"
                       readOnly={!isEditing}
+                      onKeyDown={(event) =>
+                        handleCellEnter(event, index, TABLE_COLUMNS.DISCOUNT)
+                      }
                       onChange={(event) => onChange(line.id, "discount_percent", event.target.value)}
                     />
                   </td>
