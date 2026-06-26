@@ -563,7 +563,9 @@ function SalesQuotationPage() {
       return;
     }
 
-    const lineValidationMessage = validateLines(lines);
+    const validLines = lines.filter((line) => line.item_id);
+
+    const lineValidationMessage = validateLines(validLines);
     if (lineValidationMessage) {
       setErrorMessage(lineValidationMessage);
       return;
@@ -573,7 +575,7 @@ function SalesQuotationPage() {
       customer: Number(header.customer),
       quotation_date: header.date,
       notes: header.notes,
-      lines: lines.map((line) => ({
+      lines: validLines.map((line) => ({
         item: Number(line.item_id),
         unit: Number(line.unit),
         quantity: Number(line.qty || 0),

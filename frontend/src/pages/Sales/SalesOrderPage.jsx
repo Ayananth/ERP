@@ -662,23 +662,6 @@ function SalesOrderPage() {
     setViewState("viewBlank");
   };
 
-  const buildPayload = () => ({
-    quotation: header.quotation_id ? Number(header.quotation_id) : null,
-    customer: Number(header.customer),
-    order_date: header.issue_date,
-    notes: header.notes,
-    lines: lines
-      .filter((line) => line.item_id)
-      .map((line) => ({
-        item: Number(line.item_id),
-        unit: Number(line.unit),
-        quantity: Number(line.qty || 0),
-        rate: Number(line.rate || 0),
-        discount_percent: Number(line.discount_percent || 0),
-        vat_percent: Number(line.vat_percent || 0),
-      })),
-  });
-
   const handleSaveOrder = async () => {
     setErrorMessage("");
     setSuccessMessage("");
@@ -688,18 +671,33 @@ function SalesOrderPage() {
       return;
     }
 
-    const payload = buildPayload();
+    const validLines = lines.filter((line) => line.item_id);
 
-    if (!payload.lines.length) {
+    if (!validLines.length) {
       setErrorMessage("Please add at least one order line before saving.");
       return;
     }
 
-    const lineValidationMessage = validateLines(lines);
+    const lineValidationMessage = validateLines(validLines);
     if (lineValidationMessage) {
       setErrorMessage(lineValidationMessage);
       return;
     }
+
+    const payload = {
+      quotation: header.quotation_id ? Number(header.quotation_id) : null,
+      customer: Number(header.customer),
+      order_date: header.issue_date,
+      notes: header.notes,
+      lines: validLines.map((line) => ({
+        item: Number(line.item_id),
+        unit: Number(line.unit),
+        quantity: Number(line.qty || 0),
+        rate: Number(line.rate || 0),
+        discount_percent: Number(line.discount_percent || 0),
+        vat_percent: Number(line.vat_percent || 0),
+      })),
+    };
 
     try {
       const response = await createSalesOrder(payload);
