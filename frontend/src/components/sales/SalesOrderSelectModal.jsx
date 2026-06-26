@@ -51,9 +51,9 @@ function SalesOrderSelectModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 px-4 backdrop-blur-[2px]">
-      <div className="w-full max-w-5xl overflow-hidden rounded-lg bg-white shadow-2xl">
-        <div className="flex items-start justify-between border-b border-slate-200 px-4 py-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 px-4 py-4 backdrop-blur-[2px]">
+      <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl">
+        <div className="flex shrink-0 items-start justify-between border-b border-slate-200 px-4 py-3">
           <div className="flex items-start gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-500 text-white">
               <ClipboardList size={17} />
@@ -78,10 +78,10 @@ function SalesOrderSelectModal({
           </button>
         </div>
 
-        <div className="p-4">
-          <div className="overflow-x-auto rounded-md border border-slate-200">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-4">
+          <div className="min-h-0 flex-1 overflow-auto rounded-md border border-slate-200">
             <table className="min-w-[900px] w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-600">
+              <thead className="sticky top-0 z-10 bg-slate-50 text-slate-600">
                 <tr>
                   {columns.map((column) => (
                     <th
