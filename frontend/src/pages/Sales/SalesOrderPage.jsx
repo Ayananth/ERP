@@ -647,17 +647,6 @@ function SalesOrderPage() {
   const handleCancel = () => {
     setErrorMessage("");
     setSuccessMessage("");
-
-    if (activeOrderId) {
-      loadOrderById(activeOrderId).catch((error) => {
-        setErrorMessage(
-          error?.response?.data?.message ??
-            "Failed to reload the sales order."
-        );
-      });
-      return;
-    }
-
     setHeader({
       ...initialHeader,
       issue_date: getTodayDate(),
@@ -668,6 +657,12 @@ function SalesOrderPage() {
     setIsEditing(false);
     setActiveOrderId(null);
     setViewState("viewBlank");
+
+    if (orderId) {
+      navigate("/sales/transactions/order", {
+        replace: true,
+      });
+    }
   };
 
   const handleSaveOrder = async () => {
@@ -789,6 +784,7 @@ function SalesOrderPage() {
         onAddLine={handleAddLine}
         firstTableCellRef={firstTableCellRef}
         tableRefs={tableRefs}
+        saveButtonRef={newEditButtonRef}
       />
 
       <SalesQuotationFooter
