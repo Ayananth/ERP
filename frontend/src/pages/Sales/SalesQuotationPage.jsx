@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import {
   createQuotation,
@@ -227,6 +227,11 @@ function SalesQuotationPage() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const firstTableCellRef = useRef(null);
   const tableRefs = useRef([]);
+  const location = useLocation();
+  const [lines, setLines] = useState(initialLines);
+  const [nextLineId, setNextLineId] = useState(2);
+  const newEditButtonRef = useRef(null);
+  const firstFieldRef = useRef(null);
 
   useEffect(() => {
     if (!errorMessage) return;
@@ -240,20 +245,17 @@ function SalesQuotationPage() {
     return () => clearTimeout(timer);
   }, [successMessage]);
 
-  const [lines, setLines] = useState(initialLines);
-  const [nextLineId, setNextLineId] = useState(2);
-  const newEditButtonRef = useRef(null);
-  const firstFieldRef = useRef(null);
 
   useEffect(() => {
-    if (isEditing) {
-      firstFieldRef.current?.focus();
-      return;
-    }
+    const timer = setTimeout(() => {
+      if (isEditing) {
+        firstFieldRef.current?.focus();
+      } else {
+        newEditButtonRef.current?.focus();
+      }
+    }, 0);
 
-    if (!isEditing) {
-      newEditButtonRef.current?.focus();
-    }
+    return () => clearTimeout(timer);
   }, [isEditing]);
 
   useEffect(() => {
