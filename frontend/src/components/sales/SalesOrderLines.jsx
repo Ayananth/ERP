@@ -115,12 +115,6 @@ function SalesOrderLines({
     }
   };
 
-  const focusCell = (rowIndex, column) => {
-    setTimeout(() => {
-      tableRefs.current[rowIndex]?.[column]?.focus();
-    }, 0);
-  };
-
   useEffect(() => {
     if (pendingFocusRowRef.current === null) return;
 
@@ -159,13 +153,12 @@ function SalesOrderLines({
     }, 250);
   };
 
-  const handleItemPick = async (lineId, item, rowIndex) => {
+  const handleItemPick = async (lineId, item) => {
     setSearchResults((prev) => ({
       ...prev,
       [lineId]: [],
     }));
     await onItemSelect(lineId, item);
-    focusCell(rowIndex, TABLE_COLUMNS.UNIT);
   };
 
   return (
@@ -264,7 +257,7 @@ function SalesOrderLines({
                               key={item.id}
                               type="button"
                               className={`block w-full border-b border-slate-100 px-3 py-2 text-left text-sm hover:bg-slate-50 ${SALES_FOCUS_LIST_ITEM}`}
-                              onClick={() => handleItemPick(line.id, item, index)}
+                              onClick={() => handleItemPick(line.id, item)}
                             >
                               <div className="font-medium text-slate-700">
                                 {item.item_code}

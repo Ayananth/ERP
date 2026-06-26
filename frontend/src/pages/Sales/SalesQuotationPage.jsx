@@ -11,6 +11,7 @@ import {
   updateQuotation,
 } from "../../api/salesApi";
 import Alert from "../../components/common/Alert";
+import usePrimaryActionFocus from "../../hooks/usePrimaryActionFocus";
 import SalesQuotationLayout from "../../components/sales/SalesQuotationLayout";
 import SalesQuotationHeader from "../../components/sales/SalesQuotationHeader";
 import SalesQuotationLines from "../../components/sales/SalesQuotationLines";
@@ -232,6 +233,7 @@ function SalesQuotationPage() {
   const [nextLineId, setNextLineId] = useState(2);
   const newEditButtonRef = useRef(null);
   const firstFieldRef = useRef(null);
+  const schedulePrimaryActionFocus = usePrimaryActionFocus(newEditButtonRef);
 
   useEffect(() => {
     if (!errorMessage) return;
@@ -422,6 +424,7 @@ function SalesQuotationPage() {
         });
       })
     );
+    schedulePrimaryActionFocus();
   };
 
   const handleAddLine = () => {
@@ -512,6 +515,7 @@ function SalesQuotationPage() {
     try {
       await loadQuotationById(quotationSummary.id);
       setIsQuotationModalOpen(false);
+      schedulePrimaryActionFocus();
     } catch (error) {
       setErrorMessage(
         error?.response?.data?.message ??

@@ -12,6 +12,7 @@ import {
   getSalesOrderList,
 } from "../../api/salesApi";
 import Alert from "../../components/common/Alert";
+import usePrimaryActionFocus from "../../hooks/usePrimaryActionFocus";
 import SalesQuotationLayout from "../../components/sales/SalesQuotationLayout";
 import SalesQuotationFooter from "../../components/sales/SalesQuotationFooter";
 import SalesQuotationSelectModal from "../../components/sales/SalesQuotationSelectModal";
@@ -251,6 +252,7 @@ function SalesOrderPage() {
 
   const newEditButtonRef = useRef(null);
   const firstFieldRef = useRef(null);
+  const schedulePrimaryActionFocus = usePrimaryActionFocus(newEditButtonRef);
 
   useEffect(() => {
     if (isEditing) {
@@ -382,6 +384,7 @@ function SalesOrderPage() {
       setLines(hydratedLines.length ? hydratedLines : initialLines);
       setNextLineId(nextId);
       setIsQuotationModalOpen(false);
+      schedulePrimaryActionFocus();
     } catch (error) {
       setErrorMessage(
         error?.response?.data?.message ??
@@ -511,6 +514,7 @@ function SalesOrderPage() {
       setViewState("viewExisting");
       setIsEditing(false);
       setIsOrderModalOpen(false);
+      schedulePrimaryActionFocus();
     } catch (error) {
       setErrorMessage(
         error?.response?.data?.message ??
@@ -617,6 +621,7 @@ function SalesOrderPage() {
         });
       })
     );
+    schedulePrimaryActionFocus();
   };
 
   const handleAddLine = () => {
