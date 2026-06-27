@@ -58,9 +58,13 @@ function SalesQuotationFooter({
   previewDisabled = false,
   onSave,
   primaryActionLabel,
+  saving = false,
   totals = {},
 }) {
   const actionLabel = primaryActionLabel ?? (isEditing ? "Save" : "New");
+  const isSaveAction =
+    isEditing && (actionLabel === "Save" || actionLabel === "Update");
+  const buttonLabel = saving && isSaveAction ? "Saving..." : actionLabel;
 
   return (
     <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
@@ -79,15 +83,20 @@ function SalesQuotationFooter({
           <button
             type="button"
             ref={newEditButtonRef}
+            disabled={saving && isSaveAction}
             onClick={isEditing ? onSave : onAction}
-            className={`inline-flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 ${SALES_FOCUS_BUTTON}`}
+            className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium shadow-sm transition ${
+              saving && isSaveAction
+                ? "cursor-not-allowed bg-emerald-400 text-white"
+                : `bg-emerald-600 text-white hover:bg-emerald-700 ${SALES_FOCUS_BUTTON}`
+            }`}
           >
             {actionLabel === "Save" || actionLabel === "Update" ? (
               <Save size={16} />
             ) : (
               <PencilLine size={16} />
             )}
-            {actionLabel}
+            {buttonLabel}
           </button>
 
           <IconAction

@@ -45,6 +45,7 @@ function SalesOrderPage() {
     orders,
     primaryActionLabel,
     quotations,
+    saving,
     setErrorMessage,
     setIsOrderModalOpen,
     setIsPreviewOpen,
@@ -108,6 +109,7 @@ function SalesOrderPage() {
         previewDisabled={!activeOrderId}
         onSave={handleSaveOrder}
         primaryActionLabel={primaryActionLabel}
+        saving={saving}
         totals={totals}
       />
 

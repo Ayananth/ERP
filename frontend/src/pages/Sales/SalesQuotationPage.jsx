@@ -40,6 +40,7 @@ function SalesQuotationPage() {
     newEditButtonRef,
     primaryActionLabel,
     quotations,
+    saving,
     setErrorMessage,
     setIsPreviewOpen,
     setIsQuotationModalOpen,
@@ -100,6 +101,7 @@ function SalesQuotationPage() {
         previewDisabled={!activeQuotationId}
         onSave={handleSaveQuotation}
         primaryActionLabel={primaryActionLabel}
+        saving={saving}
         totals={footerTotals}
       />
 

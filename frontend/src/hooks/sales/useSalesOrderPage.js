@@ -61,6 +61,7 @@ export default function useSalesOrderPage() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [nextLineId, setNextLineId] = useState(2);
+  const [saving, setSaving] = useState(false);
 
   const firstTableCellRef = useRef(null);
   const tableRefs = useRef([]);
@@ -338,6 +339,8 @@ export default function useSalesOrderPage() {
   };
 
   const handleSaveOrder = async () => {
+    if (saving) return;
+
     clearMessages();
 
     if (!header.customer) {
@@ -361,6 +364,8 @@ export default function useSalesOrderPage() {
 
     const payload = createOrderPayload(header, validLines);
 
+    setSaving(true);
+
     try {
       const response = await createSalesOrder(payload);
       const savedOrderId = response?.id;
@@ -383,6 +388,8 @@ export default function useSalesOrderPage() {
           "Failed to save sales order. Please try again."
       );
       return null;
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -444,6 +451,7 @@ export default function useSalesOrderPage() {
     orders,
     primaryActionLabel,
     quotations,
+    saving,
     setErrorMessage,
     setIsOrderModalOpen,
     setIsPreviewOpen,

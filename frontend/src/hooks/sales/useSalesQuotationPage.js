@@ -56,6 +56,7 @@ export default function useSalesQuotationPage() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [lines, setLines] = useState(initialLines);
   const [nextLineId, setNextLineId] = useState(2);
+  const [saving, setSaving] = useState(false);
 
   const firstTableCellRef = useRef(null);
   const tableRefs = useRef([]);
@@ -264,6 +265,8 @@ export default function useSalesQuotationPage() {
   };
 
   const handleSaveQuotation = async () => {
+    if (saving) return;
+
     clearMessages();
 
     if (!header.customer) {
@@ -280,6 +283,8 @@ export default function useSalesQuotationPage() {
     }
 
     const payload = createQuotationPayload(header, validLines);
+
+    setSaving(true);
 
     try {
       const response = activeQuotationId
@@ -306,6 +311,8 @@ export default function useSalesQuotationPage() {
           "Failed to save quotation. Please try again."
       );
       return null;
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -363,6 +370,7 @@ export default function useSalesQuotationPage() {
     newEditButtonRef,
     primaryActionLabel,
     quotations,
+    saving,
     setErrorMessage,
     setIsPreviewOpen,
     setIsQuotationModalOpen,
