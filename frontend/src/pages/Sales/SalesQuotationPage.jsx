@@ -1,10 +1,14 @@
+import { Suspense } from "react";
+
 import Alert from "../../components/common/Alert";
 import SalesQuotationLayout from "../../components/sales/SalesQuotationLayout";
 import SalesQuotationHeader from "../../components/sales/SalesQuotationHeader";
 import SalesQuotationLines from "../../components/sales/SalesQuotationLines";
 import SalesQuotationFooter from "../../components/sales/SalesQuotationFooter";
-import SalesQuotationSelectModal from "../../components/sales/SalesQuotationSelectModal";
-import SalesOrderPreviewModal from "../../components/sales/SalesOrderPreviewModal";
+import {
+  LazySalesOrderPreviewModal,
+  LazySalesQuotationSelectModal,
+} from "../../components/sales/lazySalesModals";
 import useSalesQuotationPage from "../../hooks/sales/useSalesQuotationPage";
 
 function SalesQuotationPage() {
@@ -99,23 +103,31 @@ function SalesQuotationPage() {
         totals={footerTotals}
       />
 
-      <SalesOrderPreviewModal
-        open={isPreviewOpen}
-        onOpenChange={setIsPreviewOpen}
-        pdfPath={
-          activeQuotationId
-            ? `/sales/quotations/${activeQuotationId}/pdf/`
-            : ""
-        }
-      />
+      {isPreviewOpen ? (
+        <Suspense fallback={null}>
+          <LazySalesOrderPreviewModal
+            open={isPreviewOpen}
+            onOpenChange={setIsPreviewOpen}
+            pdfPath={
+              activeQuotationId
+                ? `/sales/quotations/${activeQuotationId}/pdf/`
+                : ""
+            }
+          />
+        </Suspense>
+      ) : null}
 
-      <SalesQuotationSelectModal
-        isOpen={isQuotationModalOpen}
-        loading={isQuotationModalLoading}
-        quotations={quotations}
-        onClose={() => setIsQuotationModalOpen(false)}
-        onSelect={handleQuotationSelect}
-      />
+      {isQuotationModalOpen ? (
+        <Suspense fallback={null}>
+          <LazySalesQuotationSelectModal
+            isOpen={isQuotationModalOpen}
+            loading={isQuotationModalLoading}
+            quotations={quotations}
+            onClose={() => setIsQuotationModalOpen(false)}
+            onSelect={handleQuotationSelect}
+          />
+        </Suspense>
+      ) : null}
     </SalesQuotationLayout>
   );
 }

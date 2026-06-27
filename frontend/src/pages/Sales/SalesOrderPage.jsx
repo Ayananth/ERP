@@ -1,9 +1,13 @@
+import { Suspense } from "react";
+
 import Alert from "../../components/common/Alert";
 import SalesQuotationLayout from "../../components/sales/SalesQuotationLayout";
 import SalesQuotationFooter from "../../components/sales/SalesQuotationFooter";
-import SalesQuotationSelectModal from "../../components/sales/SalesQuotationSelectModal";
+import {
+  LazySalesOrderPreviewModal,
+  LazySalesQuotationSelectModal,
+} from "../../components/sales/lazySalesModals";
 import SalesOrderSelectModal from "../../components/sales/SalesOrderSelectModal";
-import SalesOrderPreviewModal from "../../components/sales/SalesOrderPreviewModal";
 import SalesOrderHeader from "../../components/sales/SalesOrderHeader";
 import SalesOrderLines from "../../components/sales/SalesOrderLines";
 import useSalesOrderPage from "../../hooks/sales/useSalesOrderPage";
@@ -107,13 +111,17 @@ function SalesOrderPage() {
         totals={totals}
       />
 
-      <SalesQuotationSelectModal
-        isOpen={isQuotationModalOpen}
-        loading={isQuotationModalLoading}
-        quotations={quotations}
-        onClose={() => setIsQuotationModalOpen(false)}
-        onSelect={handleQuotationSelect}
-      />
+      {isQuotationModalOpen ? (
+        <Suspense fallback={null}>
+          <LazySalesQuotationSelectModal
+            isOpen={isQuotationModalOpen}
+            loading={isQuotationModalLoading}
+            quotations={quotations}
+            onClose={() => setIsQuotationModalOpen(false)}
+            onSelect={handleQuotationSelect}
+          />
+        </Suspense>
+      ) : null}
 
       <SalesOrderSelectModal
         isOpen={isOrderModalOpen}
@@ -123,11 +131,15 @@ function SalesOrderPage() {
         onSelect={handleOrderSelect}
       />
 
-      <SalesOrderPreviewModal
-        open={isPreviewOpen}
-        onOpenChange={setIsPreviewOpen}
-        orderId={activeOrderId}
-      />
+      {isPreviewOpen ? (
+        <Suspense fallback={null}>
+          <LazySalesOrderPreviewModal
+            open={isPreviewOpen}
+            onOpenChange={setIsPreviewOpen}
+            orderId={activeOrderId}
+          />
+        </Suspense>
+      ) : null}
     </SalesQuotationLayout>
   );
 }
