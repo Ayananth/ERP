@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -39,6 +39,7 @@ import {
 } from "../../utils/sales/salesLineHandlers";
 import { validateLines } from "../../utils/sales/salesCalculations";
 import { createOrderPayload } from "../../utils/sales/orderPayload";
+import { getPrimaryActionLabel } from "../../utils/sales/salesViewLabels";
 
 export default function useSalesOrderPage() {
   const navigate = useNavigate();
@@ -70,11 +71,13 @@ export default function useSalesOrderPage() {
   const schedulePrimaryActionFocus = usePrimaryActionFocus(newEditButtonRef);
 
   const {
+    clearMessages,
+    dismissError,
+    dismissSuccess,
     errorMessage,
     setErrorMessage,
     successMessage,
     setSuccessMessage,
-    clearMessages,
   } = useFormMessages();
 
   useSalesEditingFocus(isEditing, firstFieldRef, schedulePrimaryActionFocus);
@@ -95,7 +98,7 @@ export default function useSalesOrderPage() {
     loadDropdownData();
   }, [setErrorMessage]);
 
-  const loadOrderById = async (id) => {
+  const loadOrderById = useCallback(async (id) => {
     const order = await getSalesOrder(id);
 
     setActiveOrderId(order?.id ?? id);
@@ -109,7 +112,7 @@ export default function useSalesOrderPage() {
     setLines(hydratedLines.length ? hydratedLines : initialLines);
     setNextLineId(getNextLineId(hydratedLines));
     setIsEditing(false);
-  };
+  }, []);
 
   useEffect(() => {
     const loadOrder = async () => {
@@ -134,9 +137,9 @@ export default function useSalesOrderPage() {
     };
 
     loadOrder();
-  }, [orderId, setErrorMessage]);
+  }, [loadOrderById, orderId, setErrorMessage]);
 
-  const openQuotationModal = async () => {
+  const openQuotationModal = useCallback(async () => {
     if (!isEditing) {
       return;
     }
@@ -155,53 +158,56 @@ export default function useSalesOrderPage() {
     } finally {
       setIsQuotationModalLoading(false);
     }
-  };
+  }, [isEditing, setErrorMessage]);
 
-  const handleQuotationSelect = async (quotationSummary) => {
-    setIsQuotationModalLoading(true);
-    clearMessages();
+  const handleQuotationSelect = useCallback(
+    async (quotationSummary) => {
+      setIsQuotationModalLoading(true);
+      clearMessages();
 
-    try {
-      const quotation = await getQuotation(quotationSummary.id);
-      const hydratedLines = await Promise.all(
-        (quotation?.lines ?? []).map((line, index) =>
-          hydrateOrderLine(
-            {
-              ...line,
-              item: line.item,
-              quantity: line.quantity,
-            },
-            index
+      try {
+        const quotation = await getQuotation(quotationSummary.id);
+        const hydratedLines = await Promise.all(
+          (quotation?.lines ?? []).map((line, index) =>
+            hydrateOrderLine(
+              {
+                ...line,
+                item: line.item,
+                quantity: line.quantity,
+              },
+              index
+            )
           )
-        )
-      );
+        );
 
-      setHeader((prev) => ({
-        ...prev,
-        linked_quotation:
-          quotation?.quotation_no ?? quotationSummary.quotation_no,
-        quotation_id: quotation?.id ?? quotationSummary.id,
-        customer: quotation?.customer ?? "",
-        customer_display: quotationSummary.customer_name ?? "",
-        delivery_place:
-          quotation?.delivery_place ?? quotationSummary.delivery_place,
-        notes: quotation?.notes ?? prev.notes,
-      }));
-      setLines(hydratedLines.length ? hydratedLines : initialLines);
-      setNextLineId(getNextLineId(hydratedLines));
-      setIsQuotationModalOpen(false);
-      schedulePrimaryActionFocus();
-    } catch (error) {
-      setErrorMessage(
-        error?.response?.data?.message ??
-          "Failed to load the selected quotation."
-      );
-    } finally {
-      setIsQuotationModalLoading(false);
-    }
-  };
+        setHeader((prev) => ({
+          ...prev,
+          linked_quotation:
+            quotation?.quotation_no ?? quotationSummary.quotation_no,
+          quotation_id: quotation?.id ?? quotationSummary.id,
+          customer: quotation?.customer ?? "",
+          customer_display: quotationSummary.customer_name ?? "",
+          delivery_place:
+            quotation?.delivery_place ?? quotationSummary.delivery_place,
+          notes: quotation?.notes ?? prev.notes,
+        }));
+        setLines(hydratedLines.length ? hydratedLines : initialLines);
+        setNextLineId(getNextLineId(hydratedLines));
+        setIsQuotationModalOpen(false);
+        schedulePrimaryActionFocus();
+      } catch (error) {
+        setErrorMessage(
+          error?.response?.data?.message ??
+            "Failed to load the selected quotation."
+        );
+      } finally {
+        setIsQuotationModalLoading(false);
+      }
+    },
+    [clearMessages, schedulePrimaryActionFocus, setErrorMessage]
+  );
 
-  const openOrderModal = async () => {
+  const openOrderModal = useCallback(async () => {
     setIsOrderModalOpen(true);
     setIsOrderModalLoading(true);
     setErrorMessage("");
@@ -216,9 +222,9 @@ export default function useSalesOrderPage() {
     } finally {
       setIsOrderModalLoading(false);
     }
-  };
+  }, [setErrorMessage]);
 
-  const resetToBlankTransaction = () => {
+  const resetToBlankTransaction = useCallback(() => {
     setHeader({
       ...initialHeader,
       issue_date: getTodayDate(),
@@ -232,82 +238,91 @@ export default function useSalesOrderPage() {
     navigate("/sales/transactions/order", {
       replace: true,
     });
-  };
+  }, [navigate]);
 
-  const handleOrderSelect = async (orderSummary) => {
-    setIsOrderModalLoading(true);
-    clearMessages();
+  const handleOrderSelect = useCallback(
+    async (orderSummary) => {
+      setIsOrderModalLoading(true);
+      clearMessages();
 
-    try {
-      const order = await getSalesOrder(orderSummary.id);
-      const hydratedLines = await Promise.all(
-        (order?.lines ?? []).map((line, index) =>
-          hydrateOrderLine(
-            {
-              ...line,
-              item: line.item,
-              quantity: line.quantity,
-            },
-            index
+      try {
+        const order = await getSalesOrder(orderSummary.id);
+        const hydratedLines = await Promise.all(
+          (order?.lines ?? []).map((line, index) =>
+            hydrateOrderLine(
+              {
+                ...line,
+                item: line.item,
+                quantity: line.quantity,
+              },
+              index
+            )
           )
-        )
+        );
+
+        setHeader({
+          ...mapOrderToHeader(order),
+          customer_display:
+            order?.customer_name ?? orderSummary.customer_name ?? "",
+        });
+        setLines(hydratedLines.length ? hydratedLines : initialLines);
+        setNextLineId(getNextLineId(hydratedLines));
+        setActiveOrderId(order?.id ?? orderSummary.id);
+        setViewState("viewExisting");
+        setIsEditing(false);
+        setIsOrderModalOpen(false);
+        schedulePrimaryActionFocus();
+      } catch (error) {
+        setErrorMessage(
+          error?.response?.data?.message ??
+            "Failed to load the selected sales order."
+        );
+      } finally {
+        setIsOrderModalLoading(false);
+      }
+    },
+    [clearMessages, schedulePrimaryActionFocus, setErrorMessage]
+  );
+
+  const handleHeaderChange = useCallback(
+    (field, value) => {
+      clearMessages();
+      setHeader((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    },
+    [clearMessages]
+  );
+
+  const handleLineChange = useCallback(
+    (lineId, field, value) => {
+      clearMessages();
+      setLines((prevLines) =>
+        applyLineFieldChange(prevLines, lineId, field, value, calculateLine)
       );
+    },
+    [clearMessages]
+  );
 
-      setHeader({
-        ...mapOrderToHeader(order),
-        customer_display:
-          order?.customer_name ?? orderSummary.customer_name ?? "",
-      });
-      setLines(hydratedLines.length ? hydratedLines : initialLines);
-      setNextLineId(getNextLineId(hydratedLines));
-      setActiveOrderId(order?.id ?? orderSummary.id);
-      setViewState("viewExisting");
-      setIsEditing(false);
-      setIsOrderModalOpen(false);
-      schedulePrimaryActionFocus();
-    } catch (error) {
-      setErrorMessage(
-        error?.response?.data?.message ??
-          "Failed to load the selected sales order."
-      );
-    } finally {
-      setIsOrderModalLoading(false);
-    }
-  };
-
-  const handleHeaderChange = (field, value) => {
-    clearMessages();
-    setHeader((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const handleLineChange = (lineId, field, value) => {
-    clearMessages();
-    setLines((prevLines) =>
-      applyLineFieldChange(prevLines, lineId, field, value, calculateLine)
-    );
-  };
-
-  const handleItemSearch = async (search) => {
+  const handleItemSearch = useCallback(async (search) => {
     const response = await getItemSearch(search);
     return response ?? [];
-  };
+  }, []);
 
-  const handleItemSelect = async (lineId, item) => {
+  const handleItemSelect = useCallback(async (lineId, item) => {
     const itemDetails = await getItemDetails(item.id);
     setLines((prevLines) =>
       applyItemSelection(prevLines, lineId, item, itemDetails, hydrateLine)
     );
-  };
+  }, []);
 
-  const handleAddLine = () => {
+  const handleAddLine = useCallback(() => {
     setLines((prevLines) => [...prevLines, createEmptyLine(nextLineId)]);
     setNextLineId((prev) => prev + 1);
-  };
+  }, [nextLineId]);
 
-  const handleFooterAction = () => {
+  const handleFooterAction = useCallback(() => {
     clearMessages();
 
     if (viewState === "viewExisting") {
@@ -316,9 +331,9 @@ export default function useSalesOrderPage() {
     }
 
     resetToBlankTransaction();
-  };
+  }, [clearMessages, resetToBlankTransaction, viewState]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     clearMessages();
     setHeader({
       ...initialHeader,
@@ -336,9 +351,9 @@ export default function useSalesOrderPage() {
         replace: true,
       });
     }
-  };
+  }, [clearMessages, navigate, orderId]);
 
-  const handleSaveOrder = async () => {
+  const handleSaveOrder = useCallback(async () => {
     if (saving) return;
 
     clearMessages();
@@ -391,37 +406,55 @@ export default function useSalesOrderPage() {
     } finally {
       setSaving(false);
     }
-  };
+  }, [
+    clearMessages,
+    header,
+    lines,
+    loadOrderById,
+    navigate,
+    saving,
+    setErrorMessage,
+    setSuccessMessage,
+  ]);
 
-  const handleListOrders = async () => {
-    await openOrderModal();
-  };
+  const handleListOrders = openOrderModal;
 
-  const handleHeaderEnd = () => {
+  const handleHeaderEnd = useCallback(() => {
     firstTableCellRef.current?.focus?.();
-  };
+  }, []);
 
-  const handlePreview = () => {
+  const handlePreview = useCallback(() => {
     if (!activeOrderId) {
       return;
     }
 
     setIsPreviewOpen(true);
-  };
+  }, [activeOrderId]);
 
-  const totals = calculateTotals(lines);
+  const closeQuotationModal = useCallback(() => {
+    setIsQuotationModalOpen(false);
+  }, []);
 
-  const primaryActionLabel = isEditing
-    ? viewState === "viewExisting"
-      ? "Update"
-      : "Save"
-    : viewState === "viewExisting"
-      ? "Edit"
-      : "New";
+  const closeOrderModal = useCallback(() => {
+    setIsOrderModalOpen(false);
+  }, []);
+
+  const totals = useMemo(() => calculateTotals(lines), [lines]);
+
+  const primaryActionLabel = useMemo(
+    () => getPrimaryActionLabel(isEditing, viewState),
+    [isEditing, viewState]
+  );
+
+  const previewDisabled = !activeOrderId;
 
   return {
     activeOrderId,
+    closeOrderModal,
+    closeQuotationModal,
     customers,
+    dismissError,
+    dismissSuccess,
     errorMessage,
     firstFieldRef,
     firstTableCellRef,
@@ -449,14 +482,11 @@ export default function useSalesOrderPage() {
     newEditButtonRef,
     openQuotationModal,
     orders,
+    previewDisabled,
     primaryActionLabel,
     quotations,
     saving,
-    setErrorMessage,
-    setIsOrderModalOpen,
     setIsPreviewOpen,
-    setIsQuotationModalOpen,
-    setSuccessMessage,
     successMessage,
     tableRefs,
     totals,

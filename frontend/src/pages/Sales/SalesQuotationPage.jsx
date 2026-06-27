@@ -13,8 +13,10 @@ import useSalesQuotationPage from "../../hooks/sales/useSalesQuotationPage";
 
 function SalesQuotationPage() {
   const {
-    activeQuotationId,
+    closeQuotationModal,
     customers,
+    dismissError,
+    dismissSuccess,
     errorMessage,
     firstFieldRef,
     firstTableCellRef,
@@ -38,13 +40,12 @@ function SalesQuotationPage() {
     isQuotationModalOpen,
     loadingQuotation,
     newEditButtonRef,
+    previewDisabled,
+    previewPdfPath,
     primaryActionLabel,
     quotations,
     saving,
-    setErrorMessage,
     setIsPreviewOpen,
-    setIsQuotationModalOpen,
-    setSuccessMessage,
     successMessage,
     tableRefs,
     lines,
@@ -55,13 +56,13 @@ function SalesQuotationPage() {
       <Alert
         type="error"
         message={errorMessage}
-        onClose={() => setErrorMessage("")}
+        onClose={dismissError}
       />
 
       <Alert
         type="success"
         message={successMessage}
-        onClose={() => setSuccessMessage("")}
+        onClose={dismissSuccess}
       />
 
       {loadingQuotation ? (
@@ -98,7 +99,7 @@ function SalesQuotationPage() {
         newEditButtonRef={newEditButtonRef}
         onList={handleListQuotations}
         onPreview={handlePreview}
-        previewDisabled={!activeQuotationId}
+        previewDisabled={previewDisabled}
         onSave={handleSaveQuotation}
         primaryActionLabel={primaryActionLabel}
         saving={saving}
@@ -110,11 +111,7 @@ function SalesQuotationPage() {
           <LazySalesOrderPreviewModal
             open={isPreviewOpen}
             onOpenChange={setIsPreviewOpen}
-            pdfPath={
-              activeQuotationId
-                ? `/sales/quotations/${activeQuotationId}/pdf/`
-                : ""
-            }
+            pdfPath={previewPdfPath}
           />
         </Suspense>
       ) : null}
@@ -125,7 +122,7 @@ function SalesQuotationPage() {
             isOpen={isQuotationModalOpen}
             loading={isQuotationModalLoading}
             quotations={quotations}
-            onClose={() => setIsQuotationModalOpen(false)}
+            onClose={closeQuotationModal}
             onSelect={handleQuotationSelect}
           />
         </Suspense>

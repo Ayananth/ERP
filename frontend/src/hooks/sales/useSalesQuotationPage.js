@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -35,6 +35,7 @@ import {
 } from "../../utils/sales/salesLineHandlers";
 import { validateLines } from "../../utils/sales/salesCalculations";
 import { createQuotationPayload } from "../../utils/sales/quotationPayload";
+import { getPrimaryActionLabel } from "../../utils/sales/salesViewLabels";
 
 export default function useSalesQuotationPage() {
   const navigate = useNavigate();
@@ -65,11 +66,13 @@ export default function useSalesQuotationPage() {
   const schedulePrimaryActionFocus = usePrimaryActionFocus(newEditButtonRef);
 
   const {
+    clearMessages,
+    dismissError,
+    dismissSuccess,
     errorMessage,
     setErrorMessage,
     successMessage,
     setSuccessMessage,
-    clearMessages,
   } = useFormMessages();
 
   useSalesEditingFocus(isEditing, firstFieldRef, schedulePrimaryActionFocus);
@@ -94,7 +97,7 @@ export default function useSalesQuotationPage() {
     loadDropdownData();
   }, [setErrorMessage]);
 
-  const loadQuotationById = async (id) => {
+  const loadQuotationById = useCallback(async (id) => {
     const quotation = await getQuotation(id);
 
     setActiveQuotationId(quotation?.id ?? id);
@@ -109,7 +112,7 @@ export default function useSalesQuotationPage() {
 
     setLines(hydratedLines.length ? hydratedLines : initialLines);
     setIsEditing(false);
-  };
+  }, []);
 
   useEffect(() => {
     const loadQuotation = async () => {
@@ -152,39 +155,45 @@ export default function useSalesQuotationPage() {
     loadQuotation();
   }, [quotationId, setErrorMessage]);
 
-  const handleHeaderChange = (field, value) => {
-    clearMessages();
-    setHeader((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  const handleHeaderChange = useCallback(
+    (field, value) => {
+      clearMessages();
+      setHeader((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    },
+    [clearMessages]
+  );
 
-  const handleLineChange = (lineId, field, value) => {
-    clearMessages();
-    setLines((prevLines) =>
-      applyLineFieldChange(prevLines, lineId, field, value, calculateLine)
-    );
-  };
+  const handleLineChange = useCallback(
+    (lineId, field, value) => {
+      clearMessages();
+      setLines((prevLines) =>
+        applyLineFieldChange(prevLines, lineId, field, value, calculateLine)
+      );
+    },
+    [clearMessages]
+  );
 
-  const handleItemSearch = async (search) => {
+  const handleItemSearch = useCallback(async (search) => {
     const response = await getItemSearch(search);
     return response ?? [];
-  };
+  }, []);
 
-  const handleItemSelect = async (lineId, item) => {
+  const handleItemSelect = useCallback(async (lineId, item) => {
     const itemDetails = await getItemDetails(item.id);
     setLines((prevLines) =>
       applyItemSelection(prevLines, lineId, item, itemDetails, hydrateLine)
     );
-  };
+  }, []);
 
-  const handleAddLine = () => {
+  const handleAddLine = useCallback(() => {
     setLines((prevLines) => [...prevLines, createEmptyLine(nextLineId)]);
     setNextLineId((prev) => prev + 1);
-  };
+  }, [nextLineId]);
 
-  const resetToBlankTransaction = () => {
+  const resetToBlankTransaction = useCallback(() => {
     setHeader({
       ...initialHeader,
       date: getTodayDate(),
@@ -197,9 +206,9 @@ export default function useSalesQuotationPage() {
     navigate("/sales/transactions/quotation", {
       replace: true,
     });
-  };
+  }, [navigate]);
 
-  const openQuotationModal = async () => {
+  const openQuotationModal = useCallback(async () => {
     setIsQuotationModalOpen(true);
     setIsQuotationModalLoading(true);
     setErrorMessage("");
@@ -214,27 +223,35 @@ export default function useSalesQuotationPage() {
     } finally {
       setIsQuotationModalLoading(false);
     }
-  };
+  }, [setErrorMessage]);
 
-  const handleQuotationSelect = async (quotationSummary) => {
-    setIsQuotationModalLoading(true);
-    clearMessages();
+  const handleQuotationSelect = useCallback(
+    async (quotationSummary) => {
+      setIsQuotationModalLoading(true);
+      clearMessages();
 
-    try {
-      await loadQuotationById(quotationSummary.id);
-      setIsQuotationModalOpen(false);
-      schedulePrimaryActionFocus();
-    } catch (error) {
-      setErrorMessage(
-        error?.response?.data?.message ??
-          "Failed to load the selected quotation."
-      );
-    } finally {
-      setIsQuotationModalLoading(false);
-    }
-  };
+      try {
+        await loadQuotationById(quotationSummary.id);
+        setIsQuotationModalOpen(false);
+        schedulePrimaryActionFocus();
+      } catch (error) {
+        setErrorMessage(
+          error?.response?.data?.message ??
+            "Failed to load the selected quotation."
+        );
+      } finally {
+        setIsQuotationModalLoading(false);
+      }
+    },
+    [
+      clearMessages,
+      loadQuotationById,
+      schedulePrimaryActionFocus,
+      setErrorMessage,
+    ]
+  );
 
-  const handleFooterAction = () => {
+  const handleFooterAction = useCallback(() => {
     clearMessages();
 
     if (viewState === "viewExisting") {
@@ -243,9 +260,9 @@ export default function useSalesQuotationPage() {
     }
 
     resetToBlankTransaction();
-  };
+  }, [clearMessages, resetToBlankTransaction, viewState]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     clearMessages();
     setHeader({
       ...initialHeader,
@@ -262,9 +279,9 @@ export default function useSalesQuotationPage() {
         replace: true,
       });
     }
-  };
+  }, [clearMessages, navigate, quotationId]);
 
-  const handleSaveQuotation = async () => {
+  const handleSaveQuotation = useCallback(async () => {
     if (saving) return;
 
     clearMessages();
@@ -314,37 +331,59 @@ export default function useSalesQuotationPage() {
     } finally {
       setSaving(false);
     }
-  };
+  }, [
+    activeQuotationId,
+    clearMessages,
+    header,
+    lines,
+    loadQuotationById,
+    navigate,
+    saving,
+    setErrorMessage,
+    setSuccessMessage,
+  ]);
 
-  const handleListQuotations = async () => {
-    await openQuotationModal();
-  };
+  const handleListQuotations = openQuotationModal;
 
-  const handleHeaderEnd = () => {
+  const handleHeaderEnd = useCallback(() => {
     firstTableCellRef.current?.focus?.();
-  };
+  }, []);
 
-  const handlePreview = () => {
+  const handlePreview = useCallback(() => {
     if (!activeQuotationId) {
       return;
     }
 
     setIsPreviewOpen(true);
-  };
+  }, [activeQuotationId]);
 
-  const footerTotals = calculateTotals(lines);
+  const closeQuotationModal = useCallback(() => {
+    setIsQuotationModalOpen(false);
+  }, []);
 
-  const primaryActionLabel = isEditing
-    ? viewState === "viewExisting"
-      ? "Update"
-      : "Save"
-    : viewState === "viewExisting"
-      ? "Edit"
-      : "New";
+  const footerTotals = useMemo(() => calculateTotals(lines), [lines]);
+
+  const primaryActionLabel = useMemo(
+    () => getPrimaryActionLabel(isEditing, viewState),
+    [isEditing, viewState]
+  );
+
+  const previewPdfPath = useMemo(
+    () =>
+      activeQuotationId
+        ? `/sales/quotations/${activeQuotationId}/pdf/`
+        : "",
+    [activeQuotationId]
+  );
+
+  const previewDisabled = !activeQuotationId;
 
   return {
     activeQuotationId,
+    closeQuotationModal,
     customers,
+    dismissError,
+    dismissSuccess,
     errorMessage,
     firstFieldRef,
     firstTableCellRef,
@@ -368,13 +407,12 @@ export default function useSalesQuotationPage() {
     isQuotationModalOpen,
     loadingQuotation,
     newEditButtonRef,
+    previewDisabled,
+    previewPdfPath,
     primaryActionLabel,
     quotations,
     saving,
-    setErrorMessage,
     setIsPreviewOpen,
-    setIsQuotationModalOpen,
-    setSuccessMessage,
     successMessage,
     tableRefs,
     lines,

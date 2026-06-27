@@ -15,7 +15,11 @@ import useSalesOrderPage from "../../hooks/sales/useSalesOrderPage";
 function SalesOrderPage() {
   const {
     activeOrderId,
+    closeOrderModal,
+    closeQuotationModal,
     customers,
+    dismissError,
+    dismissSuccess,
     errorMessage,
     firstFieldRef,
     firstTableCellRef,
@@ -43,14 +47,11 @@ function SalesOrderPage() {
     newEditButtonRef,
     openQuotationModal,
     orders,
+    previewDisabled,
     primaryActionLabel,
     quotations,
     saving,
-    setErrorMessage,
-    setIsOrderModalOpen,
     setIsPreviewOpen,
-    setIsQuotationModalOpen,
-    setSuccessMessage,
     successMessage,
     tableRefs,
     totals,
@@ -62,13 +63,13 @@ function SalesOrderPage() {
       <Alert
         type="error"
         message={errorMessage}
-        onClose={() => setErrorMessage("")}
+        onClose={dismissError}
       />
 
       <Alert
         type="success"
         message={successMessage}
-        onClose={() => setSuccessMessage("")}
+        onClose={dismissSuccess}
       />
 
       {loadingOrder ? (
@@ -106,7 +107,7 @@ function SalesOrderPage() {
         newEditButtonRef={newEditButtonRef}
         onList={handleListOrders}
         onPreview={handlePreview}
-        previewDisabled={!activeOrderId}
+        previewDisabled={previewDisabled}
         onSave={handleSaveOrder}
         primaryActionLabel={primaryActionLabel}
         saving={saving}
@@ -119,7 +120,7 @@ function SalesOrderPage() {
             isOpen={isQuotationModalOpen}
             loading={isQuotationModalLoading}
             quotations={quotations}
-            onClose={() => setIsQuotationModalOpen(false)}
+            onClose={closeQuotationModal}
             onSelect={handleQuotationSelect}
           />
         </Suspense>
@@ -129,7 +130,7 @@ function SalesOrderPage() {
         isOpen={isOrderModalOpen}
         loading={isOrderModalLoading}
         orders={orders}
-        onClose={() => setIsOrderModalOpen(false)}
+        onClose={closeOrderModal}
         onSelect={handleOrderSelect}
       />
 

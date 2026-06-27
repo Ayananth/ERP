@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function useFormMessages() {
   const [errorMessage, setErrorMessage] = useState("");
@@ -16,16 +16,26 @@ export default function useFormMessages() {
     return () => clearTimeout(timer);
   }, [successMessage]);
 
-  const clearMessages = () => {
+  const clearMessages = useCallback(() => {
     setErrorMessage("");
     setSuccessMessage("");
-  };
+  }, []);
+
+  const dismissError = useCallback(() => {
+    setErrorMessage("");
+  }, []);
+
+  const dismissSuccess = useCallback(() => {
+    setSuccessMessage("");
+  }, []);
 
   return {
+    clearMessages,
+    dismissError,
+    dismissSuccess,
     errorMessage,
     setErrorMessage,
     successMessage,
     setSuccessMessage,
-    clearMessages,
   };
 }
