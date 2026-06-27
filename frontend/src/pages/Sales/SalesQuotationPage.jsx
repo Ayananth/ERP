@@ -31,6 +31,7 @@ import {
   hydrateQuotationLine,
 } from "../../utils/sales/quotationCalculations";
 import { validateLines } from "../../utils/sales/salesCalculations";
+import { createQuotationPayload } from "../../utils/sales/quotationPayload";
 
 function SalesQuotationPage() {
   const navigate = useNavigate();
@@ -395,19 +396,7 @@ function SalesQuotationPage() {
       return;
     }
 
-    const payload = {
-      customer: Number(header.customer),
-      quotation_date: header.date,
-      notes: header.notes,
-      lines: validLines.map((line) => ({
-        item: Number(line.item_id),
-        unit: Number(line.unit),
-        quantity: Number(line.qty || 0),
-        rate: Number(line.rate || 0),
-        discount_percent: Number(line.discount_percent || 0),
-        vat_percent: Number(line.vat_percent || 0),
-      })),
-    };
+    const payload = createQuotationPayload(header, validLines);
 
     try {
       const response = activeQuotationId

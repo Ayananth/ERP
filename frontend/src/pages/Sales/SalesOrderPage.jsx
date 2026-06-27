@@ -28,6 +28,7 @@ import {
   hydrateLine,
   hydrateOrderLine,
 } from "../../utils/sales/orderCalculations";
+import { createOrderPayload } from "../../utils/sales/orderPayload";
 
 const getValidDate = () => {
   const date = new Date();
@@ -545,20 +546,7 @@ function SalesOrderPage() {
       return;
     }
 
-    const payload = {
-      quotation: header.quotation_id ? Number(header.quotation_id) : null,
-      customer: Number(header.customer),
-      order_date: header.issue_date,
-      notes: header.notes,
-      lines: validLines.map((line) => ({
-        item: Number(line.item_id),
-        unit: Number(line.unit),
-        quantity: Number(line.qty || 0),
-        rate: Number(line.rate || 0),
-        discount_percent: Number(line.discount_percent || 0),
-        vat_percent: Number(line.vat_percent || 0),
-      })),
-    };
+    const payload = createOrderPayload(header, validLines);
 
     try {
       const response = await createSalesOrder(payload);
