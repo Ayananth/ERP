@@ -1,62 +1,45 @@
-
 from django.urls import path
 
 from .views import (
     CustomerListView,
-    SalesOrderCreateView,
     SalesOrderDetailAPIView,
-    SalesOrderListView,
+    SalesOrderListCreateAPIView,
     SalesOrderPdfView,
-    SalesQuotationCreateView,
     SalesQuotationDetailView,
-    SalesQuotationListView,
+    SalesQuotationListCreateAPIView,
     SalesQuotationPdfView,
 )
 
 urlpatterns = [
-
-    path(
-        "customers/",
-        CustomerListView.as_view()
-    ),
-
+    path("customers/", CustomerListView.as_view(), name="customer-list"),
     path(
         "quotations/",
-        SalesQuotationListView.as_view()
+        SalesQuotationListCreateAPIView.as_view(),
+        name="quotation-list-create",
     ),
-
-    path(
-        "quotations/create/",
-        SalesQuotationCreateView.as_view()
-    ),
-
     path(
         "quotations/<int:pk>/",
-        SalesQuotationDetailView.as_view()
+        SalesQuotationDetailView.as_view(),
+        name="quotation-detail",
     ),
-
     path(
         "quotations/<int:pk>/pdf/",
-        SalesQuotationPdfView.as_view()
+        SalesQuotationPdfView.as_view(),
+        name="quotation-pdf",
     ),
-
     path(
         "orders/",
-        SalesOrderListView.as_view()
+        SalesOrderListCreateAPIView.as_view(),
+        name="order-list-create",
     ),
-
-    path(
-        "orders/create/",
-        SalesOrderCreateView.as_view()
-    ),
-
     path(
         "orders/<int:pk>/",
-        SalesOrderDetailAPIView.as_view()
+        SalesOrderDetailAPIView.as_view(),
+        name="order-detail",
     ),
-
     path(
         "orders/<int:pk>/pdf/",
-        SalesOrderPdfView.as_view()
+        SalesOrderPdfView.as_view(),
+        name="order-pdf",
     ),
 ]

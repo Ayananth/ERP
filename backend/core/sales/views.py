@@ -89,43 +89,7 @@ class CustomerListView(APIView):
         return Response(serializer.data)
     
 
-class SalesQuotationCreateView(APIView):
-
-    def post(self, request):
-
-        serializer = SalesQuotationCreateSerializer(
-            data=request.data
-        )
-
-        serializer.is_valid(raise_exception=True)
-
-        data = serializer.validated_data
-
-        quotation = SalesQuotation.objects.create(
-            customer_id=data["customer"],
-            quotation_date=data["quotation_date"],
-            notes=data.get("notes", "")
-        )
-
-        for line in data["lines"]:
-
-            quotation_line = SalesQuotationLine(
-                quotation=quotation,
-                item=line["item"],
-                unit=line["unit"],
-                quantity=line["quantity"],
-                rate=line["rate"],
-                discount_percent=line["discount_percent"],
-                vat_percent=line["vat_percent"]
-            )
-            quotation_line.save()
-
-        return Response(
-            {"id": quotation.id}
-        )
-    
-
-class SalesQuotationListView(APIView):
+class SalesQuotationListCreateAPIView(APIView):
 
     def get(self, request):
 
@@ -148,8 +112,31 @@ class SalesQuotationListView(APIView):
             })
 
         return Response(data)
-    
 
+    def post(self, request):
+        serializer = SalesQuotationCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        quotation = SalesQuotation.objects.create(
+            customer_id=data["customer"],
+            quotation_date=data["quotation_date"],
+            notes=data.get("notes", ""),
+        )
+
+        for line in data["lines"]:
+            quotation_line = SalesQuotationLine(
+                quotation=quotation,
+                item=line["item"],
+                unit=line["unit"],
+                quantity=line["quantity"],
+                rate=line["rate"],
+                discount_percent=line["discount_percent"],
+                vat_percent=line["vat_percent"],
+            )
+            quotation_line.save()
+
+        return Response({"id": quotation.id}, status=status.HTTP_201_CREATED)
 
 
 class SalesQuotationDetailView(APIView):
@@ -262,51 +249,35 @@ class SalesQuotationPdfView(APIView):
 
 
 
-class SalesOrderListView(APIView):
+class SalesOrderListCreateAPIView(APIView):
 
     def get(self, request):
-
         queryset = (
             SalesOrder.objects
             .select_related("customer")
             .order_by("-id")
         )
 
-        serializer = SalesOrderListSerializer(
-            queryset,
-            many=True
-        )
-
+        serializer = SalesOrderListSerializer(queryset, many=True)
         return Response(serializer.data)
 
-
-class SalesOrderCreateView(APIView):
-
     def post(self, request):
-
-        serializer = SalesOrderCreateSerializer(
-            data=request.data
-        )
-
+        serializer = SalesOrderCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         data = serializer.validated_data
 
         order = SalesOrder.objects.create(
             quotation_id=data.get("quotation"),
             customer_id=data["customer"],
             order_date=data["order_date"],
-            notes=data.get("notes", "")
+            notes=data.get("notes", ""),
         )
 
         save_order_lines(order, data["lines"])
 
         return Response(
-            {
-                "id": order.id,
-                "order_no": order.order_no
-            },
-            status=status.HTTP_201_CREATED
+            {"id": order.id, "order_no": order.order_no},
+            status=status.HTTP_201_CREATED,
         )
 
 

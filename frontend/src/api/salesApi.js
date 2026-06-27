@@ -19,7 +19,7 @@ export const getItemDetails = async (id) => {
 };
 
 export const createQuotation = async (body) => {
-  const response = await api.post("/sales/quotations/create/", body);
+  const response = await api.post("/sales/quotations/", body);
   return response.data;
 };
 
@@ -44,7 +44,7 @@ export const deleteQuotation = async (id) => {
 };
 
 export const createSalesOrder = async (body) => {
-  const response = await api.post("/sales/orders/create/", body);
+  const response = await api.post("/sales/orders/", body);
   return response.data;
 };
 
