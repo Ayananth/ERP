@@ -18,51 +18,12 @@ import SalesQuotationLines from "../../components/sales/SalesQuotationLines";
 import SalesQuotationFooter from "../../components/sales/SalesQuotationFooter";
 import SalesQuotationSelectModal from "../../components/sales/SalesQuotationSelectModal";
 import SalesOrderPreviewModal from "../../components/sales/SalesOrderPreviewModal";
-
-const getTodayDate = () => new Date().toISOString().slice(0, 10);
-
-const initialHeader = {
-  quotation_no: "",
-  quotation_type: "",
-  date: getTodayDate(),
-  customer: "",
-  customer_ref_no: "",
-  sales_executive: "",
-  attention: "",
-  pay_terms: "",
-  delivery_place: "",
-  currency: "1 - SAUDI RIYAL",
-  exchange_rate: "1",
-  notes: "",
-};
-
-const initialLines = [
-  {
-    id: 1,
-    item_id: "",
-    item_code: "",
-    description: "",
-    unit: "",
-    unit_name: "",
-    qty: "",
-    rate: "",
-    discount_percent: "",
-    discount_amount: "",
-    gross_amount: "",
-    net_amount: "",
-    vat_percent: "",
-    vat_amount: "",
-    net_after_vat: "",
-    unit_options: [],
-    unit_prices: [],
-    item_options: [],
-  },
-];
-
-const createEmptyLine = (id) => ({
-  ...initialLines[0],
-  id,
-});
+import {
+  createEmptyLine,
+  getTodayDate,
+  initialHeader,
+  initialLines,
+} from "../../utils/sales/quotationConstants";
 
 const toNumber = (value) => {
   const parsed = Number(value);

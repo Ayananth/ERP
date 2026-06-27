@@ -20,8 +20,7 @@ import SalesOrderSelectModal from "../../components/sales/SalesOrderSelectModal"
 import SalesOrderPreviewModal from "../../components/sales/SalesOrderPreviewModal";
 import SalesOrderHeader from "../../components/sales/SalesOrderHeader";
 import SalesOrderLines from "../../components/sales/SalesOrderLines";
-
-const getTodayDate = () => new Date().toISOString().slice(0, 10);
+import { getTodayDate } from "../../utils/sales/salesConstants";
 
 const getValidDate = () => {
   const date = new Date();
