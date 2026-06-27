@@ -1,9 +1,12 @@
+import { memo } from "react";
+
 import Alert from "../common/Alert";
+import PriceListFooter from "./PriceListFooter";
 import PriceListHeader from "./PriceListHeader";
 import PriceListTable from "./PriceListTable";
-import PriceListFooter from "./PriceListFooter";
 
-export default function PriceListContent({
+function PriceListContent({
+  dismissMessage,
   editButtonRef,
   editing,
   errors,
@@ -15,22 +18,17 @@ export default function PriceListContent({
   item,
   message,
   prices,
-  setMessage,
+  saving,
 }) {
   return (
     <>
       <Alert
         type={message.type}
         message={message.text}
-        onClose={() =>
-          setMessage({
-            type: "",
-            text: "",
-          })
-        }
+        onClose={dismissMessage}
       />
 
-      <div className="flex flex-col h-full bg-white border rounded-lg">
+      <div className="flex h-full flex-col rounded-lg border bg-white">
         <PriceListHeader item={item} prices={prices} />
         <PriceListTable
           editing={editing}
@@ -45,8 +43,11 @@ export default function PriceListContent({
           handleClear={handleClear}
           handleSave={handleSave}
           handleStartEditing={handleStartEditing}
+          saving={saving}
         />
       </div>
     </>
   );
 }
+
+export default memo(PriceListContent);

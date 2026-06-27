@@ -4,6 +4,7 @@ import usePriceListPage from "../../hooks/inventory/usePriceListPage";
 
 export default function PriceListPage() {
   const {
+    dismissMessage,
     editButtonRef,
     editing,
     errors,
@@ -16,7 +17,7 @@ export default function PriceListPage() {
     loading,
     message,
     prices,
-    setMessage,
+    saving,
   } = usePriceListPage();
 
   if (loading) {
@@ -29,6 +30,7 @@ export default function PriceListPage() {
       description="Pricing information"
     >
       <PriceListContent
+        dismissMessage={dismissMessage}
         editButtonRef={editButtonRef}
         editing={editing}
         errors={errors}
@@ -40,7 +42,7 @@ export default function PriceListPage() {
         item={item}
         message={message}
         prices={prices}
-        setMessage={setMessage}
+        saving={saving}
       />
     </ItemPageLayout>
   );

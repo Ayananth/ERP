@@ -1,41 +1,23 @@
-export default function ItemPhotoCard({
-  imageUrl,
-  loading,
-}) {
+import { memo } from "react";
+
+function ItemPhotoCard({ imageUrl, loading }) {
   return (
-    <div className="flex-1 flex items-center justify-center p-8 min-h-[500px]">
+    <div className="flex min-h-[500px] flex-1 items-center justify-center p-8">
       {loading ? (
         <p>Loading...</p>
       ) : imageUrl ? (
         <img
           src={imageUrl}
           alt="Item"
-          className="
-            w-64
-            h-64
-            object-cover
-            rounded
-            border
-            shadow-sm
-          "
+          className="h-64 w-64 rounded border object-cover shadow-sm"
         />
       ) : (
-        <div
-          className="
-            w-64
-            h-64
-            border-2
-            border-dashed
-            rounded
-            flex
-            items-center
-            justify-center
-            text-slate-400
-          "
-        >
+        <div className="flex h-64 w-64 items-center justify-center rounded border-2 border-dashed text-slate-400">
           No Image
         </div>
       )}
     </div>
   );
 }
+
+export default memo(ItemPhotoCard);

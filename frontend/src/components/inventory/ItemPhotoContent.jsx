@@ -1,19 +1,23 @@
+import { memo } from "react";
+
 import Alert from "../common/Alert";
 import ConfirmModal from "../common/ConfirmModal";
 import ItemPhotoCard from "./ItemPhotoCard";
 import ItemPhotoFooter from "./ItemPhotoFooter";
 
-export default function ItemPhotoContent({
+function ItemPhotoContent({
+  closeDeleteModal,
+  dismissMessage,
   editButtonRef,
   fileInputRef,
   handleDelete,
   handleEditClick,
   handleFileChange,
+  hasImage,
   imageUrl,
   loading,
   message,
-  setMessage,
-  setShowDeleteModal,
+  openDeleteModal,
   showDeleteModal,
 }) {
   return (
@@ -26,36 +30,28 @@ export default function ItemPhotoContent({
         cancelText="Cancel"
         loading={loading}
         onConfirm={handleDelete}
-        onCancel={() => setShowDeleteModal(false)}
+        onCancel={closeDeleteModal}
       />
 
       <Alert
         type={message.type}
         message={message.text}
-        onClose={() =>
-          setMessage({
-            type: "",
-            text: "",
-          })
-        }
+        onClose={dismissMessage}
       />
 
-      <div className="flex flex-col h-full bg-white border rounded">
-        <div className="px-4 py-2 border-b bg-slate-50 font-medium text-sm">
+      <div className="flex h-full flex-col rounded border bg-white">
+        <div className="border-b bg-slate-50 px-4 py-2 text-sm font-medium">
           Item Image
         </div>
 
-        <ItemPhotoCard
-          imageUrl={imageUrl}
-          loading={loading}
-        />
+        <ItemPhotoCard imageUrl={imageUrl} loading={loading} />
 
         <ItemPhotoFooter
           editButtonRef={editButtonRef}
-          imageUrl={imageUrl}
+          hasImage={hasImage}
           loading={loading}
+          onClear={openDeleteModal}
           onEdit={handleEditClick}
-          onClear={() => setShowDeleteModal(true)}
         />
 
         <input
@@ -69,3 +65,5 @@ export default function ItemPhotoContent({
     </>
   );
 }
+
+export default memo(ItemPhotoContent);

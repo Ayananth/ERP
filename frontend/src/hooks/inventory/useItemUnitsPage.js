@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
 import {
-  getAvailableUnits,
-  getItemUnits,
   addItemUnit,
   deleteItemUnit,
+  getAvailableUnits,
+  getItemUnits,
   saveItemUnitSettings,
 } from "../../api/inventoryApi";
+import useInventoryMessage from "./useInventoryMessage";
 
 export const initialUnitForm = {
   unit: "",
@@ -18,58 +20,51 @@ export const initialUnitSettings = {
   stock_unit: "",
 };
 
+const getApiErrorMessage = (error, fallback) => {
+  const data = error?.response?.data;
+
+  if (typeof data === "string") {
+    return data;
+  }
+
+  if (data?.detail) {
+    return data.detail;
+  }
+
+  if (data?.message) {
+    return data.message;
+  }
+
+  if (data?.error) {
+    return data.error;
+  }
+
+  return fallback;
+};
+
 export default function useItemUnitsPage() {
   const { itemId } = useParams();
 
-  const [availableUnits, setAvailableUnits] =
-    useState([]);
+  const [availableUnits, setAvailableUnits] = useState([]);
   const [saving, setSaving] = useState(false);
   const [units, setUnits] = useState([]);
-  const [settings, setSettings] = useState(
-    initialUnitSettings
-  );
+  const [settings, setSettings] = useState(initialUnitSettings);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState({
-    type: "",
-    text: "",
-  });
   const [errors, setErrors] = useState({
     unit: "",
     conversion_factor: "",
     sales_unit: "",
     stock_unit: "",
   });
-  const [unitForm, setUnitForm] = useState(
-    initialUnitForm
-  );
+  const [unitForm, setUnitForm] = useState(initialUnitForm);
 
-  useEffect(() => {
-    if (!itemId) return;
+  const { dismissMessage, message, setMessage } = useInventoryMessage();
 
-    loadData();
-  }, [itemId]);
-
-  useEffect(() => {
-    if (!message.text) return;
-
-    const timer = setTimeout(() => {
-      setMessage({
-        type: "",
-        text: "",
-      });
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [message]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
 
-      const [
-        unitsResponse,
-        itemUnitsResponse,
-      ] = await Promise.all([
+      const [unitsResponse, itemUnitsResponse] = await Promise.all([
         getAvailableUnits(),
         getItemUnits(itemId),
       ]);
@@ -77,53 +72,81 @@ export default function useItemUnitsPage() {
       setAvailableUnits(unitsResponse.data);
       setUnits(itemUnitsResponse.data.units);
       setSettings({
-        sales_unit:
-          itemUnitsResponse.data.sales_unit ||
-          "",
-        stock_unit:
-          itemUnitsResponse.data.stock_unit ||
-          "",
+        sales_unit: itemUnitsResponse.data.sales_unit || "",
+        stock_unit: itemUnitsResponse.data.stock_unit || "",
       });
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [itemId]);
 
-  const clearFieldError = (name) => {
+  useEffect(() => {
+    if (!itemId) return;
+    loadData();
+  }, [itemId, loadData]);
+
+  const clearFieldError = useCallback((name) => {
     setErrors((prev) => ({
       ...prev,
       [name]: "",
     }));
-  };
+  }, []);
 
-  const getApiErrorMessage = (
-    error,
-    fallback
-  ) => {
-    const data = error?.response?.data;
+  const saveSettings = useCallback(async () => {
+    if (saving) return;
 
-    if (typeof data === "string") {
-      return data;
+    const newErrors = {};
+
+    if (!settings.sales_unit) {
+      newErrors.sales_unit = "Sales unit is required";
     }
 
-    if (data?.detail) {
-      return data.detail;
+    if (!settings.stock_unit) {
+      newErrors.stock_unit = "Stock unit is required";
     }
 
-    if (data?.message) {
-      return data.message;
+    setErrors((prev) => ({
+      ...prev,
+      sales_unit: newErrors.sales_unit || "",
+      stock_unit: newErrors.stock_unit || "",
+    }));
+
+    if (Object.keys(newErrors).length > 0) {
+      setMessage({
+        type: "error",
+        text: "Please correct the highlighted fields.",
+      });
+      return;
     }
 
-    if (data?.error) {
-      return data.error;
+    setSaving(true);
+
+    try {
+      await saveItemUnitSettings(itemId, {
+        stock_unit: Number(settings.stock_unit),
+        sales_unit: Number(settings.sales_unit),
+      });
+
+      setMessage({
+        type: "success",
+        text: "Settings saved successfully.",
+      });
+    } catch (error) {
+      console.error(error);
+      setMessage({
+        type: "error",
+        text: "Failed to save settings.",
+      });
+    } finally {
+      setSaving(false);
     }
+  }, [itemId, saving, setMessage, settings]);
 
-    return fallback;
-  };
+  const handleAddUnit = useCallback(async () => {
+    if (saving) return;
 
-  const validateUnitForm = () => {
     const newErrors = {};
 
     if (!unitForm.unit) {
@@ -142,87 +165,23 @@ export default function useItemUnitsPage() {
     setErrors((prev) => ({
       ...prev,
       unit: newErrors.unit || "",
-      conversion_factor:
-        newErrors.conversion_factor || "",
+      conversion_factor: newErrors.conversion_factor || "",
     }));
 
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const validateSettings = () => {
-    const newErrors = {};
-
-    if (!settings.sales_unit) {
-      newErrors.sales_unit =
-        "Sales unit is required";
-    }
-
-    if (!settings.stock_unit) {
-      newErrors.stock_unit =
-        "Stock unit is required";
-    }
-
-    setErrors((prev) => ({
-      ...prev,
-      sales_unit: newErrors.sales_unit || "",
-      stock_unit: newErrors.stock_unit || "",
-    }));
-
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const saveSettings = async () => {
-    try {
-      if (!validateSettings()) {
-        setMessage({
-          type: "error",
-          text: "Please correct the highlighted fields.",
-        });
-
-        return;
-      }
-
-      setSaving(true);
-
-      await saveItemUnitSettings(itemId, {
-        stock_unit: Number(settings.stock_unit),
-        sales_unit: Number(settings.sales_unit),
-      });
-
-      setMessage({
-        type: "success",
-        text: "Settings saved successfully.",
-      });
-    } catch (error) {
-      console.error(error);
-
+    if (Object.keys(newErrors).length > 0) {
       setMessage({
         type: "error",
-        text: "Failed to save settings.",
+        text: "Please correct the highlighted fields.",
       });
-    } finally {
-      setSaving(false);
+      return;
     }
-  };
 
-  const handleAddUnit = async () => {
+    setSaving(true);
+
     try {
-      if (!validateUnitForm()) {
-        setMessage({
-          type: "error",
-          text: "Please correct the highlighted fields.",
-        });
-
-        return;
-      }
-
-      setSaving(true);
-
       const response = await addItemUnit(itemId, {
         unit: Number(unitForm.unit),
-        conversion_factor: Number(
-          unitForm.conversion_factor
-        ),
+        conversion_factor: Number(unitForm.conversion_factor),
       });
 
       setUnits((prev) => [...prev, response.data]);
@@ -239,7 +198,6 @@ export default function useItemUnitsPage() {
       });
     } catch (error) {
       console.error(error);
-
       setMessage({
         type: "error",
         text: "Failed to add unit.",
@@ -247,72 +205,57 @@ export default function useItemUnitsPage() {
     } finally {
       setSaving(false);
     }
-  };
+  }, [itemId, saving, setMessage, unitForm]);
 
-  const handleDeleteUnit = async (itemUnitId) => {
-    const deletedUnit = units.find(
-      (u) => u.id === itemUnitId
-    );
+  const handleDeleteUnit = useCallback(
+    async (itemUnitId) => {
+      const deletedUnit = units.find((unit) => unit.id === itemUnitId);
 
-    try {
-      await deleteItemUnit(itemUnitId);
+      try {
+        await deleteItemUnit(itemUnitId);
 
-      setUnits((prev) =>
-        prev.filter(
-          (unit) => unit.id !== itemUnitId
-        )
-      );
+        setUnits((prev) => prev.filter((unit) => unit.id !== itemUnitId));
 
-      if (
-        deletedUnit &&
-        Number(settings.stock_unit) ===
-          deletedUnit.unit
-      ) {
-        setSettings((prev) => ({
-          ...prev,
-          stock_unit: "",
-        }));
+        if (deletedUnit && Number(settings.stock_unit) === deletedUnit.unit) {
+          setSettings((prev) => ({
+            ...prev,
+            stock_unit: "",
+          }));
+        }
+
+        if (deletedUnit && Number(settings.sales_unit) === deletedUnit.unit) {
+          setSettings((prev) => ({
+            ...prev,
+            sales_unit: "",
+          }));
+        }
+
+        setMessage({
+          type: "success",
+          text: "Item unit deleted successfully.",
+        });
+      } catch (error) {
+        console.error(error);
+        setMessage({
+          type: "error",
+          text: getApiErrorMessage(error, "Failed to delete item unit."),
+        });
       }
-
-      if (
-        deletedUnit &&
-        Number(settings.sales_unit) ===
-          deletedUnit.unit
-      ) {
-        setSettings((prev) => ({
-          ...prev,
-          sales_unit: "",
-        }));
-      }
-
-      setMessage({
-        type: "success",
-        text: "Item unit deleted successfully.",
-      });
-    } catch (error) {
-      console.error(error);
-
-      setMessage({
-        type: "error",
-        text: getApiErrorMessage(
-          error,
-          "Failed to delete item unit."
-        ),
-      });
-    }
-  };
+    },
+    [setMessage, settings.sales_unit, settings.stock_unit, units]
+  );
 
   return {
     availableUnits,
     clearFieldError,
+    dismissMessage,
     errors,
     handleAddUnit,
     handleDeleteUnit,
     loading,
     message,
-    saving,
     saveSettings,
-    setMessage,
+    saving,
     setSettings,
     setUnitForm,
     settings,

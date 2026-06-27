@@ -1,41 +1,55 @@
-export default function PriceListFooter({
+import { memo } from "react";
+
+function PriceListFooter({
   editButtonRef,
   editing,
   handleClear,
   handleSave,
   handleStartEditing,
+  saving = false,
 }) {
   return (
-    <div className="border-t bg-slate-50 px-4 py-3 flex justify-end gap-3">
+    <div className="flex justify-end gap-3 border-t bg-slate-50 px-4 py-3">
       {!editing ? (
         <button
           type="button"
           ref={editButtonRef}
           onClick={handleStartEditing}
-          className="px-6 py-2 rounded bg-emerald-500 text-white"
+          className="rounded bg-emerald-500 px-6 py-2 text-white"
         >
           Edit
         </button>
       ) : (
         <button
           type="button"
+          disabled={saving}
           onClick={handleSave}
-          className="px-6 py-2 rounded bg-emerald-500 text-white"
+          className={`rounded px-6 py-2 text-white ${
+            saving
+              ? "cursor-not-allowed bg-emerald-400"
+              : "bg-emerald-500"
+          }`}
         >
-          Save
+          {saving ? "Saving..." : "Save"}
         </button>
       )}
 
-      <button className="px-6 py-2 rounded bg-violet-500 text-white">
+      <button
+        type="button"
+        className="rounded bg-violet-500 px-6 py-2 text-white"
+      >
         List
       </button>
 
       <button
+        type="button"
         onClick={handleClear}
-        className="px-6 py-2 rounded bg-slate-600 text-white"
+        className="rounded bg-slate-600 px-6 py-2 text-white"
       >
         Clear
       </button>
     </div>
   );
 }
+
+export default memo(PriceListFooter);

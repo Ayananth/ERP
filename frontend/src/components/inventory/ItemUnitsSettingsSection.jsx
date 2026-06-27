@@ -1,4 +1,5 @@
-export default function ItemUnitsSettingsSection({
+import { memo } from "react";
+function ItemUnitsSettingsSection({
   errors,
   handleSaveSettings,
   saving,
@@ -110,3 +111,5 @@ export default function ItemUnitsSettingsSection({
     </div>
   );
 }
+
+export default memo(ItemUnitsSettingsSection);

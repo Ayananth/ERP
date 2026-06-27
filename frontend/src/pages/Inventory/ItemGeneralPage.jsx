@@ -5,26 +5,27 @@ import useItemGeneralPage from "../../hooks/inventory/useItemGeneralPage";
 
 export default function ItemGeneralPage() {
   const {
+    dismissMessage,
     dropdowns,
     errors,
+    firstInputRef,
+    formData,
+    handleChange,
+    handleClear,
     handleCloseItemList,
     handleList,
     handlePrimaryAction,
     handleSelectItem,
-    firstInputRef,
-    primaryButtonRef,
-    items,
-    itemsLoading,
-    isItemListOpen,
-    formData,
-    handleChange,
-    handleClear,
-    handleNew,
     handleSubmit,
     isEditing,
-    viewState,
+    isItemListOpen,
+    items,
+    itemsLoading,
     message,
-    setMessage,
+    primaryActionLabel,
+    primaryButtonRef,
+    saving,
+    viewState,
   } = useItemGeneralPage();
 
   return (
@@ -33,21 +34,22 @@ export default function ItemGeneralPage() {
       description="Basic item information"
     >
       <ItemGeneralForm
+        dismissMessage={dismissMessage}
         dropdowns={dropdowns}
         errors={errors}
         firstInputRef={firstInputRef}
-        primaryButtonRef={primaryButtonRef}
         formData={formData}
-        isEditing={isEditing}
         handleChange={handleChange}
         handleClear={handleClear}
-        handleNew={handleNew}
         handleList={handleList}
         handlePrimaryAction={handlePrimaryAction}
         handleSubmit={handleSubmit}
-        viewState={viewState}
+        isEditing={isEditing}
         message={message}
-        setMessage={setMessage}
+        primaryActionLabel={primaryActionLabel}
+        primaryButtonRef={primaryButtonRef}
+        saving={saving}
+        viewState={viewState}
       />
 
       <ItemSelectModal

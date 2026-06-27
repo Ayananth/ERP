@@ -1,46 +1,41 @@
-import { useRef } from "react";
+import { memo, useCallback, useRef } from "react";
 
 import Alert from "../common/Alert";
 import { SALES_FOCUS_BUTTON } from "../sales/salesFocusStyles";
-import ItemGeneralBasicSection from "./ItemGeneralBasicSection";
 import ItemGeneralAdditionalSection from "./ItemGeneralAdditionalSection";
+import ItemGeneralBasicSection from "./ItemGeneralBasicSection";
 import ItemGeneralConfigurationSection from "./ItemGeneralConfigurationSection";
 
-export default function ItemGeneralForm({
+function ItemGeneralForm({
+  dismissMessage,
   dropdowns,
   errors,
   firstInputRef,
-  primaryButtonRef,
   formData,
-  isEditing,
   handleChange,
   handleClear,
-  handleNew,
   handleList,
   handlePrimaryAction,
   handleSubmit,
-  viewState,
+  isEditing,
   message,
-  setMessage,
+  primaryActionLabel,
+  primaryButtonRef,
+  saving = false,
 }) {
   const formRefs = useRef([]);
 
-  const primaryLabel = isEditing
-    ? viewState === "viewExisting"
-      ? "Update"
-      : "Save"
-    : viewState === "viewExisting"
-    ? "Edit"
-    : "New";
+  const registerField = useCallback(
+    (index) => (element) => {
+      formRefs.current[index] = element;
+      if (index === 0 && firstInputRef) {
+        firstInputRef.current = element;
+      }
+    },
+    [firstInputRef]
+  );
 
-  const registerField = (index) => (element) => {
-    formRefs.current[index] = element;
-    if (index === 0 && firstInputRef) {
-      firstInputRef.current = element;
-    }
-  };
-
-  const handleFieldEnter = (event, index) => {
+  const handleFieldEnter = useCallback((event, index) => {
     if (event.key !== "Enter") return;
 
     event.preventDefault();
@@ -48,9 +43,9 @@ export default function ItemGeneralForm({
     if (nextField) {
       nextField.focus();
     }
-  };
+  }, []);
 
-  const openSelectPicker = (selectElement) => {
+  const openSelectPicker = useCallback((selectElement) => {
     if (typeof selectElement?.showPicker === "function") {
       selectElement.showPicker();
       return;
@@ -58,49 +53,65 @@ export default function ItemGeneralForm({
 
     selectElement?.focus();
     selectElement?.click();
-  };
+  }, []);
 
-  const handleSelectKeyDown = (event, index) => {
-    if (event.ctrlKey && event.key === "Enter") {
-      return;
-    }
+  const handleSelectKeyDown = useCallback(
+    (event, index) => {
+      if (event.ctrlKey && event.key === "Enter") {
+        return;
+      }
 
-    if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-      return;
-    }
+      if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        return;
+      }
 
-    if (
-      event.key === " " ||
-      event.key === "F4" ||
-      (event.key === "ArrowDown" && event.altKey)
-    ) {
+      if (
+        event.key === " " ||
+        event.key === "F4" ||
+        (event.key === "ArrowDown" && event.altKey)
+      ) {
+        event.preventDefault();
+        openSelectPicker(event.currentTarget);
+        return;
+      }
+
+      handleFieldEnter(event, index);
+    },
+    [handleFieldEnter, openSelectPicker]
+  );
+
+  const handleFormKeyDown = useCallback(
+    (event) => {
+      if (!isEditing || !event.ctrlKey || event.key !== "Enter") return;
+
       event.preventDefault();
-      openSelectPicker(event.currentTarget);
+      event.stopPropagation();
+      primaryButtonRef?.current?.focus();
+    },
+    [isEditing, primaryButtonRef]
+  );
+
+  const handlePrimaryClick = useCallback(() => {
+    if (isEditing) {
+      handleSubmit();
       return;
     }
 
-    handleFieldEnter(event, index);
-  };
+    handlePrimaryAction();
+  }, [handlePrimaryAction, handleSubmit, isEditing]);
 
-  const handleFormKeyDown = (event) => {
-    if (!isEditing || !event.ctrlKey || event.key !== "Enter") return;
-
-    event.preventDefault();
-    event.stopPropagation();
-    primaryButtonRef?.current?.focus();
-  };
+  const isSaveAction =
+    isEditing &&
+    (primaryActionLabel === "Save" || primaryActionLabel === "Update");
+  const buttonLabel =
+    saving && isSaveAction ? "Saving..." : primaryActionLabel;
 
   return (
     <>
       <Alert
         type={message.type}
         message={message.text}
-        onClose={() =>
-          setMessage({
-            type: "",
-            text: "",
-          })
-        }
+        onClose={dismissMessage}
       />
 
       <form onSubmit={handleSubmit}>
@@ -145,10 +156,15 @@ export default function ItemGeneralForm({
             <button
               type="button"
               ref={primaryButtonRef}
-              onClick={isEditing ? () => handleSubmit() : handlePrimaryAction}
-              className={`min-w-[84px] rounded-md bg-emerald-500 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-600 ${SALES_FOCUS_BUTTON}`}
+              disabled={saving && isSaveAction}
+              onClick={handlePrimaryClick}
+              className={`min-w-[84px] rounded-md px-5 py-2.5 text-sm font-medium text-white shadow-sm transition ${
+                saving && isSaveAction
+                  ? "cursor-not-allowed bg-emerald-400"
+                  : `bg-emerald-500 hover:bg-emerald-600 ${SALES_FOCUS_BUTTON}`
+              }`}
             >
-              {primaryLabel}
+              {buttonLabel}
             </button>
 
             <button
@@ -166,10 +182,11 @@ export default function ItemGeneralForm({
             >
               Clear
             </button>
-
           </div>
         </div>
       </form>
     </>
   );
 }
+
+export default memo(ItemGeneralForm);

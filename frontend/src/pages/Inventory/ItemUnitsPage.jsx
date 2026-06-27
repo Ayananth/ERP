@@ -6,14 +6,14 @@ export default function ItemUnitsPage() {
   const {
     availableUnits,
     clearFieldError,
+    dismissMessage,
     errors,
     handleAddUnit,
     handleDeleteUnit,
     loading,
     message,
-    saving,
     saveSettings,
-    setMessage,
+    saving,
     setSettings,
     setUnitForm,
     settings,
@@ -27,9 +27,7 @@ export default function ItemUnitsPage() {
         title="Item File"
         description="Units and barcode management"
       >
-        <div className="p-6">
-          Loading...
-        </div>
+        <div className="p-6">Loading...</div>
       </ItemPageLayout>
     );
   }
@@ -42,13 +40,13 @@ export default function ItemUnitsPage() {
       <ItemUnitsContent
         availableUnits={availableUnits}
         clearFieldError={clearFieldError}
+        dismissMessage={dismissMessage}
         errors={errors}
         handleAddUnit={handleAddUnit}
         handleDeleteUnit={handleDeleteUnit}
         message={message}
-        saving={saving}
         saveSettings={saveSettings}
-        setMessage={setMessage}
+        saving={saving}
         setSettings={setSettings}
         setUnitForm={setUnitForm}
         settings={settings}

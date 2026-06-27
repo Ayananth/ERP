@@ -4,16 +4,18 @@ import useItemPhotoPage from "../../hooks/inventory/useItemPhotoPage";
 
 function ItemPhotoPage() {
   const {
+    closeDeleteModal,
+    dismissMessage,
     editButtonRef,
     fileInputRef,
     handleDelete,
     handleEditClick,
     handleFileChange,
+    hasImage,
     imageUrl,
     loading,
     message,
-    setMessage,
-    setShowDeleteModal,
+    openDeleteModal,
     showDeleteModal,
   } = useItemPhotoPage();
 
@@ -23,16 +25,18 @@ function ItemPhotoPage() {
       description="Item Image"
     >
       <ItemPhotoContent
+        closeDeleteModal={closeDeleteModal}
+        dismissMessage={dismissMessage}
         editButtonRef={editButtonRef}
         fileInputRef={fileInputRef}
         handleDelete={handleDelete}
         handleEditClick={handleEditClick}
         handleFileChange={handleFileChange}
+        hasImage={hasImage}
         imageUrl={imageUrl}
         loading={loading}
         message={message}
-        setMessage={setMessage}
-        setShowDeleteModal={setShowDeleteModal}
+        openDeleteModal={openDeleteModal}
         showDeleteModal={showDeleteModal}
       />
     </ItemPageLayout>

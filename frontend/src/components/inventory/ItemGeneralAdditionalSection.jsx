@@ -1,8 +1,9 @@
+import { memo } from "react";
 import { SALES_FOCUS_FIELD } from "../sales/salesFocusStyles";
 
 const inputClassName = `h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-300 focus:bg-white ${SALES_FOCUS_FIELD}`;
 
-export default function ItemGeneralAdditionalSection({
+function ItemGeneralAdditionalSection({
   formData,
   handleFieldEnter,
   onChange,
@@ -52,3 +53,5 @@ export default function ItemGeneralAdditionalSection({
     </section>
   );
 }
+
+export default memo(ItemGeneralAdditionalSection);

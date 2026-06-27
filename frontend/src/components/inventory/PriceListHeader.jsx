@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { DollarSign, Settings } from "lucide-react";
 
-export default function PriceListHeader({
+function PriceListHeader({
   item,
   prices,
 }) {
@@ -49,3 +50,5 @@ export default function PriceListHeader({
     </div>
   );
 }
+
+export default memo(PriceListHeader);

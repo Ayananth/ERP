@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import {
-  getItemPrices,
-  saveItemPrices,
-} from "../../api/inventoryApi";
+
+import { getItemPrices, saveItemPrices } from "../../api/inventoryApi";
+import useInventoryMessage from "./useInventoryMessage";
+import useInventoryPriceEditingFocus from "./useInventoryPriceEditingFocus";
 import usePrimaryActionFocus from "../usePrimaryActionFocus";
 
 export default function usePriceListPage() {
@@ -13,50 +13,23 @@ export default function usePriceListPage() {
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [message, setMessage] = useState({
-    type: "",
-    text: "",
-  });
   const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
 
   const editButtonRef = useRef(null);
   const firstSalePriceRef = useRef(null);
   const scheduleEditButtonFocus = usePrimaryActionFocus(editButtonRef);
 
-  useEffect(() => {
-    if (loading) return undefined;
+  const { dismissMessage, message, setMessage } = useInventoryMessage();
 
-    const timer = setTimeout(() => {
-      if (editing) {
-        firstSalePriceRef.current?.focus();
-      } else {
-        scheduleEditButtonFocus();
-      }
-    }, 0);
+  useInventoryPriceEditingFocus(
+    editing,
+    loading,
+    firstSalePriceRef,
+    scheduleEditButtonFocus
+  );
 
-    return () => clearTimeout(timer);
-  }, [editing, loading, scheduleEditButtonFocus]);
-
-  useEffect(() => {
-    if (!itemId) return;
-
-    loadPrices();
-  }, [itemId]);
-
-  useEffect(() => {
-    if (!message.text) return;
-
-    const timer = setTimeout(() => {
-      setMessage({
-        type: "",
-        text: "",
-      });
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [message]);
-
-  const loadPrices = async () => {
+  const loadPrices = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -73,59 +46,14 @@ export default function usePriceListPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [itemId]);
 
-  const validatePrices = () => {
-    const newErrors = {};
+  useEffect(() => {
+    if (!itemId) return;
+    loadPrices();
+  }, [itemId, loadPrices]);
 
-    prices.forEach((row) => {
-      const rowErrors = {};
-
-      if (
-        row.sale_price === "" ||
-        row.sale_price === null ||
-        row.sale_price === undefined
-      ) {
-        rowErrors.sale_price =
-          "Sale price is required.";
-      } else if (
-        Number.isNaN(Number(row.sale_price)) ||
-        Number(row.sale_price) < 0
-      ) {
-        rowErrors.sale_price =
-          "Sale price cannot be negative.";
-      }
-
-      if (
-        row.minimum_price === "" ||
-        row.minimum_price === null ||
-        row.minimum_price === undefined
-      ) {
-        rowErrors.minimum_price =
-          "Minimum selling price is required.";
-      } else if (
-        Number.isNaN(Number(row.minimum_price)) ||
-        Number(row.minimum_price) < 0
-      ) {
-        rowErrors.minimum_price =
-          "Minimum selling price cannot be negative.";
-      }
-
-      if (Object.keys(rowErrors).length > 0) {
-        newErrors[row.unit_id] = rowErrors;
-      }
-    });
-
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handlePriceChange = (
-    unitId,
-    field,
-    value
-  ) => {
+  const handlePriceChange = useCallback((unitId, field, value) => {
     setPrices((prev) =>
       prev.map((row) =>
         row.unit_id === unitId
@@ -153,35 +81,72 @@ export default function usePriceListPage() {
         [unitId]: nextRowErrors,
       };
 
-      if (
-        Object.keys(nextRowErrors).length === 0
-      ) {
+      if (Object.keys(nextRowErrors).length === 0) {
         delete nextErrors[unitId];
       }
 
       return nextErrors;
     });
-  };
+  }, []);
 
-  const handleSave = async () => {
-    try {
-      if (!validatePrices()) {
-        setMessage({
-          type: "error",
-          text: "Please correct the highlighted fields.",
-        });
+  const handleSave = useCallback(async () => {
+    if (saving) return;
 
-        return;
+    const newErrors = {};
+
+    prices.forEach((row) => {
+      const rowErrors = {};
+
+      if (
+        row.sale_price === "" ||
+        row.sale_price === null ||
+        row.sale_price === undefined
+      ) {
+        rowErrors.sale_price = "Sale price is required.";
+      } else if (
+        Number.isNaN(Number(row.sale_price)) ||
+        Number(row.sale_price) < 0
+      ) {
+        rowErrors.sale_price = "Sale price cannot be negative.";
       }
 
+      if (
+        row.minimum_price === "" ||
+        row.minimum_price === null ||
+        row.minimum_price === undefined
+      ) {
+        rowErrors.minimum_price = "Minimum selling price is required.";
+      } else if (
+        Number.isNaN(Number(row.minimum_price)) ||
+        Number(row.minimum_price) < 0
+      ) {
+        rowErrors.minimum_price = "Minimum selling price cannot be negative.";
+      }
+
+      if (Object.keys(rowErrors).length > 0) {
+        newErrors[row.unit_id] = rowErrors;
+      }
+    });
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      setMessage({
+        type: "error",
+        text: "Please correct the highlighted fields.",
+      });
+      return;
+    }
+
+    setSaving(true);
+
+    try {
       await saveItemPrices(
         itemId,
         prices.map((row) => ({
           unit_id: row.unit_id,
           sale_price: Number(row.sale_price),
-          minimum_price: Number(
-            row.minimum_price
-          ),
+          minimum_price: Number(row.minimum_price),
         }))
       );
 
@@ -199,21 +164,24 @@ export default function usePriceListPage() {
         type: "error",
         text: "Failed to save prices.",
       });
+    } finally {
+      setSaving(false);
     }
-  };
+  }, [itemId, loadPrices, prices, saving, scheduleEditButtonFocus, setMessage]);
 
-  const handleClear = async () => {
+  const handleClear = useCallback(async () => {
     await loadPrices();
     setEditing(false);
     setErrors({});
     scheduleEditButtonFocus();
-  };
+  }, [loadPrices, scheduleEditButtonFocus]);
 
-  const handleStartEditing = () => {
+  const handleStartEditing = useCallback(() => {
     setEditing(true);
-  };
+  }, []);
 
   return {
+    dismissMessage,
     editButtonRef,
     editing,
     errors,
@@ -226,6 +194,6 @@ export default function usePriceListPage() {
     loading,
     message,
     prices,
-    setMessage,
+    saving,
   };
 }

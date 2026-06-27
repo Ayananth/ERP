@@ -1,43 +1,34 @@
-export default function ItemPhotoFooter({
+import { memo } from "react";
+
+function ItemPhotoFooter({
   editButtonRef,
-  imageUrl,
+  hasImage,
   loading,
   onEdit,
   onClear,
 }) {
   return (
-    <div className="border-t bg-slate-100 p-3 flex justify-end gap-2">
+    <div className="flex justify-end gap-2 border-t bg-slate-100 p-3">
       <button
         type="button"
         ref={editButtonRef}
         onClick={onEdit}
         disabled={loading}
-        className="
-          px-6 py-2
-          bg-emerald-500
-          text-white
-          rounded
-          hover:bg-emerald-600
-          disabled:opacity-50
-        "
+        className="rounded bg-emerald-500 px-6 py-2 text-white hover:bg-emerald-600 disabled:opacity-50"
       >
         Edit
       </button>
 
       <button
+        type="button"
         onClick={onClear}
-        disabled={!imageUrl || loading}
-        className="
-          px-6 py-2
-          bg-slate-500
-          text-white
-          rounded
-          hover:bg-slate-600
-          disabled:opacity-50
-        "
+        disabled={!hasImage || loading}
+        className="rounded bg-slate-500 px-6 py-2 text-white hover:bg-slate-600 disabled:opacity-50"
       >
         Clear
       </button>
     </div>
   );
 }
+
+export default memo(ItemPhotoFooter);

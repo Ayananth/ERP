@@ -1,19 +1,21 @@
+import { memo } from "react";
+
 import Alert from "../common/Alert";
 import ItemUnitsManagementSection from "./ItemUnitsManagementSection";
 import ItemUnitsSettingsSection from "./ItemUnitsSettingsSection";
 
-export default function ItemUnitsContent({
+function ItemUnitsContent({
   availableUnits,
   clearFieldError,
+  dismissMessage,
   errors,
   handleAddUnit,
   handleDeleteUnit,
   message,
+  saveSettings,
   saving,
-  setMessage,
   setSettings,
   setUnitForm,
-  saveSettings,
   settings,
   unitForm,
   units,
@@ -23,12 +25,7 @@ export default function ItemUnitsContent({
       <Alert
         type={message.type}
         message={message.text}
-        onClose={() =>
-          setMessage({
-            type: "",
-            text: "",
-          })
-        }
+        onClose={dismissMessage}
       />
 
       <div className="grid grid-cols-12 gap-4">
@@ -39,6 +36,7 @@ export default function ItemUnitsContent({
             errors={errors}
             handleAddUnit={handleAddUnit}
             handleDeleteUnit={handleDeleteUnit}
+            saving={saving}
             setUnitForm={setUnitForm}
             unitForm={unitForm}
             units={units}
@@ -60,3 +58,5 @@ export default function ItemUnitsContent({
     </>
   );
 }
+
+export default memo(ItemUnitsContent);

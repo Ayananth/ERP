@@ -1,4 +1,5 @@
-export default function PriceListTable({
+import { memo } from "react";
+function PriceListTable({
   editing,
   errors,
   firstSalePriceRef,
@@ -106,3 +107,5 @@ export default function PriceListTable({
     </div>
   );
 }
+
+export default memo(PriceListTable);

@@ -1,5 +1,5 @@
 import { ClipboardList, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 
 import useSelectModalKeyboard from "../../hooks/useSelectModalKeyboard";
 
@@ -146,4 +146,4 @@ function ItemSelectModal({
   );
 }
 
-export default ItemSelectModal;
+export default memo(ItemSelectModal);

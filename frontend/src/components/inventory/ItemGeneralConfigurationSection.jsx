@@ -1,8 +1,9 @@
+import { memo } from "react";
 import { SALES_FOCUS_FIELD } from "../sales/salesFocusStyles";
 
 const selectClassName = `h-11 w-full rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700 outline-none transition focus:bg-white ${SALES_FOCUS_FIELD}`;
 
-export default function ItemGeneralConfigurationSection({
+function ItemGeneralConfigurationSection({
   dropdowns,
   errors,
   formData,
@@ -199,3 +200,5 @@ export default function ItemGeneralConfigurationSection({
     </section>
   );
 }
+
+export default memo(ItemGeneralConfigurationSection);

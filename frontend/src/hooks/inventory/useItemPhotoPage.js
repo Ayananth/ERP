@@ -1,15 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+
 import {
+  deleteItemPhoto,
   getItemPhoto,
   uploadItemPhoto,
-  deleteItemPhoto,
 } from "../../api/inventoryApi";
+import useInventoryMessage from "./useInventoryMessage";
 import usePrimaryActionFocus from "../usePrimaryActionFocus";
 
 const MAX_IMAGE_SIZE_MB = 5;
-const MAX_IMAGE_SIZE_BYTES =
-  MAX_IMAGE_SIZE_MB * 1024 * 1024;
+const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
 
 export default function useItemPhotoPage() {
   const { itemId } = useParams();
@@ -17,47 +18,13 @@ export default function useItemPhotoPage() {
   const editButtonRef = useRef(null);
   const scheduleEditButtonFocus = usePrimaryActionFocus(editButtonRef);
 
-  const [imageUrl, setImageUrl] =
-    useState(null);
-  const [loading, setLoading] =
-    useState(false);
-  const [message, setMessage] = useState({
-    type: "",
-    text: "",
-  });
-  const [showDeleteModal, setShowDeleteModal] =
-    useState(false);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  useEffect(() => {
-    if (!itemId) return;
+  const { dismissMessage, message, setMessage } = useInventoryMessage();
 
-    loadPhoto();
-  }, [itemId]);
-
-  useEffect(() => {
-    if (!message.text) return;
-
-    const timer = setTimeout(() => {
-      setMessage({
-        type: "",
-        text: "",
-      });
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [message]);
-
-  useEffect(() => {
-    if (loading) return undefined;
-
-    const timer = setTimeout(() => {
-      scheduleEditButtonFocus();
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, [loading, scheduleEditButtonFocus]);
-
-  const loadPhoto = async () => {
+  const loadPhoto = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -69,62 +36,76 @@ export default function useItemPhotoPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [itemId]);
 
-  const handleEditClick = () => {
+  useEffect(() => {
+    if (!itemId) return;
+    loadPhoto();
+  }, [itemId, loadPhoto]);
+
+  useEffect(() => {
+    if (loading) return undefined;
+
+    const timer = setTimeout(() => {
+      scheduleEditButtonFocus();
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [loading, scheduleEditButtonFocus]);
+
+  const handleEditClick = useCallback(() => {
     fileInputRef.current?.click();
-  };
+  }, []);
 
-  const handleFileChange = async (event) => {
-    const file = event.target.files?.[0];
+  const handleFileChange = useCallback(
+    async (event) => {
+      const file = event.target.files?.[0];
 
-    if (!file) return;
+      if (!file) return;
 
-    if (!file.type?.startsWith("image/")) {
-      setMessage({
-        type: "error",
-        text: "Only image files are allowed.",
-      });
-      event.target.value = "";
-      return;
-    }
+      if (!file.type?.startsWith("image/")) {
+        setMessage({
+          type: "error",
+          text: "Only image files are allowed.",
+        });
+        event.target.value = "";
+        return;
+      }
 
-    if (file.size > MAX_IMAGE_SIZE_BYTES) {
-      setMessage({
-        type: "error",
-        text: `Image must be smaller than ${MAX_IMAGE_SIZE_MB} MB.`,
-      });
-      event.target.value = "";
-      return;
-    }
+      if (file.size > MAX_IMAGE_SIZE_BYTES) {
+        setMessage({
+          type: "error",
+          text: `Image must be smaller than ${MAX_IMAGE_SIZE_MB} MB.`,
+        });
+        event.target.value = "";
+        return;
+      }
 
-    try {
-      setLoading(true);
+      try {
+        setLoading(true);
 
-      const data = await uploadItemPhoto(
-        itemId,
-        file
-      );
+        const data = await uploadItemPhoto(itemId, file);
 
-      setImageUrl(data.image);
-      setMessage({
-        type: "success",
-        text: "Image uploaded successfully.",
-      });
-    } catch (err) {
-      console.error(err);
+        setImageUrl(data.image);
+        setMessage({
+          type: "success",
+          text: "Image uploaded successfully.",
+        });
+      } catch (err) {
+        console.error(err);
+        setMessage({
+          type: "error",
+          text: "Failed to upload image.",
+        });
+      } finally {
+        setLoading(false);
+        event.target.value = "";
+      }
+    },
+    [itemId, setMessage]
+  );
 
-      setMessage({
-        type: "error",
-        text: "Failed to upload image.",
-      });
-    } finally {
-      setLoading(false);
-      event.target.value = "";
-    }
-  };
-
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -139,7 +120,6 @@ export default function useItemPhotoPage() {
       setShowDeleteModal(false);
     } catch (err) {
       console.error(err);
-
       setMessage({
         type: "error",
         text: "Failed to delete image.",
@@ -147,20 +127,31 @@ export default function useItemPhotoPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [itemId, setMessage]);
+
+  const openDeleteModal = useCallback(() => {
+    setShowDeleteModal(true);
+  }, []);
+
+  const closeDeleteModal = useCallback(() => {
+    setShowDeleteModal(false);
+  }, []);
+
+  const hasImage = Boolean(imageUrl);
 
   return {
+    closeDeleteModal,
+    dismissMessage,
     editButtonRef,
     fileInputRef,
     handleDelete,
     handleEditClick,
     handleFileChange,
+    hasImage,
     imageUrl,
-    itemId,
     loading,
     message,
-    setMessage,
-    setShowDeleteModal,
+    openDeleteModal,
     showDeleteModal,
   };
 }
