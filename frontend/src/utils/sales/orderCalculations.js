@@ -1,4 +1,5 @@
 import { toNumber } from "./salesCalculations";
+import { hydrateApiLine } from "./hydrateApiLine";
 
 export { toNumber };
 
@@ -93,3 +94,6 @@ export const hydrateLine = (line) => {
     ...calculateLine(normalizedLine),
   };
 };
+
+export const hydrateOrderLine = (line, index = 0) =>
+  hydrateApiLine(line, hydrateLine, index);
