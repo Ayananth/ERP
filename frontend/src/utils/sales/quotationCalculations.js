@@ -77,3 +77,18 @@ export const calculateTotals = (quotationLines = []) => {
     netAfterVat: totals.netAfterVat.toFixed(2),
   };
 };
+
+export const hydrateLine = (line) => {
+  const normalizedLine = {
+    ...line,
+    qty: String(line.qty ?? line.quantity ?? ""),
+    rate: String(line.rate ?? ""),
+    discount_percent: String(line.discount_percent ?? ""),
+    vat_percent: String(line.vat_percent ?? ""),
+  };
+
+  return {
+    ...normalizedLine,
+    ...calculateLine(normalizedLine),
+  };
+};

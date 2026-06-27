@@ -27,43 +27,9 @@ import {
 import {
   calculateLine,
   calculateTotals,
-  toNumber,
+  hydrateLine,
 } from "../../utils/sales/quotationCalculations";
-
-const validateLines = (quotationLines) => {
-  for (const line of quotationLines) {
-    const qty = toNumber(line.qty);
-    const rate = toNumber(line.rate);
-    const discountPercent = toNumber(line.discount_percent);
-    const vatPercent = toNumber(line.vat_percent);
-
-    if (qty <= 0) return "Quantity must be greater than zero.";
-    if (rate < 0) return "Rate cannot be negative.";
-    if (discountPercent < 0 || discountPercent > 100) {
-      return "Discount percentage must be between 0 and 100.";
-    }
-    if (vatPercent < 0 || vatPercent > 100) {
-      return "VAT percentage must be between 0 and 100.";
-    }
-  }
-
-  return "";
-};
-
-const hydrateLine = (line) => {
-  const normalizedLine = {
-    ...line,
-    qty: String(line.qty ?? line.quantity ?? ""),
-    rate: String(line.rate ?? ""),
-    discount_percent: String(line.discount_percent ?? ""),
-    vat_percent: String(line.vat_percent ?? ""),
-  };
-
-  return {
-    ...normalizedLine,
-    ...calculateLine(normalizedLine),
-  };
-};
+import { validateLines } from "../../utils/sales/salesCalculations";
 
 const hydrateQuotationLine = async (line, index = 0) => {
   const itemDetails = line.item ? await getItemDetails(line.item) : null;
