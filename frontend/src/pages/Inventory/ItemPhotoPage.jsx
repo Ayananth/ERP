@@ -4,6 +4,7 @@ import useItemPhotoPage from "../../hooks/inventory/useItemPhotoPage";
 
 function ItemPhotoPage() {
   const {
+    clearButtonRef,
     closeDeleteModal,
     dismissMessage,
     editButtonRef,
@@ -25,6 +26,7 @@ function ItemPhotoPage() {
       description="Item Image"
     >
       <ItemPhotoContent
+        clearButtonRef={clearButtonRef}
         closeDeleteModal={closeDeleteModal}
         dismissMessage={dismissMessage}
         editButtonRef={editButtonRef}

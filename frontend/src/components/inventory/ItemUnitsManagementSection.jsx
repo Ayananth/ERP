@@ -1,11 +1,18 @@
 import { memo } from "react";
 
+import { SALES_FOCUS_FIELD } from "../sales/salesFocusStyles";
+
+const fieldClassName = `w-full rounded border px-3 py-2 ${SALES_FOCUS_FIELD}`;
+
 function ItemUnitsManagementSection({
   availableUnits,
   clearFieldError,
   errors,
   handleAddUnit,
   handleDeleteUnit,
+  handleFieldEnter,
+  handleSelectKeyDown,
+  registerField,
   saving = false,
   setUnitForm,
   unitForm,
@@ -27,6 +34,7 @@ function ItemUnitsManagementSection({
             <label className="mb-1 block text-sm">Unit</label>
 
             <select
+              ref={registerField(0)}
               value={unitForm.unit}
               onChange={(e) => {
                 setUnitForm((prev) => ({
@@ -35,7 +43,8 @@ function ItemUnitsManagementSection({
                 }));
                 clearFieldError("unit");
               }}
-              className="w-full rounded border px-3 py-2"
+              onKeyDown={(event) => handleSelectKeyDown(event, 0)}
+              className={fieldClassName}
             >
               <option value="">Select Unit</option>
 
@@ -61,6 +70,7 @@ function ItemUnitsManagementSection({
             <label className="mb-1 block text-sm">Factor</label>
 
             <input
+              ref={registerField(1)}
               type="number"
               min="0"
               step="1"
@@ -72,7 +82,8 @@ function ItemUnitsManagementSection({
                 }));
                 clearFieldError("conversion_factor");
               }}
-              className="w-full rounded border px-3 py-2"
+              onKeyDown={(event) => handleFieldEnter(event, 1)}
+              className={fieldClassName}
             />
             {errors.conversion_factor && (
               <p className="mt-1 text-sm text-red-600">

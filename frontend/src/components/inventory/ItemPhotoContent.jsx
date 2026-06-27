@@ -2,10 +2,12 @@ import { memo } from "react";
 
 import Alert from "../common/Alert";
 import ConfirmModal from "../common/ConfirmModal";
+import useInventoryFieldNavigation from "../../hooks/inventory/useInventoryFieldNavigation";
 import ItemPhotoCard from "./ItemPhotoCard";
 import ItemPhotoFooter from "./ItemPhotoFooter";
 
 function ItemPhotoContent({
+  clearButtonRef,
   closeDeleteModal,
   dismissMessage,
   editButtonRef,
@@ -20,6 +22,23 @@ function ItemPhotoContent({
   openDeleteModal,
   showDeleteModal,
 }) {
+  const { handleContainerKeyDown, handleFieldEnter, registerField } =
+    useInventoryFieldNavigation(editButtonRef, { enabled: true });
+
+  const registerEditButton = (element) => {
+    registerField(0)(element);
+    if (editButtonRef) {
+      editButtonRef.current = element;
+    }
+  };
+
+  const registerClearButton = (element) => {
+    registerField(1)(element);
+    if (clearButtonRef) {
+      clearButtonRef.current = element;
+    }
+  };
+
   return (
     <>
       <ConfirmModal
@@ -39,7 +58,10 @@ function ItemPhotoContent({
         onClose={dismissMessage}
       />
 
-      <div className="flex h-full flex-col rounded border bg-white">
+      <div
+        onKeyDown={handleContainerKeyDown}
+        className="flex h-full flex-col rounded border bg-white"
+      >
         <div className="border-b bg-slate-50 px-4 py-2 text-sm font-medium">
           Item Image
         </div>
@@ -47,11 +69,13 @@ function ItemPhotoContent({
         <ItemPhotoCard imageUrl={imageUrl} loading={loading} />
 
         <ItemPhotoFooter
-          editButtonRef={editButtonRef}
+          handleFieldEnter={handleFieldEnter}
           hasImage={hasImage}
           loading={loading}
           onClear={openDeleteModal}
           onEdit={handleEditClick}
+          registerClearButton={registerClearButton}
+          registerEditButton={registerEditButton}
         />
 
         <input

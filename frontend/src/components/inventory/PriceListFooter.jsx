@@ -1,11 +1,13 @@
 import { memo } from "react";
 
+import { SALES_FOCUS_BUTTON } from "../sales/salesFocusStyles";
+
 function PriceListFooter({
   editButtonRef,
   editing,
-  handleClear,
   handleSave,
   handleStartEditing,
+  saveButtonRef,
   saving = false,
 }) {
   return (
@@ -15,39 +17,25 @@ function PriceListFooter({
           type="button"
           ref={editButtonRef}
           onClick={handleStartEditing}
-          className="rounded bg-emerald-500 px-6 py-2 text-white"
+          className={`rounded bg-emerald-500 px-6 py-2 text-white ${SALES_FOCUS_BUTTON}`}
         >
           Edit
         </button>
       ) : (
         <button
           type="button"
+          ref={saveButtonRef}
           disabled={saving}
           onClick={handleSave}
           className={`rounded px-6 py-2 text-white ${
             saving
               ? "cursor-not-allowed bg-emerald-400"
-              : "bg-emerald-500"
+              : `bg-emerald-500 ${SALES_FOCUS_BUTTON}`
           }`}
         >
           {saving ? "Saving..." : "Save"}
         </button>
       )}
-
-      <button
-        type="button"
-        className="rounded bg-violet-500 px-6 py-2 text-white"
-      >
-        List
-      </button>
-
-      <button
-        type="button"
-        onClick={handleClear}
-        className="rounded bg-slate-600 px-6 py-2 text-white"
-      >
-        Clear
-      </button>
     </div>
   );
 }

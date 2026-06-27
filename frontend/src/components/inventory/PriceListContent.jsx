@@ -1,6 +1,7 @@
 import { memo } from "react";
 
 import Alert from "../common/Alert";
+import useInventoryFieldNavigation from "../../hooks/inventory/useInventoryFieldNavigation";
 import PriceListFooter from "./PriceListFooter";
 import PriceListHeader from "./PriceListHeader";
 import PriceListTable from "./PriceListTable";
@@ -11,15 +12,23 @@ function PriceListContent({
   editing,
   errors,
   firstSalePriceRef,
-  handleClear,
   handlePriceChange,
   handleSave,
   handleStartEditing,
   item,
   message,
   prices,
+  saveButtonRef,
   saving,
 }) {
+  const primaryButtonRef = editing ? saveButtonRef : editButtonRef;
+
+  const {
+    handleContainerKeyDown,
+    handleFieldEnter,
+    registerField,
+  } = useInventoryFieldNavigation(primaryButtonRef, { enabled: editing });
+
   return (
     <>
       <Alert
@@ -28,21 +37,26 @@ function PriceListContent({
         onClose={dismissMessage}
       />
 
-      <div className="flex h-full flex-col rounded-lg border bg-white">
+      <div
+        onKeyDown={handleContainerKeyDown}
+        className="flex h-full flex-col rounded-lg border bg-white"
+      >
         <PriceListHeader item={item} prices={prices} />
         <PriceListTable
           editing={editing}
           errors={errors}
           firstSalePriceRef={firstSalePriceRef}
+          handleFieldEnter={handleFieldEnter}
           handlePriceChange={handlePriceChange}
           prices={prices}
+          registerField={registerField}
         />
         <PriceListFooter
           editButtonRef={editButtonRef}
           editing={editing}
-          handleClear={handleClear}
           handleSave={handleSave}
           handleStartEditing={handleStartEditing}
+          saveButtonRef={saveButtonRef}
           saving={saving}
         />
       </div>

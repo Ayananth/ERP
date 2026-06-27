@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import {
@@ -58,6 +58,9 @@ export default function useItemUnitsPage() {
   });
   const [unitForm, setUnitForm] = useState(initialUnitForm);
 
+  const firstInputRef = useRef(null);
+  const saveSettingsButtonRef = useRef(null);
+
   const { dismissMessage, message, setMessage } = useInventoryMessage();
 
   const loadData = useCallback(async () => {
@@ -86,6 +89,16 @@ export default function useItemUnitsPage() {
     if (!itemId) return;
     loadData();
   }, [itemId, loadData]);
+
+  useEffect(() => {
+    if (loading) return undefined;
+
+    const timer = setTimeout(() => {
+      firstInputRef.current?.focus();
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [loading]);
 
   const clearFieldError = useCallback((name) => {
     setErrors((prev) => ({
@@ -250,11 +263,13 @@ export default function useItemUnitsPage() {
     clearFieldError,
     dismissMessage,
     errors,
+    firstInputRef,
     handleAddUnit,
     handleDeleteUnit,
     loading,
     message,
     saveSettings,
+    saveSettingsButtonRef,
     saving,
     setSettings,
     setUnitForm,

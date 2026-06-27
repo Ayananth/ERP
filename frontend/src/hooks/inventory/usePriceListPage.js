@@ -17,6 +17,7 @@ export default function usePriceListPage() {
   const [saving, setSaving] = useState(false);
 
   const editButtonRef = useRef(null);
+  const saveButtonRef = useRef(null);
   const firstSalePriceRef = useRef(null);
   const scheduleEditButtonFocus = usePrimaryActionFocus(editButtonRef);
 
@@ -169,13 +170,6 @@ export default function usePriceListPage() {
     }
   }, [itemId, loadPrices, prices, saving, scheduleEditButtonFocus, setMessage]);
 
-  const handleClear = useCallback(async () => {
-    await loadPrices();
-    setEditing(false);
-    setErrors({});
-    scheduleEditButtonFocus();
-  }, [loadPrices, scheduleEditButtonFocus]);
-
   const handleStartEditing = useCallback(() => {
     setEditing(true);
   }, []);
@@ -186,7 +180,6 @@ export default function usePriceListPage() {
     editing,
     errors,
     firstSalePriceRef,
-    handleClear,
     handlePriceChange,
     handleSave,
     handleStartEditing,
@@ -194,6 +187,7 @@ export default function usePriceListPage() {
     loading,
     message,
     prices,
+    saveButtonRef,
     saving,
   };
 }

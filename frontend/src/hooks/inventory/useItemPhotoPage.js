@@ -16,6 +16,7 @@ export default function useItemPhotoPage() {
   const { itemId } = useParams();
   const fileInputRef = useRef(null);
   const editButtonRef = useRef(null);
+  const clearButtonRef = useRef(null);
   const scheduleEditButtonFocus = usePrimaryActionFocus(editButtonRef);
 
   const [imageUrl, setImageUrl] = useState(null);
@@ -140,6 +141,7 @@ export default function useItemPhotoPage() {
   const hasImage = Boolean(imageUrl);
 
   return {
+    clearButtonRef,
     closeDeleteModal,
     dismissMessage,
     editButtonRef,

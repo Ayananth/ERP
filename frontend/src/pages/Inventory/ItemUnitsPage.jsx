@@ -8,11 +8,13 @@ export default function ItemUnitsPage() {
     clearFieldError,
     dismissMessage,
     errors,
+    firstInputRef,
     handleAddUnit,
     handleDeleteUnit,
     loading,
     message,
     saveSettings,
+    saveSettingsButtonRef,
     saving,
     setSettings,
     setUnitForm,
@@ -42,10 +44,12 @@ export default function ItemUnitsPage() {
         clearFieldError={clearFieldError}
         dismissMessage={dismissMessage}
         errors={errors}
+        firstInputRef={firstInputRef}
         handleAddUnit={handleAddUnit}
         handleDeleteUnit={handleDeleteUnit}
         message={message}
         saveSettings={saveSettings}
+        saveSettingsButtonRef={saveSettingsButtonRef}
         saving={saving}
         setSettings={setSettings}
         setUnitForm={setUnitForm}

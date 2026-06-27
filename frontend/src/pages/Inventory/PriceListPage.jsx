@@ -9,7 +9,6 @@ export default function PriceListPage() {
     editing,
     errors,
     firstSalePriceRef,
-    handleClear,
     handlePriceChange,
     handleSave,
     handleStartEditing,
@@ -17,6 +16,7 @@ export default function PriceListPage() {
     loading,
     message,
     prices,
+    saveButtonRef,
     saving,
   } = usePriceListPage();
 
@@ -35,13 +35,13 @@ export default function PriceListPage() {
         editing={editing}
         errors={errors}
         firstSalePriceRef={firstSalePriceRef}
-        handleClear={handleClear}
         handlePriceChange={handlePriceChange}
         handleSave={handleSave}
         handleStartEditing={handleStartEditing}
         item={item}
         message={message}
         prices={prices}
+        saveButtonRef={saveButtonRef}
         saving={saving}
       />
     </ItemPageLayout>
