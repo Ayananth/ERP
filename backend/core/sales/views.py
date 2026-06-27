@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.db import transaction
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.conf import settings
@@ -113,6 +114,7 @@ class SalesQuotationListCreateAPIView(APIView):
 
         return Response(data)
 
+    @transaction.atomic
     def post(self, request):
         serializer = SalesQuotationCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -261,6 +263,7 @@ class SalesOrderListCreateAPIView(APIView):
         serializer = SalesOrderListSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    @transaction.atomic
     def post(self, request):
         serializer = SalesOrderCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
