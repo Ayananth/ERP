@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 
 import { Plus, Search } from "lucide-react";
 
@@ -425,4 +425,4 @@ function SalesQuotationLines({
   );
 }
 
-export default SalesQuotationLines;
+export default memo(SalesQuotationLines);

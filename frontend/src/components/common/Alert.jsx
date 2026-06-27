@@ -1,10 +1,6 @@
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 
-export default function Alert({
-  type,
-  message,
-  onClose,
-}) {
+function Alert({ type, message, onClose }) {
   const alertRef = useRef(null);
 
   useEffect(() => {
@@ -39,3 +35,5 @@ export default function Alert({
     </div>
   );
 }
+
+export default memo(Alert);

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import { CalendarDays, ChevronDown, Search } from "lucide-react";
 
 import { SALES_FOCUS_FIELD } from "./salesFocusStyles";
@@ -298,4 +298,4 @@ function SalesQuotationHeader({
   );
 }
 
-export default SalesQuotationHeader;
+export default memo(SalesQuotationHeader);

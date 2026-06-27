@@ -1,3 +1,4 @@
+import { memo } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -145,4 +146,4 @@ function SalesQuotationFooter({
   );
 }
 
-export default SalesQuotationFooter;
+export default memo(SalesQuotationFooter);

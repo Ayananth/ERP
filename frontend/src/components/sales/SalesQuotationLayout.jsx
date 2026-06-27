@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 function SalesQuotationLayout({
   children,
   title = "Sales Quotation",
@@ -19,4 +21,4 @@ function SalesQuotationLayout({
   );
 }
 
-export default SalesQuotationLayout;
+export default memo(SalesQuotationLayout);
